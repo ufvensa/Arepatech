@@ -1,42 +1,540 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+}
+
 #root {
-  max-width: 1280px;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* Navbar */
+.navbar {
+  background-color: #1e3a8a;
+  color: white;
+  padding: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 100%;
+}
+
+.navbar-container {
+  max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.navbar-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+}
+
+.navbar-logo-uf {
+  height: 5rem;
+  width: auto;
+}
+
+.navbar-divider {
+  width: 2px;
+  height: 4rem;
+  background-color: white;
+  margin-left: 0.1rem;
+}
+
+.navbar-logo-text {
+  display: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.1;
+  margin-left: 0.5rem;
+}
+
+.navbar-text-top {
+  font-size: 1.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.navbar-text-bottom {
+  font-size: 1.125rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.navbar-logo-vensa {
+  height: 5rem;
+  width: auto;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.navbar-link {
+  padding: 0.5rem 0.75rem;
+  color: white;
+  text-decoration: none;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.navbar-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-separator {
+  color: white;
+  margin: 0;
+  font-weight: 300;
+}
+
+.navbar-profile {
+  margin-left: 0.75rem;
+  padding: 0.625rem 1.75rem;
+  background-color: white;
+  color: #1e3a8a;
+  text-decoration: none;
+  border-radius: 0.375rem;
+  font-weight: 400;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.navbar-profile:hover {
+  background-color: #f3f4f6;
+}
+
+/* About Page */
+.about-page {
+  min-height: 100vh;
+  background-color: white;
+  width: 100%;
+}
+
+/* Hero Banner */
+.hero-banner {
+  position: relative;
+  height: 16rem;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(30, 58, 138, 0.6);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  color: white;
+}
+
+.hero-title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.hero-button {
+  background-color: white;
+  color: #1e3a8a;
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.hero-button:hover {
+  background-color: #f3f4f6;
+}
+
+/* Content Sections */
+.content-section {
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.content-text {
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.section-title {
+  font-size: 3.25rem;
+  font-weight: bold;
+  margin-bottom: 0.1rem;
+  color: #1e3a8a;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.section-description {
+  color: #374151;
+  line-height: 1.75;
+  font-size: 0.875rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.content-image-wrapper {
+  display: flex;
+  justify-content: center;
 }
 
-.card {
-  padding: 2em;
+.content-image {
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 28rem;
+  height: auto;
+  object-fit: cover;
 }
 
-.read-the-docs {
-  color: #888;
+/* Footer */
+.footer {
+  background-color: #1e3a8a;
+  color: white;
+  padding: 1.5rem 0;
+  width: 100%;
+}
+
+.footer-main-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 2rem; 
+}
+
+.footer-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+}
+
+.footer-logo-uf {
+  height: 5rem;
+  width: auto;
+}
+
+.footer-divider {
+  width: 2px;
+  height: 4rem;
+  background-color: white;
+  margin-left: 0.1rem;
+}
+
+.footer-logo-text {
+  display: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.1;
+  margin-left: 0.5rem;
+}
+
+.footer-text-top {
+  font-size: 1.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.footer-text-bottom {
+  font-size: 1.125rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.footer-logo-vensa {
+  height: 5rem;
+  width: auto;
+}
+
+.footer-right {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.footer-social {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.social-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.social-icon {
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+}
+
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.contact-item span {
+  line-height: 1.4;
+}
+
+.contact-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+}
+
+.footer-copyright {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 0.875rem;
+  width: 100%;
+}
+
+/* Executive Board Page */
+.exec-board-page {
+  min-height: 100vh;
+  background-color: white;
+  width: 100%;
+}
+
+.exec-board-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.exec-board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2.5rem;
+  justify-items: center;
+}
+
+/* Executive Board Card */
+.exec-card-container {
+  perspective: 1000px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.exec-card {
+  position: relative;
+  width: 100%;
+  height: 450px;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.exec-card.flipped {
+  transform: rotateY(180deg);
+}
+
+.exec-card-front,
+.exec-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.exec-card-front {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.exec-card-image {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+}
+
+.exec-card-info {
+  padding: 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.exec-card-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 0.5rem;
+}
+
+.exec-card-position {
+  font-size: 1rem;
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
+.exec-learn-more {
+  background-color: #1e3a8a;
+  color: white;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.exec-learn-more:hover {
+  background-color: #1e40af;
+}
+
+/* Card Back Side */
+.exec-card-back {
+  background-color: #1e3a8a;
+  color: white;
+  transform: rotateY(180deg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.exec-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: white;
+  color: #1e3a8a;
+  border: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-size: rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 2;
+  transition: background-color 0.2s;
+}
+
+.exec-close-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.exec-card-back-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.exec-back-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.exec-back-position {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+.exec-back-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.exec-back-details p {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.exec-back-details strong {
+  font-weight: 700;
+  font-size: 1.15rem;
+  text-decoration: underline;
+  margin-bottom: 0.25rem;
 }

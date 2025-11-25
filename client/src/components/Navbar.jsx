@@ -1,43 +1,40 @@
-import { NavLink } from "react-router-dom";
-
-const linkStyle = ({ isActive }) => ({
-  padding: "8px 12px",
-  textDecoration: "none",
-  color: isActive ? "black" : "inherit",
-  background: isActive ? "#f0f0f0" : "transparent",
-  borderRadius: 6,
-});
+import { Link } from "react-router-dom";
+import ufLogo from "../images/VENSA Website UF Logo.png";
+import vensaLogo from "../images/Vensa Website logo.png";
 
 export default function Navbar() {
   return (
-    <header style={{ background: "#0b43e5", color: "white" }}>
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          display: "flex",
-          alignItems: "center",
-          gap: 24,
-          padding: "12px 16px",
-        }}
-      >
-        {/* Brand */}
-        <NavLink to="/" style={{ ...linkStyle({ isActive: false }), fontWeight: 700 }}>
-          UF VENSA
-        </NavLink>
+    <nav className="navbar">
+      <div className="navbar-container">
+        <Link to="/" className="navbar-logo-group">
+          <img 
+            src={ufLogo} 
+            alt="UF Logo"
+            className="navbar-logo-uf"
+          />
+          <div className="navbar-divider"></div>
+          <div className="navbar-logo-text">
+            <div className="navbar-text-top">Venezuelan</div>
+            <div className="navbar-text-bottom">Student Association</div>
+          </div>
+          <img 
+            src={vensaLogo} 
+            alt="VENSA Logo"
+            className="navbar-logo-vensa"
+          />
+        </Link>
 
-        {/* Spacer */}
-        <div style={{ flex: 1 }} />
-
-        {/* Tabs */}
-        <nav style={{ display: "flex", gap: 12 }}>
-          <NavLink to="/about" style={linkStyle}>About</NavLink>
-          <NavLink to="/events" style={linkStyle}>Events</NavLink>
-          <NavLink to="/get-involved" style={linkStyle}>Get Involved</NavLink>
-          <NavLink to="/resources" style={linkStyle}>Resources</NavLink>
-          <NavLink to="/profile" style={linkStyle}>Profile</NavLink>
-        </nav>
+        <div className="navbar-links">
+          <Link to="/about" className="navbar-link">About</Link>
+          <span className="navbar-separator">|</span>
+          <Link to="/events" className="navbar-link">Events</Link>
+          <span className="navbar-separator">|</span>
+          <Link to="/get-involved" className="navbar-link">Get Involved</Link>
+          <span className="navbar-separator">|</span>
+          <Link to="/resources" className="navbar-link">Resources</Link>
+          <Link to="/profile" className="navbar-profile">Profile</Link>
+        </div>
       </div>
-    </header>
+    </nav>
   );
 }

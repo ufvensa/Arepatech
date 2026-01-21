@@ -1,26 +1,34 @@
-import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar.jsx";
-import Home from "./pages/Home.jsx";
-import About from "./pages/About.jsx";
-import Events from "./pages/Events.jsx";
-import GetInvolved from "./pages/GetInvolved.jsx";
-import Resources from "./pages/Resources.jsx";
-import Profile from "./pages/Profile.jsx";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Events from "./pages/Events";
+import ExecBoard from "./pages/ExecBoard";
+import DevTeam from "./pages/DevTeam";
+import GetInvolved from "./pages/GetInvolved";
+import Alumni from "./pages/Alumni";
+import Mentorship from "./pages/Mentorship";
+import Profile from "./pages/Profile";
+import SignUp from "./pages/SignUp";
+import Resources from "./pages/Resources";
 
 export default function App() {
   return (
-    <div>
+    <BrowserRouter>
       <Navbar />
-      <main style={{ maxWidth: 1000, margin: "24px auto", padding: "0 16px" }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/get-involved" element={<GetInvolved />} />
-          <Route path="/resources" element={<Resources />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
-      </main>
-    </div>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/exec-board" element={<ExecBoard />} />
+        <Route path="/dev-team" element={<DevTeam />} />
+        <Route path="/get-involved" element={<GetInvolved />} />
+        <Route path="/alumni" element={<Alumni />} />
+        <Route path="/mentorship" element={<Mentorship />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/resources" element={<Resources />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

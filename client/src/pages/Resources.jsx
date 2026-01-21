@@ -87,6 +87,7 @@ export default function Resources() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMajor, setSelectedMajor] = useState("All");
   const [showModal, setShowModal] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [resources, setResources] = useState(MOCK_RESOURCES);
 
   // Form state for new resource
@@ -155,19 +156,48 @@ export default function Resources() {
               className="resources-search-input"
             />
           </div>
+          <button
+            className="add-resource-button"
+            onClick={() => setShowModal(true)}
+          >
+            <span>+</span> Add Resource
+          </button>
           <div className="resources-filter">
-            <label htmlFor="major-filter" className="resources-filter-label">Filter by Major:</label>
-            <select
-              id="major-filter"
-              value={selectedMajor}
-              onChange={(e) => setSelectedMajor(e.target.value)}
-              className="resources-filter-select"
-            >
-              <option value="All">All Majors</option>
-              {MAJORS.filter(major => major !== "All Majors").map(major => (
-                <option key={major} value={major}>{major}</option>
-              ))}
-            </select>
+            <label className="resources-filter-label">Filter by Major:</label>
+            <div className="resources-custom-select">
+              <div 
+                className="resources-select-display" 
+                onClick={() => setShowDropdown(!showDropdown)}
+              >
+                {selectedMajor === "All" ? "All Majors" : selectedMajor}
+                <span className="resources-select-arrow">▼</span>
+              </div>
+              {showDropdown && (
+                <div className="resources-select-dropdown">
+                  <div 
+                    className={`resources-select-option ${selectedMajor === "All" ? "selected" : ""}`}
+                    onClick={() => {
+                      setSelectedMajor("All");
+                      setShowDropdown(false);
+                    }}
+                  >
+                    All Majors
+                  </div>
+                  {MAJORS.filter(major => major !== "All Majors").map(major => (
+                    <div 
+                      key={major}
+                      className={`resources-select-option ${selectedMajor === major ? "selected" : ""}`}
+                      onClick={() => {
+                        setSelectedMajor(major);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      {major}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -209,13 +239,7 @@ export default function Resources() {
         </div>
       </section>
 
-      {/* Add Resource Button (FAB) */}
-      <button
-        className="add-resource-fab"
-        onClick={() => setShowModal(true)}
-      >
-        <span>+</span> Add Resource
-      </button>
+
 
       {/* Add Resource Modal */}
       {showModal && (

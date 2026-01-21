@@ -23,7 +23,7 @@ export default function ResourceDetail() {
                     <h1>Resource Not Found</h1>
                     <p>The resource you're looking for doesn't exist.</p>
                     <Link to="/resources" className="back-to-resources-btn">
-                        ← Back to Resources
+                        ← Back
                     </Link>
                 </div>
             </div>
@@ -59,11 +59,13 @@ export default function ResourceDetail() {
             {/* Main Content */}
             <section className="resource-detail-content">
                 <div className="resource-detail-container">
-                    <Link to="/resources" className="back-link">
-                        ← Back to Resources
-                    </Link>
+                    <div className="resource-detail-header">
+                        <Link to="/resources" className="back-link">
+                            ← Back
+                        </Link>
+                        <span className="resource-detail-tag">{resource.major}</span>
+                    </div>
 
-                    <span className="resource-detail-tag">{resource.major}</span>
                     <h1 className="resource-detail-title">{resource.title}</h1>
 
                     <div className="resource-detail-meta">

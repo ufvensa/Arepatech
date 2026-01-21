@@ -13,7 +13,7 @@ const MOCK_MEMBERS = [
     // E-Board Members
     { id: 1, name: "Jose Peaguda", status: "eboard", major: "Biomedical Engineering", year: "Senior", attendanceRate: 100, workplace: null, email: "jose.peaguda@ufl.edu" },
     { id: 2, name: "Victoria Consalvo", status: "eboard", major: "Biomedical Engineering", year: "Senior", attendanceRate: 95, workplace: null, email: "v.consalvo@ufl.edu" },
-    { id: 3, name: "Alejandro Arvelo", status: "eboard", major: "Finance", year: "Senior", attendanceRate: 100, workplace: "Goldman Sachs", email: "a.arvelo@ufl.edu" },
+    { id: 3, name: "Alejandro Arvelo", status: "eboard", major: "Finance", year: "Senior", attendanceRate: 100, workplace: "American Express", email: "a.arvelo@ufl.edu" },
     { id: 4, name: "Ana Calleja", status: "eboard", major: "Psychology", year: "Junior", attendanceRate: 90, workplace: null, email: "ana.calleja@ufl.edu" },
     { id: 5, name: "Chipi Rincon", status: "eboard", major: "Media Production", year: "Junior", attendanceRate: 85, workplace: null, email: "chipi.rincon@ufl.edu" },
     { id: 6, name: "Allison Bonnemaison", status: "eboard", major: "Journalism", year: "Junior", attendanceRate: 95, workplace: null, email: "a.bonnemaison@ufl.edu" },

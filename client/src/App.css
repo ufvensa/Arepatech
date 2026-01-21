@@ -2100,8 +2100,8 @@ body {
 }
 
 .resources-search-bar {
-  flex: 1;
-  min-width: 280px;
+  flex: 0.6;
+  min-width: 541px;
   position: relative;
   display: flex;
   align-items: center;
@@ -2111,22 +2111,58 @@ body {
   position: absolute;
   left: 1rem;
   font-size: 1.25rem;
-  color: #6b7280;
+  color: white;
 }
 
 .resources-search-input {
   width: 100%;
   padding: 0.875rem 1rem 0.875rem 3rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid rgba(30, 58, 138, 0.3);
   border-radius: 0.5rem;
   font-size: 1rem;
   transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: rgba(30, 58, 138, 0.85);
+  color: white;
+}
+
+.resources-search-input::placeholder {
+  color: white;
 }
 
 .resources-search-input:focus {
   outline: none;
   border-color: #1e3a8a;
   box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+.add-resource-button {
+  padding: 0.875rem 1.5rem;
+  background-color: #dbeafe;
+  color: #1e3a8a;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.add-resource-button:hover {
+  background-color: #bfdbfe;
+  transform: translateY(-1px);
+}
+
+.add-resource-button:active {
+  transform: translateY(0);
+}
+
+.add-resource-button span {
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 .resources-filter {
@@ -2147,18 +2183,106 @@ body {
   border-radius: 0.5rem;
   font-size: 1rem;
   background-color: white;
+  color: #1e3a8a;
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231e3a8a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 1.25rem;
   transition: border-color 0.2s;
+  font-weight: 500;
+}
+
+.resources-filter-select option {
+  background-color: #1e3a8a;
+  color: white;
+  padding: 0.5rem;
+  font-weight: 500;
+}
+
+.resources-filter-select option:hover,
+.resources-filter-select option:focus {
+  background-color: #1e3a8a !important;
+  color: white !important;
+}
+
+.resources-filter-select option:checked {
+  background-color: #dbeafe;
+  color: #1e3a8a;
+  font-weight: 600;
 }
 
 .resources-filter-select:focus {
   outline: none;
   border-color: #1e3a8a;
+}
+
+/* Custom Select Dropdown */
+.resources-custom-select {
+  position: relative;
+  min-width: 200px;
+}
+
+.resources-select-display {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid #e5e7eb;
+  font-size: 1rem;
+  background-color: white;
+  color: #1e3a8a;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 2.5rem;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.resources-select-display:hover {
+  border-color: #1e3a8a;
+}
+
+.resources-select-arrow {
+  position: absolute;
+  right: 1rem;
+  color: #1e3a8a;
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+.resources-select-dropdown {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.resources-select-option {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  background-color: #1e3a8a;
+  color: white;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.resources-select-option:hover {
+  background-color: #1e40af;
+}
+
+.resources-select-option.selected {
+  background-color: #dbeafe;
+  color: #1e3a8a;
+  font-weight: 600;
 }
 
 /* Resources Grid Section */
@@ -2389,11 +2513,18 @@ body {
 .form-group textarea,
 .form-group select {
   padding: 0.75rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid rgba(30, 58, 138, 0.3);
   border-radius: 0.5rem;
   font-size: 1rem;
   transition: border-color 0.2s;
   font-family: inherit;
+  background-color: rgba(30, 58, 138, 0.85);
+  color: white;
+}
+
+.form-group input[type="text"]::placeholder,
+.form-group textarea::placeholder {
+  color: white;
 }
 
 .form-group input:focus,
@@ -2409,8 +2540,27 @@ body {
 }
 
 .file-input {
-  padding: 0.5rem 0 !important;
-  border: none !important;
+  background-color: rgba(30, 58, 138, 0.85) !important;
+  color: white !important;
+  border: 2px solid rgba(30, 58, 138, 0.3) !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem 1rem !important;
+  cursor: pointer;
+}
+
+.file-input::-webkit-file-upload-button {
+  background-color: #1e3a8a;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 600;
+  margin-right: 1rem;
+}
+
+.file-input::-webkit-file-upload-button:hover {
+  background-color: #1e40af;
 }
 
 .modal-actions {
@@ -2619,12 +2769,18 @@ body {
   z-index: 20;
 }
 
+.resource-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
 .back-link {
   display: inline-block;
   color: #1e3a8a;
   text-decoration: none;
   font-weight: 500;
-  margin-bottom: 1.5rem;
   transition: color 0.2s;
 }
 
@@ -2640,7 +2796,6 @@ body {
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 600;
-  margin-bottom: 1rem;
 }
 
 .resource-detail-title {
@@ -2883,16 +3038,22 @@ body {
   position: absolute;
   left: 1rem;
   font-size: 1rem;
-  color: #6b7280;
+  color: white;
 }
 
 .directory-search-input {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.75rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid rgba(30, 58, 138, 0.3);
   border-radius: 0.5rem;
   font-size: 0.95rem;
   transition: border-color 0.2s;
+  background-color: rgba(30, 58, 138, 0.85);
+  color: white;
+}
+
+.directory-search-input::placeholder {
+  color: white;
 }
 
 .directory-search-input:focus {

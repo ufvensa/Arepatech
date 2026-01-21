@@ -152,7 +152,8 @@ function ExecutiveBoardCard({ member }) {
 
     const handleLearnMore = () => {
         if (member.id === 12) {
-            navigate("/dev-team");
+            // Do nothing for dev team card
+            return;
         } else {
             setIsFlipped(true);
         }

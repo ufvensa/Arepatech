@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import bannerBg from "../images/VENSA Website Banner Background.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/Vensa Website logo.png";
 import instagramIcon from "../images/Vensa Website Instagram.png";
@@ -7,84 +7,42 @@ import facebookIcon from "../images/Vensa Website Facebook.png";
 import pinIcon from "../images/Vensa Website Pin.png";
 import linkedinIcon from "../images/Vensa Website Linkedin.png";
 
-export default function Profile() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-  const navigate = useNavigate();
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // Set login state in localStorage
-    localStorage.setItem("isLoggedIn", "true");
-    // Redirect to home page
-    navigate("/");
-    // Trigger storage event for navbar update
-    window.dispatchEvent(new Event("storage"));
-  };
-
+export default function Alumni() {
   return (
-    <div className="profile-page">
-      {/* Login Form Section */}
-      <section className="profile-content">
-        <div className="profile-container">
-          <div className="profile-form-card">
-            <h1 className="profile-title">Welcome Back!!</h1>
-            <p className="profile-subtitle">Sign in to continue to your UF VENSA Account and get access to all the member exclusive items on our website!</p>
-            
-            <form onSubmit={handleLogin} className="profile-form">
-              <div className="profile-form-group">
-                <label htmlFor="email" className="profile-label">Username/Email</label>
-                <input
-                  type="text"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter Username/Email"
-                  className="profile-input"
-                  required
-                />
-              </div>
+    <div className="alumni-page">
+      {/* Hero Banner */}
+      <div 
+        className="alumni-hero"
+        style={{ backgroundImage: `url(${bannerBg})` }}
+      >
+        <div className="alumni-hero-overlay"></div>
+        <div className="alumni-hero-content">
+          <h1 className="alumni-hero-title">Alumni</h1>
+        </div>
+      </div>
 
-              <div className="profile-form-group">
-                <label htmlFor="password" className="profile-label">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter Password"
-                  className="profile-input"
-                  required
-                />
-              </div>
-
-              <div className="profile-form-options">
-                <label className="profile-remember">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="profile-checkbox"
-                  />
-                  <span>Remember me</span>
-                </label>
-                <Link to="#" className="profile-forgot">Forgot Password?</Link>
-              </div>
-
-              <button type="submit" className="profile-login-button">
-                Log In
-              </button>
-
-              <div className="profile-divider">
-                <span>or</span>
-              </div>
-
-              <p className="profile-signup">
-                New to VENSA? <Link to="/signup" className="profile-signup-link">Click here to create an account</Link>
-              </p>
-            </form>
-          </div>
+      {/* Alumni Content Section */}
+      <section className="alumni-content">
+        <div className="alumni-container">
+          <h2 className="alumni-title">Hello VENSA Alumni</h2>
+          <p className="alumni-description">
+            Thank you for your interest in staying connected with VENSA and supporting the next generation of Venezuelan Gators. 
+            By joining the following group chat, you will be connected to a vibrant network of past members who share your passion for Venezuelan culture and community. 
+            Our goal is to strengthen the ties within our comunidad by showcasing the diverse paths our members 
+            take after UF so that students can learn from your experiences, reach out for guidance, and follow in your footsteps. 
+            We will also be reaching out about a VENSA Alumni Directory that will help create networking opportunities, foster mentorship and support, and celebrate the 
+            achievements of our members while building a strong, lasting connection between current students and alumni. As a family, 
+            we honor where we come from and lift each other up as we grow, and we would be proud to have you join this initiative 
+            and remain part of the VENSA familia.
+          </p>
+          <a 
+            href="https://chat.whatsapp.com/JoKP72msSu0AYtOr3c0KoJ" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="alumni-button"
+          >
+            Join the Alumni Whatsapp
+          </a>
         </div>
       </section>
 

@@ -11,6 +11,8 @@ import Mentorship from "./pages/Mentorship";
 import Profile from "./pages/Profile";
 import SignUp from "./pages/SignUp";
 import Resources from "./pages/Resources";
+import ResourceDetail from "./pages/ResourceDetail";
+import Directory from "./pages/Directory";
 
 export default function App() {
   return (
@@ -28,6 +30,8 @@ export default function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/resources" element={<Resources />} />
+        <Route path="/resources/:id" element={<ResourceDetail />} />
+        <Route path="/directory" element={<Directory />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import ScrollToTop from "./components/ScrollToTop";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Events from "./pages/Events";
@@ -11,10 +12,13 @@ import Mentorship from "./pages/Mentorship";
 import Profile from "./pages/Profile";
 import SignUp from "./pages/SignUp";
 import Resources from "./pages/Resources";
+import ResourceDetail from "./pages/ResourceDetail";
+import Directory from "./pages/Directory";
 
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -28,6 +32,8 @@ export default function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/resources" element={<Resources />} />
+        <Route path="/resources/:id" element={<ResourceDetail />} />
+        <Route path="/directory" element={<Directory />} />
       </Routes>
     </BrowserRouter>
   );

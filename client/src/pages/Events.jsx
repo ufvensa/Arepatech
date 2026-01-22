@@ -14,7 +14,7 @@ export default function Events() {
   return (
     <div className="events-page">
       {/* Hero Banner */}
-      <div 
+      <div
         className="events-hero"
         style={{ backgroundImage: `url(${bannerBg})` }}
       >
@@ -25,18 +25,18 @@ export default function Events() {
             Discover what's happening with VENSA at all times!
           </p>
           <div className="events-hero-buttons">
-            <a 
-              href="https://chat.whatsapp.com/DxcXPAsGNA5BeoPFAKyoAn" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://chat.whatsapp.com/DxcXPAsGNA5BeoPFAKyoAn"
+              target="_blank"
+              rel="noopener noreferrer"
               className="events-hero-button"
             >
               Join our Whatsapp
             </a>
-            <a 
-              href="https://www.instagram.com/ufvensa/?hl=en" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://www.instagram.com/ufvensa/?hl=en"
+              target="_blank"
+              rel="noopener noreferrer"
               className="events-hero-button"
             >
               Follow us on Instagram
@@ -51,8 +51,8 @@ export default function Events() {
         <div className="events-happening-content">
           <img src={vensaLogo} alt="VENSA Logo" className="events-happening-logo" />
           <p className="events-happening-text">
-            From picnics to running to professional development, VENSA hosts a variety of events each month. 
-            Discover spaces that connect Venezuelan students at the University of Florida with each 
+            From picnics to running to professional development, VENSA hosts a variety of events each month.
+            Discover spaces that connect Venezuelan students at the University of Florida with each
             other through culture and community.
           </p>
           <img src={vensaLogo} alt="VENSA Logo" className="events-happening-logo" />
@@ -144,7 +144,6 @@ export default function Events() {
       {/* Bottom Action Sections */}
       <section className="events-actions">
         <div className="events-action-item">
-          <div className="events-action-icon">📅</div>
           <div className="events-action-content">
             <h3 className="events-action-title">Calendar</h3>
             <p className="events-action-description">Explore more Vensa events!</p>
@@ -153,7 +152,6 @@ export default function Events() {
         </div>
 
         <div className="events-action-item">
-          <div className="events-action-icon">📷</div>
           <div className="events-action-content">
             <h3 className="events-action-title">Past Events</h3>
             <p className="events-action-description">See Past Events we have hosted!</p>
@@ -162,7 +160,6 @@ export default function Events() {
         </div>
 
         <div className="events-action-item">
-          <div className="events-action-icon">⚽</div>
           <div className="events-action-content">
             <h3 className="events-action-title">Intramurals</h3>
             <p className="events-action-description">Explore and Join Vensa intramural sports</p>
@@ -176,8 +173,8 @@ export default function Events() {
         <div className="footer-main-container">
           <div className="footer-content">
             <Link to="/" className="footer-logo-group">
-              <img 
-                src={ufLogo} 
+              <img
+                src={ufLogo}
                 alt="UF Logo"
                 className="footer-logo-uf"
               />
@@ -186,8 +183,8 @@ export default function Events() {
                 <div className="footer-text-top">Venezuelan</div>
                 <div className="footer-text-bottom">Student Association</div>
               </div>
-              <img 
-                src={vensaLogo} 
+              <img
+                src={vensaLogo}
                 alt="VENSA Logo"
                 className="footer-logo-vensa"
               />
@@ -195,18 +192,18 @@ export default function Events() {
 
             <div className="footer-right">
               <div className="footer-social">
-                <a 
-                  href="https://www.instagram.com/ufvensa/?hl=en" 
-                  target="_blank" 
+                <a
+                  href="https://www.instagram.com/ufvensa/?hl=en"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="social-item"
                 >
                   <img src={instagramIcon} alt="Instagram" className="social-icon" />
                   <span>@ufvensa</span>
                 </a>
-                <a 
-                  href="https://www.facebook.com/uf.vensa/" 
-                  target="_blank" 
+                <a
+                  href="https://www.facebook.com/uf.vensa/"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="social-item"
                 >
@@ -216,18 +213,18 @@ export default function Events() {
               </div>
 
               <div className="footer-contact">
-                <a 
-                  href="https://www.google.com/maps/place/University+of+Florida/@29.6464959,-82.3557957,16.11z/data=!4m6!3m5!1s0x88e8a30cfbe49275:0x206fe0de143d9886!8m2!3d29.6465428!4d-82.3533266!16s%2Fm%2F0j_sncb?entry=ttu&g_ep=EgoyMDI1MTExNy4wIKXMDSoASAFQAw%3D%3D" 
-                  target="_blank" 
+                <a
+                  href="https://www.google.com/maps/place/University+of+Florida/@29.6464959,-82.3557957,16.11z/data=!4m6!3m5!1s0x88e8a30cfbe49275:0x206fe0de143d9886!8m2!3d29.6465428!4d-82.3533266!16s%2Fm%2F0j_sncb?entry=ttu&g_ep=EgoyMDI1MTExNy4wIKXMDSoASAFQAw%3D%3D"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="contact-item"
                 >
                   <img src={pinIcon} alt="Location" className="contact-icon" />
                   <span>University of Florida • Gainesville, FL</span>
                 </a>
-                <a 
-                  href="https://www.linkedin.com/company/ufvensa" 
-                  target="_blank" 
+                <a
+                  href="https://www.linkedin.com/company/ufvensa"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="contact-item"
                 >

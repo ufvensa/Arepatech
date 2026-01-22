@@ -9,17 +9,17 @@ import pinIcon from "../images/Vensa Website Pin.png";
 import linkedinIcon from "../images/Vensa Website Linkedin.png";
 
 // Import all executive board member images
-import josePeagudaImg from "../images/VENSA Website Jose.png";
-import victoriaConsalvoImg from "../images/VENSA Website Vicky C.png";
-import alejandroArveloImg from "../images/VENSA Website Ale.png";
-import anaCallejaImg from "../images/VENSA Website Ana.png";
-import chipiRinconImg from "../images/VENSA Website Chipi.png";
-import allisonBonnemaison from "../images/VENSA Website Allison.png";
-import carmeloUrdanetaImg from "../images/VENSA Website Carmelo.png";
-import johnRileyImg from "../images/VENSA Website Riley New.png";
-import camilaAlmandozImg from "../images/VENSA Website Cami.png";
+import josePeagudaImg from "../images/Jose Peagua.jpg";
+import victoriaConsalvoImg from "../images/Victoria Consalvo.jpg";
+import alejandroArveloImg from "../images/Alejandro Arvelo.jpg";
+import anaCallejaImg from "../images/Ana Calleja.jpg";
+import chipiRinconImg from "../images/Chipi Rincon.jpg";
+import allisonBonnemaison from "../images/Allison Bonnemaison.jpg";
+import carmeloUrdanetaImg from "../images/Carmelo Urdaneta.jpg";
+import johnRileyImg from "../images/John Riley.jpg";
+import camilaAlmandozImg from "../images/Camila Almandoz.jpg";
 import valeriaMaggioloImg from "../images/VENSA Website Valeria.png";
-import victoriaMedinaImg from "../images/VENSA Website Vicky M.png";
+import victoriaMedinaImg from "../images/Victoria Medina.jpg";
 import WebDevImg from "../images/VENSA Website Web Dev.png";
 
 const boardMembers = [

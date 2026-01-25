@@ -123,16 +123,17 @@ export async function getCurrentUser() {
 
 /**
  * Get a user's profile by ID
+ * Returns null if profile doesn't exist (instead of throwing)
  */
 export async function getProfile(userId) {
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
-  return data;
+  return data; // Will be null if no profile found
 }
 
 /**

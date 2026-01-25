@@ -6,7 +6,10 @@
  */
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, getProfile, signUp as supabaseSignUp, signIn as supabaseSignIn, signOut as supabaseSignOut } from '../lib/supabase';
+import { supabase, getProfile, signUp as supabaseSignUp, signIn as supabaseSignIn, signOut as supabaseSignOut, isAllowedEmail } from '../lib/supabase';
+
+// Re-export email validation for use in components
+export { isAllowedEmail } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 

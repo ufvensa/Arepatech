@@ -23,17 +23,49 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // ============================================================================
+// EMAIL VALIDATION
+// ============================================================================
+
+const ALLOWED_EMAIL_DOMAINS = ['ufl.edu'];
+
+/**
+ * Check if an email is from an allowed domain (UFL)
+ * @param {string} email - Email to validate
+ * @returns {boolean} - True if email is from allowed domain
+ */
+export function isAllowedEmail(email) {
+  if (!email) return false;
+  const domain = email.split('@')[1]?.toLowerCase();
+  return ALLOWED_EMAIL_DOMAINS.some(allowed =>
+    domain === allowed || domain?.endsWith(`.${allowed}`)
+  );
+}
+
+/**
+ * Get the allowed email domains for display
+ */
+export function getAllowedDomains() {
+  return ALLOWED_EMAIL_DOMAINS;
+}
+
+// ============================================================================
 // AUTH HELPERS
 // ============================================================================
 
 /**
  * Sign up a new user with email and password
+ * Restricted to @ufl.edu email addresses only
  * @param {Object} params - Signup parameters
- * @param {string} params.email - User's email
+ * @param {string} params.email - User's email (must be @ufl.edu)
  * @param {string} params.password - User's password
  * @param {Object} params.metadata - Additional user metadata (first_name, last_name, etc.)
  */
 export async function signUp({ email, password, metadata }) {
+  // Validate UFL email domain
+  if (!isAllowedEmail(email)) {
+    throw new Error('Only @ufl.edu email addresses are allowed to sign up. Please use your GatorLink email.');
+  }
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,

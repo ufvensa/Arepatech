@@ -1,0 +1,494 @@
+/**
+ * Supabase Client Configuration
+ * VENSA - Venezuelan Student Association at UF
+ */
+
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    'Missing Supabase environment variables. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env.local file.'
+  );
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+});
+
+// ============================================================================
+// AUTH HELPERS
+// ============================================================================
+
+/**
+ * Sign up a new user with email and password
+ * @param {Object} params - Signup parameters
+ * @param {string} params.email - User's email
+ * @param {string} params.password - User's password
+ * @param {Object} params.metadata - Additional user metadata (first_name, last_name, etc.)
+ */
+export async function signUp({ email, password, metadata }) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: metadata, // This gets stored in raw_user_meta_data and used by trigger
+    },
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Sign in with email and password
+ */
+export async function signIn({ email, password }) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Sign out the current user
+ */
+export async function signOut() {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+}
+
+/**
+ * Get the current session
+ */
+export async function getSession() {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  return data.session;
+}
+
+/**
+ * Get the current user
+ */
+export async function getCurrentUser() {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) throw error;
+  return user;
+}
+
+// ============================================================================
+// PROFILE HELPERS
+// ============================================================================
+
+/**
+ * Get a user's profile by ID
+ */
+export async function getProfile(userId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Get the current user's profile
+ */
+export async function getCurrentProfile() {
+  const user = await getCurrentUser();
+  if (!user) return null;
+  return getProfile(user.id);
+}
+
+/**
+ * Update a user's profile
+ */
+export async function updateProfile(userId, updates) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(updates)
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Get all profiles (for directory)
+ * @param {Object} filters - Optional filters
+ * @param {string} filters.status - Filter by member status
+ * @param {string} filters.major - Filter by major
+ * @param {string} filters.search - Search by name
+ */
+export async function getProfiles(filters = {}) {
+  let query = supabase
+    .from('profiles')
+    .select(`
+      id,
+      first_name,
+      last_name,
+      username,
+      major,
+      year,
+      status,
+      workplace,
+      attendance_rate,
+      avatar_url,
+      linkedin_url
+    `)
+    .order('last_name', { ascending: true });
+
+  if (filters.status && filters.status !== 'all') {
+    query = query.eq('status', filters.status);
+  }
+
+  if (filters.major) {
+    query = query.eq('major', filters.major);
+  }
+
+  if (filters.search) {
+    query = query.or(`first_name.ilike.%${filters.search}%,last_name.ilike.%${filters.search}%,major.ilike.%${filters.search}%`);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data;
+}
+
+// ============================================================================
+// EVENTS HELPERS
+// ============================================================================
+
+/**
+ * Get all published events
+ * @param {Object} options - Query options
+ * @param {boolean} options.upcoming - Only get upcoming events
+ * @param {string} options.type - Filter by event type
+ */
+export async function getEvents(options = {}) {
+  let query = supabase
+    .from('events')
+    .select(`
+      *,
+      created_by:profiles!events_created_by_fkey(first_name, last_name)
+    `)
+    .eq('is_published', true)
+    .order('date', { ascending: true });
+
+  if (options.upcoming) {
+    query = query.gte('date', new Date().toISOString());
+  }
+
+  if (options.type) {
+    query = query.eq('type', options.type);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Get a single event by ID
+ */
+export async function getEvent(eventId) {
+  const { data, error } = await supabase
+    .from('events')
+    .select(`
+      *,
+      created_by:profiles!events_created_by_fkey(first_name, last_name)
+    `)
+    .eq('id', eventId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Create a new event (E-Board only)
+ */
+export async function createEvent(eventData) {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('Must be logged in to create events');
+
+  const { data, error } = await supabase
+    .from('events')
+    .insert({
+      ...eventData,
+      created_by: user.id,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Update an event (E-Board only)
+ */
+export async function updateEvent(eventId, updates) {
+  const { data, error } = await supabase
+    .from('events')
+    .update(updates)
+    .eq('id', eventId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Delete an event (E-Board only)
+ */
+export async function deleteEvent(eventId) {
+  const { error } = await supabase
+    .from('events')
+    .delete()
+    .eq('id', eventId);
+
+  if (error) throw error;
+}
+
+// ============================================================================
+// RESOURCES HELPERS
+// ============================================================================
+
+/**
+ * Get all published resources
+ * @param {Object} filters - Optional filters
+ * @param {string} filters.majorTag - Filter by major tag
+ * @param {string} filters.search - Search by title or description
+ */
+export async function getResources(filters = {}) {
+  let query = supabase
+    .from('resources')
+    .select(`
+      *,
+      author:profiles!resources_author_id_fkey(first_name, last_name, avatar_url)
+    `)
+    .eq('is_published', true)
+    .order('created_at', { ascending: false });
+
+  if (filters.majorTag && filters.majorTag !== 'All') {
+    query = query.eq('major_tag', filters.majorTag);
+  }
+
+  if (filters.search) {
+    query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Get a single resource by ID
+ */
+export async function getResource(resourceId) {
+  const { data, error } = await supabase
+    .from('resources')
+    .select(`
+      *,
+      author:profiles!resources_author_id_fkey(first_name, last_name, avatar_url)
+    `)
+    .eq('id', resourceId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Create a new resource
+ */
+export async function createResource(resourceData) {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('Must be logged in to create resources');
+
+  const { data, error } = await supabase
+    .from('resources')
+    .insert({
+      ...resourceData,
+      author_id: user.id,
+    })
+    .select(`
+      *,
+      author:profiles!resources_author_id_fkey(first_name, last_name, avatar_url)
+    `)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Update a resource
+ */
+export async function updateResource(resourceId, updates) {
+  const { data, error } = await supabase
+    .from('resources')
+    .update(updates)
+    .eq('id', resourceId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Delete a resource
+ */
+export async function deleteResource(resourceId) {
+  const { error } = await supabase
+    .from('resources')
+    .delete()
+    .eq('id', resourceId);
+
+  if (error) throw error;
+}
+
+// ============================================================================
+// RSVP HELPERS
+// ============================================================================
+
+/**
+ * RSVP to an event
+ */
+export async function rsvpToEvent(eventId) {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('Must be logged in to RSVP');
+
+  const { data, error } = await supabase
+    .from('event_rsvps')
+    .upsert({
+      event_id: eventId,
+      user_id: user.id,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Cancel RSVP to an event
+ */
+export async function cancelRsvp(eventId) {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('Must be logged in');
+
+  const { error } = await supabase
+    .from('event_rsvps')
+    .delete()
+    .eq('event_id', eventId)
+    .eq('user_id', user.id);
+
+  if (error) throw error;
+}
+
+/**
+ * Check if user has RSVPed to an event
+ */
+export async function hasRsvped(eventId) {
+  const user = await getCurrentUser();
+  if (!user) return false;
+
+  const { data, error } = await supabase
+    .from('event_rsvps')
+    .select('id')
+    .eq('event_id', eventId)
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return !!data;
+}
+
+// ============================================================================
+// STORAGE HELPERS
+// ============================================================================
+
+/**
+ * Upload an avatar image
+ */
+export async function uploadAvatar(userId, file) {
+  const fileExt = file.name.split('.').pop();
+  const filePath = `${userId}/avatar.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(filePath, file, { upsert: true });
+
+  if (uploadError) throw uploadError;
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(filePath);
+
+  // Update profile with new avatar URL
+  await updateProfile(userId, { avatar_url: publicUrl });
+
+  return publicUrl;
+}
+
+/**
+ * Upload a resource image
+ */
+export async function uploadResourceImage(file) {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('resource-images')
+    .upload(fileName, file);
+
+  if (uploadError) throw uploadError;
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('resource-images')
+    .getPublicUrl(fileName);
+
+  return publicUrl;
+}
+
+/**
+ * Upload an event image
+ */
+export async function uploadEventImage(file) {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('event-images')
+    .upload(fileName, file);
+
+  if (uploadError) throw uploadError;
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('event-images')
+    .getPublicUrl(fileName);
+
+  return publicUrl;
+}
+
+export default supabase;

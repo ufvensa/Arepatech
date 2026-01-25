@@ -7,7 +7,7 @@ import bannerBg4 from "../images/VENSA Pilates.png";
 import bannerBg5 from "../images/VENSA Website Mission.png";
 import mentorshipHomeImg from "../images/VENSA Mentorship Home.png";
 import BonfireImg from "../images/VENSA Bonfire.png";
-import GBMImg from "../images/VENSA GBM.png";
+import EboardImg from "../images/VENSA Eboard.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/Vensa Website logo.png";
 import instagramIcon from "../images/Vensa Website Instagram.png";
@@ -145,7 +145,7 @@ export default function Home() {
         <div className="home-bottom-card">
           <h3 className="home-bottom-title">Contact Us</h3>
           <div className="home-bottom-image">
-            <img src={GBMImg} alt="Contact" />
+            <img src={EboardImg} alt="Contact" />
           </div>
           <p className="home-bottom-text">
             Reach out to UF VENSA E-Board to learn more about our events, membership, 

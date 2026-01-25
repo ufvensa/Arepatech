@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import bannerBg from "../images/VENSA Website Banner Background.png";
+import bannerBg from "../images/VENSA UF Banner.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/Vensa Website logo.png";
 import instagramIcon from "../images/Vensa Website Instagram.png";
@@ -20,7 +20,7 @@ import johnRileyImg from "../images/John Riley.jpg";
 import camilaAlmandozImg from "../images/Camila Almandoz.jpg";
 import valeriaMaggioloImg from "../images/VENSA Website Valeria.png";
 import victoriaMedinaImg from "../images/Victoria Medina.jpg";
-import WebDevImg from "../images/VENSA Website Web Dev.png";
+import WebDevImg from "../images/VENSA ugly background web.png";
 
 const boardMembers = [
     {

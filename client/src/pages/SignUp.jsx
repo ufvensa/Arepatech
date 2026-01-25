@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth, isAllowedEmail } from "../context/AuthContext";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/Vensa Website logo.png";
 import instagramIcon from "../images/Vensa Website Instagram.png";
@@ -18,16 +19,70 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { signUp } = useAuth();
   const navigate = useNavigate();
 
-  const handleSignUp = (e) => {
+  // Check if email is valid UFL email in real-time
+  const emailError = email && !isAllowedEmail(email)
+    ? "Please use your @ufl.edu email address"
+    : "";
+
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    // Set login state in localStorage
-    localStorage.setItem("isLoggedIn", "true");
-    // Redirect to home page
-    navigate("/");
-    // Trigger storage event for navbar update
-    window.dispatchEvent(new Event("storage"));
+    setError("");
+
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    // Validate UFL email
+    if (!isAllowedEmail(email)) {
+      setError("Only @ufl.edu email addresses are allowed. Please use your GatorLink email.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data, error: signUpError } = await signUp({
+        email,
+        password,
+        firstName,
+        lastName,
+        username,
+        major,
+        year,
+        dateOfBirth: dateOfBirth || null,
+      });
+
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      // Check if email confirmation is required
+      if (data?.user && !data.session) {
+        alert("Please check your UFL email to confirm your account!");
+        navigate("/profile");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      setError(err.message || "An error occurred during sign up");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -40,6 +95,20 @@ export default function SignUp() {
             <p className="signup-subtitle">Sign up to create your UF VENSA Account and join our community!</p>
             
             <form onSubmit={handleSignUp} className="signup-form">
+              {error && (
+                <div className="signup-error" style={{
+                  backgroundColor: '#fee2e2',
+                  border: '1px solid #ef4444',
+                  color: '#dc2626',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  marginBottom: '16px',
+                  fontSize: '14px'
+                }}>
+                  {error}
+                </div>
+              )}
+
               <div className="signup-form-group">
                 <label htmlFor="firstName" className="signup-label">First Name</label>
                 <input
@@ -111,16 +180,22 @@ export default function SignUp() {
               </div>
 
               <div className="signup-form-group">
-                <label htmlFor="email" className="signup-label">Email</label>
+                <label htmlFor="email" className="signup-label">Email (UFL Only)</label>
                 <input
                   type="email"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter Email"
+                  placeholder="yourname@ufl.edu"
                   className="signup-input"
+                  style={emailError ? { borderColor: '#ef4444' } : {}}
                   required
                 />
+                {emailError && (
+                  <span style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                    {emailError}
+                  </span>
+                )}
               </div>
 
               <div className="signup-form-group">
@@ -174,8 +249,13 @@ export default function SignUp() {
                 </label>
               </div>
 
-              <button type="submit" className="signup-button">
-                Sign Up
+              <button
+                type="submit"
+                className="signup-button"
+                disabled={isLoading || !!emailError}
+                style={isLoading ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
+              >
+                {isLoading ? "Creating Account..." : "Sign Up"}
               </button>
 
               <div className="signup-divider">

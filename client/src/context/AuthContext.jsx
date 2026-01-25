@@ -6,7 +6,10 @@
  */
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, getProfile, signUp as supabaseSignUp, signIn as supabaseSignIn, signOut as supabaseSignOut } from '../lib/supabase';
+import { supabase, getProfile, signUp as supabaseSignUp, signIn as supabaseSignIn, signOut as supabaseSignOut, isAllowedEmail } from '../lib/supabase';
+
+// Re-export email validation for use in components
+export { isAllowedEmail } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
@@ -17,10 +20,34 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState(null);
 
   // Fetch user profile when user changes
-  const fetchProfile = async (userId) => {
+  const fetchProfile = async (userId, userEmail = null) => {
     try {
       const profileData = await getProfile(userId);
-      setProfile(profileData);
+
+      // If profile doesn't exist, try to create it (fallback for missing trigger)
+      if (!profileData) {
+        console.log('Profile not found, attempting to create...');
+        const { data: newProfile, error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            email: userEmail || '',
+            first_name: '',
+            last_name: '',
+            username: userEmail?.split('@')[0] || userId.slice(0, 8),
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          setProfile(null);
+        } else {
+          setProfile(newProfile);
+        }
+      } else {
+        setProfile(profileData);
+      }
     } catch (err) {
       console.error('Error fetching profile:', err);
       setProfile(null);
@@ -36,7 +63,7 @@ export function AuthProvider({ children }) {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          await fetchProfile(session.user.id, session.user.email);
         }
       } catch (err) {
         console.error('Error initializing auth:', err);
@@ -56,9 +83,9 @@ export function AuthProvider({ children }) {
         if (session?.user) {
           // Small delay to allow profile trigger to complete on signup
           if (event === 'SIGNED_IN') {
-            setTimeout(() => fetchProfile(session.user.id), 500);
+            setTimeout(() => fetchProfile(session.user.id, session.user.email), 500);
           } else {
-            await fetchProfile(session.user.id);
+            await fetchProfile(session.user.id, session.user.email);
           }
         } else {
           setProfile(null);
@@ -102,26 +129,32 @@ export function AuthProvider({ children }) {
         },
       });
 
-      // The trigger will create the basic profile, now update with additional fields
+      // Create or update the profile with ALL fields
       if (data.user) {
-        // Wait a moment for the trigger to complete
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Wait a moment for any trigger to complete first
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Update profile with additional fields
-        const { error: updateError } = await supabase
+        // Upsert profile with all signup data
+        const { error: upsertError } = await supabase
           .from('profiles')
-          .update({
-            major,
-            year,
+          .upsert({
+            id: data.user.id,
+            email: email,
+            first_name: firstName,
+            last_name: lastName,
+            username: username,
+            major: major || null,
+            year: year || null,
             date_of_birth: dateOfBirth || null,
-          })
-          .eq('id', data.user.id);
+          }, {
+            onConflict: 'id'
+          });
 
-        if (updateError) {
-          console.error('Error updating profile:', updateError);
+        if (upsertError) {
+          console.error('Error creating/updating profile:', upsertError);
         }
 
-        await fetchProfile(data.user.id);
+        await fetchProfile(data.user.id, email);
       }
 
       return { data, error: null };

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getResource, getResources } from "../lib/supabase";
+import { useAuth } from "../context/AuthContext";
 import bannerBg from "../images/VENSA Website Banner Background.png";
 import vensaLogo from "../images/Vensa Website logo.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
@@ -15,6 +16,7 @@ export default function ResourceDetail() {
     const [relatedResources, setRelatedResources] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { user, loading: authLoading } = useAuth();
 
     // Fetch resource from Supabase
     useEffect(() => {
@@ -44,8 +46,28 @@ export default function ResourceDetail() {
         fetchResource();
     }, [id]);
 
+    // Auth check - redirect to resources page if not logged in
+    if (!authLoading && !user) {
+        return (
+            <div className="resource-detail-page">
+                <div className="resource-detail-not-found">
+                    <h1>Members Only</h1>
+                    <p>Please sign in to view this resource.</p>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+                        <Link to="/profile" className="back-to-resources-btn">
+                            Sign In
+                        </Link>
+                        <Link to="/signup" className="back-to-resources-btn" style={{ backgroundColor: 'white', color: '#1e3a8a', border: '2px solid #1e3a8a' }}>
+                            Create Account
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     // Loading state
-    if (loading) {
+    if (loading || authLoading) {
         return (
             <div className="resource-detail-page">
                 <div className="resource-detail-not-found">

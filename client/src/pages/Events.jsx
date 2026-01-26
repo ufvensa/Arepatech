@@ -145,10 +145,10 @@ export default function Events() {
       <section className="events-actions">
         <div className="events-action-item">
           <div className="events-action-content">
-            <h3 className="events-action-title">Calendar</h3>
-            <p className="events-action-description">Explore more Vensa events!</p>
+            <h3 className="events-action-title">Newsletter</h3>
+            <p className="events-action-description">Stay updated with VENSA news and announcements!</p>
           </div>
-          <button className="events-action-button">View Calendar</button>
+          <button className="events-action-button">Subscribe</button>
         </div>
 
         <div className="events-action-item">

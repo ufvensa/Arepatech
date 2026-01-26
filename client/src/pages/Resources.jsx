@@ -33,7 +33,7 @@ export default function Resources() {
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   // Form state for new resource
   const [newResource, setNewResource] = useState({
@@ -118,6 +118,89 @@ export default function Resources() {
       setIsSubmitting(false);
     }
   };
+
+  // Show login required screen if not authenticated
+  if (!authLoading && !user) {
+    return (
+      <div className="resources-page">
+        {/* Hero Banner */}
+        <div
+          className="resources-hero"
+          style={{ backgroundImage: `url(${bannerBg})` }}
+        >
+          <div className="resources-hero-overlay"></div>
+          <div className="resources-hero-content">
+            <h1 className="resources-hero-title">Resources</h1>
+            <p className="resources-hero-subtitle">
+              Share and discover helpful resources for your academic journey
+            </p>
+          </div>
+        </div>
+
+        {/* Login Required Section */}
+        <section className="resources-login-required">
+          <div className="resources-login-card">
+            <h2 className="resources-login-title">Members Only</h2>
+            <p className="resources-login-description">
+              Access to VENSA resources is exclusive to registered members.
+              Sign in or create an account to view and share helpful academic resources
+              with the VENSA community.
+            </p>
+            <div className="resources-login-buttons">
+              <Link to="/profile" className="resources-login-btn primary">
+                Sign In
+              </Link>
+              <Link to="/signup" className="resources-login-btn secondary">
+                Create Account
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="footer">
+          <div className="footer-main-container">
+            <div className="footer-content">
+              <Link to="/" className="footer-logo-group">
+                <img src={ufLogo} alt="UF Logo" className="footer-logo-uf" />
+                <div className="footer-divider"></div>
+                <div className="footer-logo-text">
+                  <div className="footer-text-top">Venezuelan</div>
+                  <div className="footer-text-bottom">Student Association</div>
+                </div>
+                <img src={vensaLogo} alt="VENSA Logo" className="footer-logo-vensa" />
+              </Link>
+              <div className="footer-right">
+                <div className="footer-social">
+                  <a href="https://www.instagram.com/ufvensa/?hl=en" target="_blank" rel="noopener noreferrer" className="social-item">
+                    <img src={instagramIcon} alt="Instagram" className="social-icon" />
+                    <span>@ufvensa</span>
+                  </a>
+                  <a href="https://www.facebook.com/uf.vensa/" target="_blank" rel="noopener noreferrer" className="social-item">
+                    <img src={facebookIcon} alt="Facebook" className="social-icon" />
+                    <span>@ufvensa</span>
+                  </a>
+                </div>
+                <div className="footer-contact">
+                  <a href="https://www.google.com/maps/place/University+of+Florida" target="_blank" rel="noopener noreferrer" className="contact-item">
+                    <img src={pinIcon} alt="Location" className="contact-icon" />
+                    <span>University of Florida • Gainesville, FL</span>
+                  </a>
+                  <a href="https://www.linkedin.com/company/ufvensa" target="_blank" rel="noopener noreferrer" className="contact-item">
+                    <img src={linkedinIcon} alt="LinkedIn" className="contact-icon" />
+                    <span>Venezuelan Student Association at<br />the University of Florida</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div className="footer-copyright">
+              © Copyright 2025. All Rights Reserved.
+            </div>
+          </div>
+        </footer>
+      </div>
+    );
+  }
 
   return (
     <div className="resources-page">

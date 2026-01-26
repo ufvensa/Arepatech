@@ -505,6 +505,26 @@ export async function uploadResourceImage(file) {
 }
 
 /**
+ * Upload a resource file (PDF, DOCX, MD, etc.)
+ */
+export async function uploadResourceFile(file) {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('resource-files')
+    .upload(fileName, file);
+
+  if (uploadError) throw uploadError;
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('resource-files')
+    .getPublicUrl(fileName);
+
+  return publicUrl;
+}
+
+/**
  * Upload an event image
  */
 export async function uploadEventImage(file) {

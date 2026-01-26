@@ -1,4 +1,6 @@
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { getResource, getResources } from "../lib/supabase";
 import bannerBg from "../images/VENSA Website Banner Background.png";
 import vensaLogo from "../images/Vensa Website logo.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
@@ -6,22 +8,60 @@ import instagramIcon from "../images/Vensa Website Instagram.png";
 import facebookIcon from "../images/Vensa Website Facebook.png";
 import pinIcon from "../images/Vensa Website Pin.png";
 import linkedinIcon from "../images/Vensa Website Linkedin.png";
-import { MOCK_RESOURCES } from "./Resources";
 
 export default function ResourceDetail() {
     const { id } = useParams();
-    const resourceId = parseInt(id, 10);
+    const [resource, setResource] = useState(null);
+    const [relatedResources, setRelatedResources] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Find the current resource
-    const resource = MOCK_RESOURCES.find(r => r.id === resourceId);
+    // Fetch resource from Supabase
+    useEffect(() => {
+        const fetchResource = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const data = await getResource(id);
+                setResource(data);
 
-    // If resource not found, show error state
-    if (!resource) {
+                // Fetch related resources (same major tag)
+                if (data) {
+                    const allResources = await getResources({ majorTag: data.major_tag });
+                    const related = allResources
+                        .filter(r => r.id !== id)
+                        .slice(0, 3);
+                    setRelatedResources(related);
+                }
+            } catch (err) {
+                console.error('Error fetching resource:', err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchResource();
+    }, [id]);
+
+    // Loading state
+    if (loading) {
+        return (
+            <div className="resource-detail-page">
+                <div className="resource-detail-not-found">
+                    <p>Loading resource...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error || !resource) {
         return (
             <div className="resource-detail-page">
                 <div className="resource-detail-not-found">
                     <h1>Resource Not Found</h1>
-                    <p>The resource you're looking for doesn't exist.</p>
+                    <p>{error || "The resource you're looking for doesn't exist."}</p>
                     <Link to="/resources" className="back-to-resources-btn">
                         ← Back
                     </Link>
@@ -30,10 +70,13 @@ export default function ResourceDetail() {
         );
     }
 
-    // Find related resources (same major, excluding current)
-    const relatedResources = MOCK_RESOURCES
-        .filter(r => r.id !== resourceId && (r.major === resource.major || resource.major === "All Majors" || r.major === "All Majors"))
-        .slice(0, 3);
+    // Format author name and date
+    const authorName = resource.author
+        ? `${resource.author.first_name} ${resource.author.last_name}`
+        : 'VENSA Member';
+    const formattedDate = new Date(resource.created_at).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric'
+    });
 
     return (
         <div className="resource-detail-page">
@@ -45,8 +88,8 @@ export default function ResourceDetail() {
                 <div className="resource-detail-hero-overlay"></div>
                 <div className="resource-detail-hero-content">
                     <div className="resource-detail-image-container">
-                        {resource.image ? (
-                            <img src={resource.image} alt={resource.title} className="resource-detail-image" />
+                        {resource.image_url ? (
+                            <img src={resource.image_url} alt={resource.title} className="resource-detail-image" />
                         ) : (
                             <div className="resource-detail-placeholder">
                                 <img src={vensaLogo} alt="VENSA Logo" className="resource-detail-logo" />
@@ -63,14 +106,14 @@ export default function ResourceDetail() {
                         <Link to="/resources" className="back-link">
                             ← Back
                         </Link>
-                        <span className="resource-detail-tag">{resource.major}</span>
+                        <span className="resource-detail-tag">{resource.major_tag}</span>
                     </div>
 
                     <h1 className="resource-detail-title">{resource.title}</h1>
 
                     <div className="resource-detail-meta">
-                        <span className="resource-detail-author">By {resource.author}</span>
-                        <span className="resource-detail-date">{resource.date}</span>
+                        <span className="resource-detail-author">By {authorName}</span>
+                        <span className="resource-detail-date">{formattedDate}</span>
                     </div>
 
                     <div className="resource-detail-body">
@@ -87,6 +130,43 @@ export default function ResourceDetail() {
                             to the author or discuss with fellow VENSA members at our next meeting.
                         </p>
                     </div>
+
+                    {/* Download Files Section */}
+                    {resource.file_url && (
+                        <div className="resource-file-download">
+                            <h3>Attached Documents</h3>
+                            <div className="download-files-list">
+                                {(() => {
+                                    try {
+                                        const files = JSON.parse(resource.file_url);
+                                        return files.map((file, index) => (
+                                            <a
+                                                key={index}
+                                                href={file.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="download-button"
+                                            >
+                                                📄 {file.name}
+                                            </a>
+                                        ));
+                                    } catch {
+                                        // Legacy single URL format
+                                        return (
+                                            <a
+                                                href={resource.file_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="download-button"
+                                            >
+                                                📄 Download File
+                                            </a>
+                                        );
+                                    }
+                                })()}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -96,24 +176,29 @@ export default function ResourceDetail() {
                     <div className="related-resources-container">
                         <h2 className="related-resources-title">Related Resources</h2>
                         <div className="related-resources-grid">
-                            {relatedResources.map(related => (
-                                <Link to={`/resources/${related.id}`} key={related.id} className="related-resource-card">
-                                    <div className="related-resource-image">
-                                        {related.image ? (
-                                            <img src={related.image} alt={related.title} />
-                                        ) : (
-                                            <div className="related-resource-placeholder">
-                                                <img src={vensaLogo} alt="VENSA Logo" className="related-placeholder-logo" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="related-resource-content">
-                                        <span className="related-resource-tag">{related.major}</span>
-                                        <h3 className="related-resource-title">{related.title}</h3>
-                                        <p className="related-resource-author">By {related.author}</p>
-                                    </div>
-                                </Link>
-                            ))}
+                            {relatedResources.map(related => {
+                                const relatedAuthor = related.author
+                                    ? `${related.author.first_name} ${related.author.last_name}`
+                                    : 'VENSA Member';
+                                return (
+                                    <Link to={`/resources/${related.id}`} key={related.id} className="related-resource-card">
+                                        <div className="related-resource-image">
+                                            {related.image_url ? (
+                                                <img src={related.image_url} alt={related.title} />
+                                            ) : (
+                                                <div className="related-resource-placeholder">
+                                                    <img src={vensaLogo} alt="VENSA Logo" className="related-placeholder-logo" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="related-resource-content">
+                                            <span className="related-resource-tag">{related.major_tag}</span>
+                                            <h3 className="related-resource-title">{related.title}</h3>
+                                            <p className="related-resource-author">By {relatedAuthor}</p>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
                         </div>
                     </div>
                 </section>

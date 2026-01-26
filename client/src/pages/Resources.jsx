@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { getResources, createResource, uploadResourceImage, uploadResourceFile } from "../lib/supabase";
+import { useAuth } from "../context/AuthContext";
 import bannerBg from "../images/VENSA Website Banner Background.png";
 import vensaLogo from "../images/Vensa Website logo.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
@@ -7,68 +9,6 @@ import instagramIcon from "../images/Vensa Website Instagram.png";
 import facebookIcon from "../images/Vensa Website Facebook.png";
 import pinIcon from "../images/Vensa Website Pin.png";
 import linkedinIcon from "../images/Vensa Website Linkedin.png";
-import resourceMechanical from "../images/resource-mechanical-engineering.png";
-import resourceLibrary from "../images/resource-library-study.png";
-import resourceCS from "../images/resource-cs-internship.png";
-import resourceResume from "../images/VENSA Resume Workshop.png";
-
-// Mock data for resources - exported for use by ResourceDetail page
-export const MOCK_RESOURCES = [
-  {
-    id: 1,
-    title: "Intro to Mechanical Engineering",
-    description: "A comprehensive guide to your first semester courses in mechanical engineering. Covers essential topics like statics, dynamics, and materials science. Perfect for incoming freshmen looking to get ahead.",
-    major: "Mechanical Engineering",
-    image: resourceMechanical,
-    author: "Carlos Mendez",
-    date: "January 15, 2026"
-  },
-  {
-    id: 2,
-    title: "Best UF Libraries for Studying",
-    description: "Discover the quietest and most productive study spots around campus. From Library West to Marston Science Library, find the perfect environment for your study sessions.",
-    major: "All Majors",
-    image: resourceLibrary,
-    author: "Maria Rodriguez",
-    date: "January 10, 2026"
-  },
-  {
-    id: 3,
-    title: "CS Internship Tips",
-    description: "How to land your first tech internship as a computer science student. Covers resume tips, LeetCode prep, behavioral interviews, and networking strategies.",
-    major: "Computer Science",
-    image: resourceCS,
-    author: "Diego Torres",
-    date: "January 8, 2026"
-  },
-  {
-    id: 4,
-    title: "Pre-Med Path Guide",
-    description: "Everything you need to know about the pre-med track at UF. Includes course recommendations, MCAT prep timeline, and research opportunities.",
-    major: "Biology/Pre-Med",
-    image: null,
-    author: "Ana Martinez",
-    date: "January 5, 2026"
-  },
-  {
-    id: 5,
-    title: "Resume Building 101",
-    description: "General resume advice for all majors. Learn how to format your resume, highlight your achievements, and tailor it for different opportunities.",
-    major: "All Majors",
-    image: resourceResume,
-    author: "Luis Garcia",
-    date: "January 3, 2026"
-  },
-  {
-    id: 6,
-    title: "Finance Career Prep",
-    description: "Breaking into investment banking, consulting, and corporate finance. Covers networking, case interviews, and recruiting timelines.",
-    major: "Finance",
-    image: null,
-    author: "Sofia Hernandez",
-    date: "December 28, 2025"
-  }
-];
 
 const MAJORS = [
   "All Majors",
@@ -88,43 +28,95 @@ export default function Resources() {
   const [selectedMajor, setSelectedMajor] = useState("All");
   const [showModal, setShowModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [resources, setResources] = useState(MOCK_RESOURCES);
+  const [resources, setResources] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { user } = useAuth();
 
   // Form state for new resource
   const [newResource, setNewResource] = useState({
     title: "",
     description: "",
     major: "All Majors",
-    image: null
+    imageFile: null,
+    documentFiles: []
   });
 
-  // Filter resources based on search and major
-  const filteredResources = resources.filter(resource => {
-    const matchesSearch = resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resource.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesMajor = selectedMajor === "All" || resource.major === selectedMajor;
-    return matchesSearch && matchesMajor;
-  });
+  // Fetch resources from Supabase
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getResources({
+          majorTag: selectedMajor,
+          search: searchQuery,
+        });
+        setResources(data || []);
+      } catch (err) {
+        console.error('Error fetching resources:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleSubmit = (e) => {
+    fetchResources();
+  }, [selectedMajor, searchQuery]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newId = resources.length + 1;
-    const today = new Date().toLocaleDateString("en-US", {
-      year: "numeric", month: "long", day: "numeric"
-    });
 
-    setResources([
-      {
-        id: newId,
-        ...newResource,
-        author: "VENSA Member",
-        date: today
-      },
-      ...resources
-    ]);
+    if (!user) {
+      alert("Please log in to add a resource");
+      return;
+    }
 
-    setNewResource({ title: "", description: "", major: "All Majors", image: null });
-    setShowModal(false);
+    setIsSubmitting(true);
+
+    try {
+      let imageUrl = null;
+      let fileUrls = null;
+
+      // Upload image if provided
+      if (newResource.imageFile) {
+        imageUrl = await uploadResourceImage(newResource.imageFile);
+      }
+
+      // Upload all document files if provided
+      if (newResource.documentFiles.length > 0) {
+        const uploadedFiles = await Promise.all(
+          newResource.documentFiles.map(async (file) => {
+            const url = await uploadResourceFile(file);
+            return { name: file.name, url };
+          })
+        );
+        fileUrls = JSON.stringify(uploadedFiles);
+      }
+
+      // Create resource in database
+      const created = await createResource({
+        title: newResource.title,
+        description: newResource.description,
+        major_tag: newResource.major,
+        image_url: imageUrl,
+        file_url: fileUrls,
+      });
+
+      // Add to local state at the beginning
+      setResources(prev => [created, ...prev]);
+
+      // Reset form
+      setNewResource({ title: "", description: "", major: "All Majors", imageFile: null, documentFiles: [] });
+      setShowModal(false);
+    } catch (err) {
+      console.error('Error creating resource:', err);
+      alert("Error creating resource: " + err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -156,12 +148,14 @@ export default function Resources() {
               className="resources-search-input"
             />
           </div>
-          <button
-            className="add-resource-button"
-            onClick={() => setShowModal(true)}
-          >
-            <span>+</span> Add Resource
-          </button>
+          {user && (
+            <button
+              className="add-resource-button"
+              onClick={() => setShowModal(true)}
+            >
+              <span>+</span> Add Resource
+            </button>
+          )}
           <div className="resources-filter">
             <label className="resources-filter-label">Filter by Major:</label>
             <div className="resources-custom-select">
@@ -205,35 +199,66 @@ export default function Resources() {
       {/* Resources Grid */}
       <section className="resources-grid-section">
         <div className="resources-grid">
-          {filteredResources.length > 0 ? (
-            filteredResources.map(resource => (
-              <Link to={`/resources/${resource.id}`} key={resource.id} className="resource-card-link">
-                <div className="resource-card">
-                  <div className="resource-card-image">
-                    {resource.image ? (
-                      <img src={resource.image} alt={resource.title} />
-                    ) : (
-                      <div className="resource-card-placeholder">
-                        <img src={vensaLogo} alt="VENSA Logo" className="resource-placeholder-logo" />
+          {loading ? (
+            <div className="resources-empty">
+              <p>Loading resources...</p>
+            </div>
+          ) : error ? (
+            <div className="resources-empty">
+              <p style={{ color: '#dc2626' }}>Error loading resources: {error}</p>
+            </div>
+          ) : resources.length > 0 ? (
+            resources.map(resource => {
+              const authorName = resource.author
+                ? `${resource.author.first_name} ${resource.author.last_name}`
+                : 'VENSA Member';
+              const formattedDate = new Date(resource.created_at).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric'
+              });
+
+              return (
+                <Link to={`/resources/${resource.id}`} key={resource.id} className="resource-card-link">
+                  <div className="resource-card">
+                    <div className="resource-card-image">
+                      {resource.image_url ? (
+                        <img src={resource.image_url} alt={resource.title} />
+                      ) : (
+                        <div className="resource-card-placeholder">
+                          <img src={vensaLogo} alt="VENSA Logo" className="resource-placeholder-logo" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="resource-card-content">
+                      <div className="resource-card-tags">
+                        <span className="resource-card-tag">{resource.major_tag}</span>
+                        {resource.file_url && (
+                          <span className="resource-card-file-badge">
+                            📄 {(() => {
+                              try {
+                                const files = JSON.parse(resource.file_url);
+                                return files.length === 1 ? '1 File' : `${files.length} Files`;
+                              } catch {
+                                return '1 File';
+                              }
+                            })()}
+                          </span>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <div className="resource-card-content">
-                    <span className="resource-card-tag">{resource.major}</span>
-                    <h3 className="resource-card-title">{resource.title}</h3>
-                    <p className="resource-card-description">{resource.description}</p>
-                    <div className="resource-card-footer">
-                      <span className="resource-card-author">By {resource.author}</span>
-                      <span className="resource-card-date">{resource.date}</span>
+                      <h3 className="resource-card-title">{resource.title}</h3>
+                      <p className="resource-card-description">{resource.description}</p>
+                      <div className="resource-card-footer">
+                        <span className="resource-card-author">By {authorName}</span>
+                        <span className="resource-card-date">{formattedDate}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))
+                </Link>
+              );
+            })
           ) : (
             <div className="resources-empty">
               <span className="resources-empty-icon">📭</span>
-              <p>No resources found matching your criteria.</p>
+              <p>{searchQuery || selectedMajor !== "All" ? "No resources found matching your criteria." : "No resources have been added yet."}</p>
             </div>
           )}
         </div>
@@ -283,7 +308,7 @@ export default function Resources() {
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="resource-image">Photo (optional)</label>
+                <label htmlFor="resource-image">Cover Image (optional)</label>
                 <input
                   type="file"
                   id="resource-image"
@@ -291,22 +316,58 @@ export default function Resources() {
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        setNewResource({ ...newResource, image: event.target.result });
-                      };
-                      reader.readAsDataURL(file);
+                      setNewResource({ ...newResource, imageFile: file });
                     }
                   }}
                   className="file-input"
                 />
               </div>
+              <div className="form-group">
+                <label htmlFor="resource-file">Document Files (PDF, DOCX, MD) - Multiple allowed</label>
+                <input
+                  type="file"
+                  id="resource-file"
+                  accept=".pdf,.docx,.doc,.md,.txt"
+                  multiple
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files);
+                    if (files.length > 0) {
+                      setNewResource({ ...newResource, documentFiles: [...newResource.documentFiles, ...files] });
+                    }
+                  }}
+                  className="file-input"
+                />
+                {newResource.documentFiles.length > 0 && (
+                  <div className="files-selected">
+                    <p className="files-selected-title">Selected files ({newResource.documentFiles.length}):</p>
+                    <ul className="files-selected-list">
+                      {newResource.documentFiles.map((file, index) => (
+                        <li key={index} className="file-selected-item">
+                          <span>{file.name}</span>
+                          <button
+                            type="button"
+                            className="file-remove-btn"
+                            onClick={() => {
+                              setNewResource({
+                                ...newResource,
+                                documentFiles: newResource.documentFiles.filter((_, i) => i !== index)
+                              });
+                            }}
+                          >
+                            ×
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
               <div className="modal-actions">
-                <button type="button" className="modal-cancel" onClick={() => setShowModal(false)}>
+                <button type="button" className="modal-cancel" onClick={() => setShowModal(false)} disabled={isSubmitting}>
                   Cancel
                 </button>
-                <button type="submit" className="modal-submit">
-                  Add Resource
+                <button type="submit" className="modal-submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Adding..." : "Add Resource"}
                 </button>
               </div>
             </form>

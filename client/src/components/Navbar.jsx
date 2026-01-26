@@ -1,40 +1,11 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/Vensa Website logo.png";
 
 export default function Navbar() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const isLoggedIn = !!user;
-  const [showDropdown, setShowDropdown] = useState(false);
-  const dropdownRef = useRef(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Close dropdown when clicking outside
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleLogout = async () => {
-    await signOut();
-    setShowDropdown(false);
-    navigate("/profile");
-  };
-
-  const handleProfileClick = (e) => {
-    if (isLoggedIn) {
-      e.preventDefault();
-      setShowDropdown(!showDropdown);
-    }
-  };
 
   return (
     <nav className="navbar">
@@ -66,23 +37,9 @@ export default function Navbar() {
           <span className="navbar-separator">|</span>
           <NavLink to="/resources" className="navbar-link">Resources</NavLink>
           
-          <div className="navbar-profile-container" ref={dropdownRef}>
-            <NavLink 
-              to="/profile" 
-              className="navbar-profile"
-              onClick={handleProfileClick}
-            >
-              {isLoggedIn ? "Profile" : "Sign In"}
-            </NavLink>
-            
-            {isLoggedIn && showDropdown && (
-              <div className="navbar-dropdown">
-                <button onClick={handleLogout} className="navbar-dropdown-item">
-                  Log Out
-                </button>
-              </div>
-            )}
-          </div>
+          <NavLink to="/profile" className="navbar-profile">
+            {isLoggedIn ? "Profile" : "Sign In"}
+          </NavLink>
         </div>
       </div>
     </nav>

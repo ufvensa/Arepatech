@@ -1,6 +1,6 @@
 # VENSA - Venezuelan Student Association at UF
 
-**Creating a home away from home while fostering professional development and cultural connection!**
+**Creating a home away from home while fostering professional development and cultural connection.**
 
 ## Mission
 

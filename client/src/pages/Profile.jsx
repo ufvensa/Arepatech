@@ -4,10 +4,10 @@ import { useAuth } from "../context/AuthContext";
 import { updateProfile } from "../lib/supabase";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
-import instagramIcon from "../images/Vensa Website Instagram.png";
-import facebookIcon from "../images/Vensa Website Facebook.png";
-import pinIcon from "../images/Vensa Website Pin.png";
-import linkedinIcon from "../images/Vensa Website Linkedin.png";
+import instagramIcon from "../images/VENSA Website Instagram.png";
+import facebookIcon from "../images/VENSA Website Facebook.png";
+import pinIcon from "../images/VENSA Website Pin.png";
+import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 
 // Edit Profile Form Component
 function EditProfileForm({ profile, onSave, onCancel }) {

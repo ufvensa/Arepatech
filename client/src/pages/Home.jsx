@@ -10,10 +10,10 @@ import BonfireImg from "../images/VENSA Bonfire.png";
 import EboardImg from "../images/VENSA Eboard.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
-import instagramIcon from "../images/Vensa Website Instagram.png";
-import facebookIcon from "../images/Vensa Website Facebook.png";
-import pinIcon from "../images/Vensa Website Pin.png";
-import linkedinIcon from "../images/Vensa Website Linkedin.png";
+import instagramIcon from "../images/VENSA Website Instagram.png";
+import facebookIcon from "../images/VENSA Website Facebook.png";
+import pinIcon from "../images/VENSA Website Pin.png";
+import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 
 export default function Home() {
   const bannerImages = [bannerBg1, bannerBg2, bannerBg3, bannerBg4, bannerBg5];

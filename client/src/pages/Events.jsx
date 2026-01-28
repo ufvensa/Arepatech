@@ -3,7 +3,7 @@ import bannerBg from "../images/VENSA Website Banner Background.png";
 import gbmImg from "../images/VENSA GBM.png";
 import bonfireImg from "../images/VENSA Bonfire.png";
 import resumeWorkshopImg from "../images/VENSA Resume Workshop.png";
-import vensaLogo from "../images/Vensa Website logo.png";
+import vensaLogo from "../images/VENSA Website Logo.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import instagramIcon from "../images/Vensa Website Instagram.png";
 import facebookIcon from "../images/Vensa Website Facebook.png";

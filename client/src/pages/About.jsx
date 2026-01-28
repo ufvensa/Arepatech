@@ -4,7 +4,7 @@ import aboutUsImg from "../images/VENSA Website About Us.png";
 import visionImg from "../images/VENSA Website Vision.png";
 import missionImg from "../images/VENSA Website Mission.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
-import vensaLogo from "../images/Vensa Website logo.png";
+import vensaLogo from "../images/VENSA Website Logo.png";
 import instagramIcon from "../images/Vensa Website Instagram.png";
 import facebookIcon from "../images/Vensa Website Facebook.png";
 import pinIcon from "../images/Vensa Website Pin.png";
@@ -14,7 +14,7 @@ export default function About() {
   return (
     <div className="about-page">
       {/* Hero Banner */}
-      <div 
+      <div
         className="hero-banner"
         style={{ backgroundImage: `url(${bannerBg})` }}
       >
@@ -35,8 +35,8 @@ export default function About() {
             </p>
           </div>
           <div className="content-image-wrapper">
-            <img 
-              src={aboutUsImg} 
+            <img
+              src={aboutUsImg}
               alt="Venezuelan food and culture"
               className="content-image"
             />
@@ -54,8 +54,8 @@ export default function About() {
             </p>
           </div>
           <div className="content-image-wrapper">
-            <img 
-              src={visionImg} 
+            <img
+              src={visionImg}
               alt="Venezuelan culture"
               className="content-image"
             />
@@ -73,8 +73,8 @@ export default function About() {
             </p>
           </div>
           <div className="content-image-wrapper">
-            <img 
-              src={missionImg} 
+            <img
+              src={missionImg}
               alt="Venezuelan culture"
               className="content-image"
             />
@@ -87,8 +87,8 @@ export default function About() {
         <div className="footer-main-container">
           <div className="footer-content">
             <Link to="/" className="footer-logo-group">
-              <img 
-                src={ufLogo} 
+              <img
+                src={ufLogo}
                 alt="UF Logo"
                 className="footer-logo-uf"
               />
@@ -97,8 +97,8 @@ export default function About() {
                 <div className="footer-text-top">Venezuelan</div>
                 <div className="footer-text-bottom">Student Association</div>
               </div>
-              <img 
-                src={vensaLogo} 
+              <img
+                src={vensaLogo}
                 alt="VENSA Logo"
                 className="footer-logo-vensa"
               />
@@ -106,18 +106,18 @@ export default function About() {
 
             <div className="footer-right">
               <div className="footer-social">
-                <a 
-                  href="https://www.instagram.com/ufvensa/?hl=en" 
-                  target="_blank" 
+                <a
+                  href="https://www.instagram.com/ufvensa/?hl=en"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="social-item"
                 >
                   <img src={instagramIcon} alt="Instagram" className="social-icon" />
                   <span>@ufvensa</span>
                 </a>
-                <a 
-                  href="https://www.facebook.com/uf.vensa/" 
-                  target="_blank" 
+                <a
+                  href="https://www.facebook.com/uf.vensa/"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="social-item"
                 >
@@ -127,18 +127,18 @@ export default function About() {
               </div>
 
               <div className="footer-contact">
-                <a 
-                  href="https://www.google.com/maps/place/University+of+Florida/@29.6464959,-82.3557957,16.11z/data=!4m6!3m5!1s0x88e8a30cfbe49275:0x206fe0de143d9886!8m2!3d29.6465428!4d-82.3533266!16s%2Fm%2F0j_sncb?entry=ttu&g_ep=EgoyMDI1MTExNy4wIKXMDSoASAFQAw%3D%3D" 
-                  target="_blank" 
+                <a
+                  href="https://www.google.com/maps/place/University+of+Florida/@29.6464959,-82.3557957,16.11z/data=!4m6!3m5!1s0x88e8a30cfbe49275:0x206fe0de143d9886!8m2!3d29.6465428!4d-82.3533266!16s%2Fm%2F0j_sncb?entry=ttu&g_ep=EgoyMDI1MTExNy4wIKXMDSoASAFQAw%3D%3D"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="contact-item"
                 >
                   <img src={pinIcon} alt="Location" className="contact-icon" />
                   <span>University of Florida • Gainesville, FL</span>
                 </a>
-                <a 
-                  href="https://www.linkedin.com/company/ufvensa" 
-                  target="_blank" 
+                <a
+                  href="https://www.linkedin.com/company/ufvensa"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="contact-item"
                 >

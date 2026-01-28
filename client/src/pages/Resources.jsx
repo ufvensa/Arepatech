@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { getResources, createResource, uploadResourceImage, uploadResourceFile } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import bannerBg from "../images/VENSA Website Banner Background.png";
-import vensaLogo from "../images/Vensa Website logo.png";
+import vensaLogo from "../images/VENSA Website Logo.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import instagramIcon from "../images/Vensa Website Instagram.png";
 import facebookIcon from "../images/Vensa Website Facebook.png";
@@ -242,8 +242,8 @@ export default function Resources() {
           <div className="resources-filter">
             <label className="resources-filter-label">Filter by Major:</label>
             <div className="resources-custom-select">
-              <div 
-                className="resources-select-display" 
+              <div
+                className="resources-select-display"
                 onClick={() => setShowDropdown(!showDropdown)}
               >
                 {selectedMajor === "All" ? "All Majors" : selectedMajor}
@@ -251,7 +251,7 @@ export default function Resources() {
               </div>
               {showDropdown && (
                 <div className="resources-select-dropdown">
-                  <div 
+                  <div
                     className={`resources-select-option ${selectedMajor === "All" ? "selected" : ""}`}
                     onClick={() => {
                       setSelectedMajor("All");
@@ -261,7 +261,7 @@ export default function Resources() {
                     All Majors
                   </div>
                   {MAJORS.filter(major => major !== "All Majors").map(major => (
-                    <div 
+                    <div
                       key={major}
                       className={`resources-select-option ${selectedMajor === major ? "selected" : ""}`}
                       onClick={() => {

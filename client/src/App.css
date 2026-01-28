@@ -496,6 +496,54 @@ body {
   object-fit: cover;
 }
 
+/* Responsive Design for Content Sections (About, Get Involved, etc.) */
+@media (max-width: 900px) {
+  .content-grid,
+  .content-grid-reverse {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .content-grid-reverse .content-image-wrapper {
+    order: 0;
+  }
+
+  .content-image {
+    max-width: 100%;
+  }
+
+  .section-title {
+    font-size: 2.25rem;
+  }
+
+  .section-description {
+    font-size: 0.875rem;
+  }
+
+  .content-section {
+    padding: 2.5rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 1.75rem;
+  }
+
+  .section-description {
+    font-size: 0.8rem;
+  }
+
+  .content-section {
+    padding: 2rem 1rem;
+  }
+
+  .involvement-button {
+    font-size: 0.85rem;
+    padding: 0.6rem 1.25rem;
+  }
+}
+
 /* Footer */
 .footer {
   background-color: #1e3a8a;
@@ -1128,6 +1176,14 @@ body {
     font-size: 2.25rem;
   }
 
+  .home-welcome-text {
+    font-size: 1rem;
+  }
+
+  .home-featured-title {
+    font-size: 2.5rem;
+  }
+
   .home-featured-content {
     grid-template-columns: 1fr;
   }
@@ -1135,6 +1191,77 @@ body {
   .home-bottom-sections {
     grid-template-columns: 1fr;
     gap: 3rem;
+  }
+
+  .home-button-group {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-hero {
+    height: 16rem;
+    padding: 0 1rem;
+  }
+
+  .home-hero-title {
+    font-size: 1.5rem;
+  }
+
+  .home-hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .home-welcome {
+    padding: 2rem 1rem;
+  }
+
+  .home-welcome-title {
+    font-size: 1.75rem;
+  }
+
+  .home-welcome-text {
+    font-size: 0.9rem;
+  }
+
+  .home-featured {
+    padding: 2rem 1rem;
+  }
+
+  .home-featured-title {
+    font-size: 1.75rem;
+  }
+
+  .home-featured-event-title {
+    font-size: 1.5rem;
+  }
+
+  .home-countdown-title {
+    font-size: 1.25rem;
+  }
+
+  .countdown-number {
+    font-size: 1.75rem;
+    min-width: 50px;
+  }
+
+  .countdown-label {
+    font-size: 0.65rem;
+  }
+
+  .home-bottom-sections {
+    padding: 2rem 1rem;
+  }
+
+  .home-bottom-title {
+    font-size: 1.5rem;
+  }
+
+  .home-action-button,
+  .home-bottom-button {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem;
   }
 }
 
@@ -1543,13 +1670,37 @@ body {
 
 /* Responsive Design for Get Involved Page */
 @media (max-width: 768px) {
+  .get-involved-hero {
+    padding: 0 1rem;
+  }
+
   .get-involved-hero-title {
     font-size: 2rem;
+  }
+
+  .get-involved-hero-subtitle {
+    font-size: 1rem;
+    padding: 0 0.5rem;
   }
 
   .get-involved-hero-buttons {
     flex-direction: column;
     gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .get-involved-hero-title {
+    font-size: 1.5rem;
+  }
+
+  .get-involved-hero-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .get-involved-hero-button {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem;
   }
 }
 

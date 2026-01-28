@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, isAllowedEmail } from "../context/AuthContext";
+import { uploadAvatar } from "../lib/supabase";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
@@ -19,8 +20,12 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { signUp } = useAuth();
   const navigate = useNavigate();
@@ -29,6 +34,23 @@ export default function SignUp() {
   const emailError = email && !isAllowedEmail(email)
     ? "Please use your @ufl.edu email address"
     : "";
+
+  // Handle profile picture selection
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setError("Profile picture must be less than 5MB");
+        return;
+      }
+      setProfilePicture(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePicturePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -69,6 +91,16 @@ export default function SignUp() {
       if (signUpError) {
         setError(signUpError.message);
         return;
+      }
+
+      // Upload profile picture if provided
+      if (profilePicture && data?.user) {
+        try {
+          await uploadAvatar(data.user.id, profilePicture);
+        } catch (uploadError) {
+          console.error("Failed to upload profile picture:", uploadError);
+          // Don't fail the signup if avatar upload fails
+        }
       }
 
       // Check if email confirmation is required
@@ -145,6 +177,33 @@ export default function SignUp() {
                   className="signup-input"
                   required
                 />
+              </div>
+
+              <div className="signup-form-group">
+                <label htmlFor="profilePicture" className="signup-label">Profile Picture (Optional)</label>
+                <input
+                  type="file"
+                  id="profilePicture"
+                  accept="image/*"
+                  onChange={handleProfilePictureChange}
+                  className="signup-input"
+                  style={{ padding: '8px' }}
+                />
+                {profilePicturePreview && (
+                  <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                    <img 
+                      src={profilePicturePreview} 
+                      alt="Preview" 
+                      style={{ 
+                        width: '100px', 
+                        height: '100px', 
+                        borderRadius: '50%', 
+                        objectFit: 'cover',
+                        border: '3px solid #0021A5'
+                      }} 
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="signup-form-group">
@@ -300,7 +359,7 @@ export default function SignUp() {
               </div>
 
               <div className="signup-form-group">
-                <label htmlFor="username" className="signup-label">Username</label>
+                <label htmlFor="username" className="signup-label">Username (UFL Only)</label>
                 <input
                   type="text"
                   id="username"
@@ -314,28 +373,94 @@ export default function SignUp() {
 
               <div className="signup-form-group">
                 <label htmlFor="password" className="signup-label">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter Password"
-                  className="signup-input"
-                  required
-                />
+                <div style={{ position: 'relative', width: '100%' }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter Password"
+                    className="signup-input"
+                    required
+                    style={{ paddingRight: '40px', width: '100%' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: 'white'
+                    }}
+                  >
+                    {showPassword ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M3.53 2.47a.75.75 0 00-1.06 1.06l18 18a.75.75 0 101.06-1.06l-18-18zM22.676 12.553a11.249 11.249 0 01-2.631 4.31l-3.099-3.099a5.25 5.25 0 00-6.71-6.71L7.759 4.577a11.217 11.217 0 014.242-.827c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113z" />
+                        <path d="M15.75 12c0 .18-.013.357-.037.53l-4.244-4.243A3.75 3.75 0 0115.75 12zM12.53 15.713l-4.243-4.244a3.75 3.75 0 004.243 4.243z" />
+                        <path d="M6.75 12c0-.619.107-1.213.304-1.764l-3.1-3.1a11.25 11.25 0 00-2.63 4.31c-.12.362-.12.752 0 1.114 1.489 4.467 5.704 7.69 10.675 7.69 1.5 0 2.933-.294 4.242-.827l-2.477-2.477A5.25 5.25 0 016.75 12z" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                        <path fillRule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="signup-form-group">
                 <label htmlFor="confirmPassword" className="signup-label">Confirm Password</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm Your Password"
-                  className="signup-input"
-                  required
-                />
+                <div style={{ position: 'relative', width: '100%' }}>
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm Your Password"
+                    className="signup-input"
+                    required
+                    style={{ paddingRight: '40px', width: '100%' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: 'white'
+                    }}
+                  >
+                    {showConfirmPassword ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M3.53 2.47a.75.75 0 00-1.06 1.06l18 18a.75.75 0 101.06-1.06l-18-18zM22.676 12.553a11.249 11.249 0 01-2.631 4.31l-3.099-3.099a5.25 5.25 0 00-6.71-6.71L7.759 4.577a11.217 11.217 0 014.242-.827c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113z" />
+                        <path d="M15.75 12c0 .18-.013.357-.037.53l-4.244-4.243A3.75 3.75 0 0115.75 12zM12.53 15.713l-4.243-4.244a3.75 3.75 0 004.243 4.243z" />
+                        <path d="M6.75 12c0-.619.107-1.213.304-1.764l-3.1-3.1a11.25 11.25 0 00-2.63 4.31c-.12.362-.12.752 0 1.114 1.489 4.467 5.704 7.69 10.675 7.69 1.5 0 2.933-.294 4.242-.827l-2.477-2.477A5.25 5.25 0 016.75 12z" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                        <path fillRule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="signup-form-options">

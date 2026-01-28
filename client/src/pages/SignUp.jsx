@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, isAllowedEmail } from "../context/AuthContext";
+import { uploadAvatar } from "../lib/supabase";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
@@ -19,6 +20,8 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,6 +32,23 @@ export default function SignUp() {
   const emailError = email && !isAllowedEmail(email)
     ? "Please use your @ufl.edu email address"
     : "";
+
+  // Handle profile picture selection
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setError("Profile picture must be less than 5MB");
+        return;
+      }
+      setProfilePicture(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePicturePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -69,6 +89,16 @@ export default function SignUp() {
       if (signUpError) {
         setError(signUpError.message);
         return;
+      }
+
+      // Upload profile picture if provided
+      if (profilePicture && data?.user) {
+        try {
+          await uploadAvatar(data.user.id, profilePicture);
+        } catch (uploadError) {
+          console.error("Failed to upload profile picture:", uploadError);
+          // Don't fail the signup if avatar upload fails
+        }
       }
 
       // Check if email confirmation is required
@@ -145,6 +175,33 @@ export default function SignUp() {
                   className="signup-input"
                   required
                 />
+              </div>
+
+              <div className="signup-form-group">
+                <label htmlFor="profilePicture" className="signup-label">Profile Picture (Optional)</label>
+                <input
+                  type="file"
+                  id="profilePicture"
+                  accept="image/*"
+                  onChange={handleProfilePictureChange}
+                  className="signup-input"
+                  style={{ padding: '8px' }}
+                />
+                {profilePicturePreview && (
+                  <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                    <img 
+                      src={profilePicturePreview} 
+                      alt="Preview" 
+                      style={{ 
+                        width: '100px', 
+                        height: '100px', 
+                        borderRadius: '50%', 
+                        objectFit: 'cover',
+                        border: '3px solid #0021A5'
+                      }} 
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="signup-form-group">
@@ -300,7 +357,7 @@ export default function SignUp() {
               </div>
 
               <div className="signup-form-group">
-                <label htmlFor="username" className="signup-label">Username</label>
+                <label htmlFor="username" className="signup-label">Username (UFL Only)</label>
                 <input
                   type="text"
                   id="username"

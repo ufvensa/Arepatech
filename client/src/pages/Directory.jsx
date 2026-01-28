@@ -336,7 +336,7 @@ export default function Directory() {
                     </div>
 
                     <div className="footer-copyright">
-                        © Copyright 2025. All Rights Reserved.
+                        © Copyright 2026. All Rights Reserved.
                     </div>
                 </div>
             </footer>

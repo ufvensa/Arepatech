@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { updateProfile } from "../lib/supabase";
+import { updateProfile, uploadAvatar } from "../lib/supabase";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
@@ -11,6 +11,14 @@ import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 
 // Edit Profile Form Component
 function EditProfileForm({ profile, onSave, onCancel }) {
+  // Format date to YYYY-MM-DD for the date input, avoiding timezone issues
+  const formatDateForInput = (dateStr) => {
+    if (!dateStr) return "";
+    // Just take the first 10 characters (YYYY-MM-DD) from the date string
+    // This avoids any timezone conversion issues
+    return dateStr.split('T')[0];
+  };
+
   const [formData, setFormData] = useState({
     first_name: profile?.first_name || "",
     last_name: profile?.last_name || "",
@@ -19,7 +27,10 @@ function EditProfileForm({ profile, onSave, onCancel }) {
     workplace: profile?.workplace || "",
     bio: profile?.bio || "",
     linkedin_url: profile?.linkedin_url || "",
+    date_of_birth: formatDateForInput(profile?.date_of_birth) || "",
   });
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState(profile?.avatar_url || null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -28,12 +39,32 @@ function EditProfileForm({ profile, onSave, onCancel }) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setError("Profile picture must be less than 5MB");
+        return;
+      }
+      setProfilePicture(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePicturePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError("");
 
     try {
+      // Upload profile picture first if one was selected
+      if (profilePicture) {
+        await uploadAvatar(profile.id, profilePicture);
+      }
       await onSave(formData);
     } catch (err) {
       setError(err.message || "Failed to save profile");
@@ -49,6 +80,81 @@ function EditProfileForm({ profile, onSave, onCancel }) {
           {error}
         </div>
       )}
+
+      <div className="profile-edit-field profile-edit-field-full" style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <label>Profile Picture</label>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+          <label htmlFor="profile-picture-input" style={{ 
+            position: 'relative', 
+            cursor: 'pointer',
+            display: 'inline-block'
+          }}>
+            {profilePicturePreview ? (
+              <img 
+                src={profilePicturePreview} 
+                alt="Profile" 
+                style={{ 
+                  width: '120px', 
+                  height: '120px', 
+                  borderRadius: '50%', 
+                  objectFit: 'cover',
+                  border: '3px solid #0021A5',
+                  transition: 'opacity 0.3s'
+                }} 
+                onMouseOver={(e) => e.target.style.opacity = '0.7'}
+                onMouseOut={(e) => e.target.style.opacity = '1'}
+              />
+            ) : (
+              <div style={{
+                width: '120px',
+                height: '120px',
+                borderRadius: '50%',
+                backgroundColor: '#f3f4f6',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '48px',
+                fontWeight: 'bold',
+                color: '#0021A5',
+                transition: 'background-color 0.3s'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#e5e7eb'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#f3f4f6'}>
+                {profile?.first_name?.[0]}{profile?.last_name?.[0]}
+              </div>
+            )}
+            <div style={{
+              position: 'absolute',
+              bottom: '0',
+              right: '0',
+              backgroundColor: '#0021A5',
+              borderRadius: '50%',
+              width: '36px',
+              height: '36px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '3px solid white',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="20" height="20">
+                <path d="M12 9a3.75 3.75 0 100 7.5A3.75 3.75 0 0012 9z" />
+                <path fillRule="evenodd" d="M9.344 3.071a49.52 49.52 0 015.312 0c.967.052 1.83.585 2.332 1.39l.821 1.317c.24.383.645.643 1.11.71.386.054.77.113 1.152.177 1.432.239 2.429 1.493 2.429 2.909V18a3 3 0 01-3 3h-15a3 3 0 01-3-3V9.574c0-1.416.997-2.67 2.429-2.909.382-.064.766-.123 1.151-.178a1.56 1.56 0 001.11-.71l.822-1.315a2.942 2.942 0 012.332-1.39zM6.75 12.75a5.25 5.25 0 1110.5 0 5.25 5.25 0 01-10.5 0zm12-1.5a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </label>
+          <input
+            id="profile-picture-input"
+            type="file"
+            accept="image/*"
+            onChange={handleProfilePictureChange}
+            style={{ display: 'none' }}
+          />
+          <p style={{ fontSize: '12px', color: '#6b7280', margin: '0' }}>
+            Click to change profile picture
+          </p>
+        </div>
+      </div>
 
       <div className="profile-edit-grid">
         <div className="profile-edit-field">
@@ -196,6 +302,16 @@ function EditProfileForm({ profile, onSave, onCancel }) {
         </div>
 
         <div className="profile-edit-field">
+          <label>Date of Birth</label>
+          <input
+            type="date"
+            name="date_of_birth"
+            value={formData.date_of_birth}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="profile-edit-field">
           <label>Workplace</label>
           <input
             type="text"
@@ -263,7 +379,9 @@ function UserProfileView({ profile, onEdit, onLogout }) {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return null;
-    const date = new Date(dateStr);
+    // Parse the date as YYYY-MM-DD to avoid timezone issues
+    const [year, month, day] = dateStr.split('T')[0].split('-');
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   };
 

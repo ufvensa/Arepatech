@@ -194,7 +194,7 @@ export default function Resources() {
               </div>
             </div>
             <div className="footer-copyright">
-              © Copyright 2025. All Rights Reserved.
+              © Copyright 2026. All Rights Reserved.
             </div>
           </div>
         </footer>
@@ -526,7 +526,7 @@ export default function Resources() {
           </div>
 
           <div className="footer-copyright">
-            © Copyright 2025. All Rights Reserved.
+            © Copyright 2026. All Rights Reserved.
           </div>
         </div>
       </footer>

@@ -1,7 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ufLogo from "../images/VENSA Website UF Logo.png";
-import vensaLogo from "../images/Vensa Website logo.png";
+import vensaLogo from "../images/VENSA Website Logo.png";
 
 export default function Navbar() {
   const { user } = useAuth();

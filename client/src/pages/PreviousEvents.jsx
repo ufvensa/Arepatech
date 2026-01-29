@@ -9,16 +9,16 @@ import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 import { fetchCalendarEvents, separateEvents } from "../lib/calendar";
 
-export default function Events() {
-  const [upcomingEvents, setUpcomingEvents] = useState([]);
+export default function PreviousEvents() {
+  const [pastEvents, setPastEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadEvents() {
       setLoading(true);
       const events = await fetchCalendarEvents();
-      const { upcoming } = separateEvents(events);
-      setUpcomingEvents(upcoming);
+      const { past } = separateEvents(events);
+      setPastEvents(past);
       setLoading(false);
     }
     loadEvents();
@@ -32,19 +32,14 @@ export default function Events() {
       >
         <div className="events-hero-overlay"></div>
         <div className="events-hero-content">
-          <h1 className="events-hero-title">Upcoming Events</h1>
+          <h1 className="events-hero-title">Previous Events</h1>
           <p className="events-hero-subtitle">
-            Discover what's happening with VENSA at all times!
+            Take a look at the amazing events we've hosted in the past!
           </p>
           <div className="events-hero-buttons">
-            <a
-              href="https://chat.whatsapp.com/DxcXPAsGNA5BeoPFAKyoAn"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="events-hero-button"
-            >
-              Join our Whatsapp
-            </a>
+            <Link to="/events" className="events-hero-button">
+              View Upcoming Events
+            </Link>
             <a
               href="https://www.instagram.com/ufvensa/?hl=en"
               target="_blank"
@@ -57,34 +52,20 @@ export default function Events() {
         </div>
       </div>
 
-      {/* What's Happening Section */}
-      <section className="events-happening">
-        <h2 className="events-happening-title">What Events does VENSA Host?</h2>
-        <div className="events-happening-content">
-          <img src={vensaLogo} alt="VENSA Logo" className="events-happening-logo" />
-          <p className="events-happening-text">
-            From picnics to running to professional development, VENSA hosts a variety of events each month.
-            Discover spaces that connect Venezuelan students at the University of Florida with each
-            other through culture and community.
-          </p>
-          <img src={vensaLogo} alt="VENSA Logo" className="events-happening-logo" />
-        </div>
-      </section>
-
-      {/* This Month's Events Section */}
+      {/* Previous Events Section */}
       <section className="events-monthly">
-        <h2 className="events-section-title">Upcoming Events</h2>
+        <h2 className="events-section-title">Past Events</h2>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
             <p>Loading events...</p>
           </div>
-        ) : upcomingEvents.length === 0 ? (
+        ) : pastEvents.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
-            <p>No upcoming events at the moment. Check back soon!</p>
+            <p>No past events to display.</p>
           </div>
         ) : (
           <div className="events-cards-container">
-            {upcomingEvents.slice(0, 3).map((event, index) => (
+            {pastEvents.map((event, index) => (
               <div key={event.id} className={index % 2 === 0 ? "event-card" : "event-card event-card-reverse"}>
                 <div className="event-card-image">
                   <img 
@@ -118,7 +99,9 @@ export default function Events() {
                       {event.description}
                     </p>
                   )}
-                  <button className="event-rsvp-button">RSVP Now</button>
+                  <div style={{ padding: '10px', backgroundColor: '#f3f4f6', borderRadius: '8px', marginTop: '10px' }}>
+                    <span style={{ color: '#6b7280', fontWeight: '500' }}>Event Completed</span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -138,10 +121,10 @@ export default function Events() {
 
         <div className="events-action-item">
           <div className="events-action-content">
-            <h3 className="events-action-title">Past Events</h3>
-            <p className="events-action-description">See Past Events we have hosted!</p>
+            <h3 className="events-action-title">Upcoming Events</h3>
+            <p className="events-action-description">Check out our upcoming events!</p>
           </div>
-          <Link to="/previous-events" className="events-action-button">See Past Events</Link>
+          <Link to="/events" className="events-action-button">View Upcoming Events</Link>
         </div>
 
         <div className="events-action-item">

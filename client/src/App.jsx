@@ -4,6 +4,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Events from "./pages/Events";
+import PreviousEvents from "./pages/PreviousEvents";
 import ExecBoard from "./pages/ExecBoard";
 import DevTeam from "./pages/DevTeam";
 import GetInvolved from "./pages/GetInvolved";
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/events" element={<Events />} />
+        <Route path="/previous-events" element={<PreviousEvents />} />
         <Route path="/exec-board" element={<ExecBoard />} />
         <Route path="/dev-team" element={<DevTeam />} />
         <Route path="/get-involved" element={<GetInvolved />} />

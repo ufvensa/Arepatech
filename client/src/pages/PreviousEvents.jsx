@@ -164,8 +164,9 @@ export default function PreviousEvents() {
           }}>
             {pastEvents.map((event, index) => {
               // Venezuela flag colors: yellow, blue, red
-              const colors = ['#FFCC00', '#003DA5', '#CF142B'];
+              const colors = ['#FFCC00', '#0052D4', '#CF142B'];
               const textColor = colors[index % 3];
+              const isBlue = (index % 3) === 1;
               
               return (
               <div key={event.id} 
@@ -220,7 +221,7 @@ export default function PreviousEvents() {
                       fontWeight: '700',
                       color: textColor,
                       textShadow: '3px 3px 6px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.9), 1px -1px 2px rgba(0,0,0,0.9), -1px 1px 2px rgba(0,0,0,0.9)',
-                      WebkitTextStroke: '1px rgba(0,0,0,0.5)'
+                      WebkitTextStroke: isBlue ? '0.5px rgba(255,255,255,0.8)' : '1px rgba(0,0,0,0.5)'
                     }}>
                       {event.title.replace(/\s*#\d+/i, '').trim()}
                     </h3>

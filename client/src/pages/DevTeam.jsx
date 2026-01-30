@@ -12,7 +12,7 @@ const devTeamMembers = [
   {
     id: 1,
     name: "John Riley",
-    position: "Lead Developer",
+    position: "Project Manager",
     image: vensaLogo,
     major: "Computer Engineering",
     year: "Senior",
@@ -22,7 +22,7 @@ const devTeamMembers = [
   {
     id: 2,
     name: "Estefania Rodriguez",
-    position: "Project Leader",
+    position: "Scrum Master",
     image: vensaLogo,
     major: "Computer Science",
     year: "Graduate",

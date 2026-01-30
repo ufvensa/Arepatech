@@ -18,7 +18,7 @@ import allisonBonnemaison from "../images/Allison Bonnemaison.jpg";
 import carmeloUrdanetaImg from "../images/Carmelo Urdaneta.jpg";
 import johnRileyImg from "../images/John Riley.jpg";
 import camilaAlmandozImg from "../images/Camila Almandoz.jpg";
-import valeriaMaggioloImg from "../images/VENSA Website Valeria.png";
+import valeriaMaggioloImg from "../images/Valeria Maggiolo.jpeg";
 import victoriaMedinaImg from "../images/Victoria Medina.jpg";
 import WebDevImg from "../images/VENSA ugly background web.png";
 

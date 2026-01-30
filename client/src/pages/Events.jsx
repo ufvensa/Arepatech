@@ -93,9 +93,7 @@ export default function Events() {
                     style={{ 
                       objectFit: event.imageUrl ? 'cover' : 'contain', 
                       padding: event.imageUrl ? '0' : '40px', 
-                      backgroundColor: event.imageUrl ? 'transparent' : '#f3f4f6',
-                      width: '100%',
-                      height: '100%'
+                      backgroundColor: event.imageUrl ? 'transparent' : '#f3f4f6'
                     }} 
                   />
                 </div>
@@ -149,7 +147,15 @@ export default function Events() {
             <h3 className="events-action-title">Intramurals</h3>
             <p className="events-action-description">Explore and Join Vensa intramural sports</p>
           </div>
-          <button className="events-action-button">Join Intramurals</button>
+          <a 
+            href="https://chat.whatsapp.com/DaZ66qAsf5pIk8Jf4qrR1K?mode=gi_t"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="events-action-button"
+            style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}
+          >
+            Join Intramurals
+          </a>
         </div>
       </section>
 

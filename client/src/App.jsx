@@ -12,6 +12,8 @@ import Alumni from "./pages/Alumni";
 import Mentorship from "./pages/Mentorship";
 import Profile from "./pages/Profile";
 import SignUp from "./pages/SignUp";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Resources from "./pages/Resources";
 import ResourceDetail from "./pages/ResourceDetail";
 import Directory from "./pages/Directory";
@@ -33,6 +35,8 @@ export default function App() {
         <Route path="/mentorship" element={<Mentorship />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/resources" element={<Resources />} />
         <Route path="/resources/:id" element={<ResourceDetail />} />
         <Route path="/directory" element={<Directory />} />

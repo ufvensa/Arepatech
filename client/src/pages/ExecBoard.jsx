@@ -20,7 +20,7 @@ import johnRileyImg from "../images/John Riley.jpg";
 import camilaAlmandozImg from "../images/Camila Almandoz.jpg";
 import valeriaMaggioloImg from "../images/Valeria Maggiolo.jpeg";
 import victoriaMedinaImg from "../images/Victoria Medina.jpg";
-import WebDevImg from "../images/VENSA ugly background web.png";
+import WebDevImg from "../images/arepatech web dev picture.png";
 
 const boardMembers = [
     {
@@ -152,8 +152,8 @@ function ExecutiveBoardCard({ member }) {
 
     const handleLearnMore = () => {
         if (member.id === 12) {
-            // Do nothing for dev team card
-            return;
+            // Navigate to dev team page
+            navigate('/dev-team');
         } else {
             setIsFlipped(true);
         }

@@ -71,14 +71,44 @@ export default function PreviousEvents() {
         const { past } = separateEvents(events);
         console.log('Separated past events:', past);
         console.log('Individual past events:', past.map(e => ({ id: e.id, title: e.title, imageUrl: e.imageUrl })));
+        
+        // Group events by base name (e.g., "GBM #1", "GBM #2" become "GBM")
+        const groupedEvents = {};
+        past.forEach(event => {
+          // Extract base event name (remove "#1", "#2", etc.)
+          let baseName = event.title.replace(/\s*#\d+/i, '').trim();
+          
+          // Also normalize common variations
+          if (baseName.toLowerCase().includes('general body meeting') || baseName.toLowerCase() === 'gbm') {
+            baseName = 'General Body Meeting';
+          }
+          
+          if (!groupedEvents[baseName]) {
+            groupedEvents[baseName] = event;
+          }
+        });
+        
+        const uniqueEvents = Object.values(groupedEvents);
+        
         // Only update if we got events from calendar
-        if (past.length > 0) {
-          setPastEvents(past);
-          console.log('Updated pastEvents state with calendar events');
+        if (uniqueEvents.length > 0) {
+          setPastEvents(uniqueEvents);
+          console.log('Updated pastEvents state with grouped calendar events');
         }
       } catch (error) {
         console.error('Error loading calendar events:', error);
-        // Keep fallback events on error
+        // Group fallback events too
+        const groupedFallback = {};
+        fallbackEvents.forEach(event => {
+          let baseName = event.title.replace(/\s*#\d+/i, '').trim();
+          if (baseName.toLowerCase().includes('general body meeting') || baseName.toLowerCase() === 'gbm') {
+            baseName = 'General Body Meeting';
+          }
+          if (!groupedFallback[baseName]) {
+            groupedFallback[baseName] = event;
+          }
+        });
+        setPastEvents(Object.values(groupedFallback));
       }
     }
     loadEvents();
@@ -132,7 +162,12 @@ export default function PreviousEvents() {
             maxWidth: '1400px',
             margin: '0 auto'
           }}>
-            {pastEvents.map((event) => (
+            {pastEvents.map((event, index) => {
+              // Venezuela flag colors: yellow, blue, red
+              const colors = ['#FFCC00', '#003DA5', '#CF142B'];
+              const textColor = colors[index % 3];
+              
+              return (
               <div key={event.id} 
               onClick={() => openEventModal(event)}
               style={{
@@ -157,7 +192,8 @@ export default function PreviousEvents() {
                   width: '100%', 
                   height: '250px', 
                   overflow: 'hidden',
-                  backgroundColor: '#f3f4f6'
+                  backgroundColor: '#f3f4f6',
+                  position: 'relative'
                 }}>
                   <img 
                     src={event.imageUrl || vensaLogo} 
@@ -169,41 +205,30 @@ export default function PreviousEvents() {
                       padding: event.imageUrl ? '0' : '40px'
                     }} 
                   />
-                </div>
-                
-                {/* Event Info Overlay */}
-                <div style={{
-                  padding: '20px',
-                  background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7))',
-                  color: 'white',
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0
-                }}>
-                  <h3 style={{ 
-                    margin: '0 0 10px 0', 
-                    fontSize: '1.25rem',
-                    fontWeight: '600'
+                  {/* Title Overlay */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    padding: '20px',
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)'
                   }}>
-                    {event.title}
-                  </h3>
-                  <div style={{ 
-                    fontSize: '0.9rem',
-                    opacity: 0.9,
-                    marginBottom: '5px'
-                  }}>
-                    📅 {event.startDateFormatted}
-                  </div>
-                  <div style={{ 
-                    fontSize: '0.9rem',
-                    opacity: 0.9
-                  }}>
-                    🕐 {event.startTime}
+                    <h3 style={{ 
+                      margin: '0', 
+                      fontSize: '1.5rem',
+                      fontWeight: '700',
+                      color: textColor,
+                      textShadow: '3px 3px 6px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.9), 1px -1px 2px rgba(0,0,0,0.9), -1px 1px 2px rgba(0,0,0,0.9)',
+                      WebkitTextStroke: '1px rgba(0,0,0,0.5)'
+                    }}>
+                      {event.title.replace(/\s*#\d+/i, '').trim()}
+                    </h3>
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
@@ -275,14 +300,9 @@ export default function PreviousEvents() {
               color: 'white',
               borderRadius: '16px 16px 0 0'
             }}>
-              <h2 style={{ margin: '0 0 10px 0', fontSize: '2rem', fontWeight: '700' }}>
-                {selectedEvent.title}
+              <h2 style={{ margin: '0', fontSize: '2rem', fontWeight: '700' }}>
+                {selectedEvent.title.replace(/\s*#\d+/i, '').trim()}
               </h2>
-              <div style={{ display: 'flex', gap: '20px', fontSize: '1rem', opacity: 0.9 }}>
-                <span>📅 {selectedEvent.startDateFormatted}</span>
-                <span>🕐 {selectedEvent.startTime}</span>
-                {selectedEvent.location && <span>📍 {selectedEvent.location}</span>}
-              </div>
               {selectedEvent.description && (
                 <p style={{ marginTop: '15px', opacity: 0.95, lineHeight: '1.6' }}>
                   {selectedEvent.description}
@@ -305,12 +325,15 @@ export default function PreviousEvents() {
                   <div 
                     key={index}
                     style={{
-                      aspectRatio: '1',
                       borderRadius: '8px',
                       overflow: 'hidden',
                       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                       transition: 'transform 0.2s',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: '#f3f4f6'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -320,8 +343,8 @@ export default function PreviousEvents() {
                       alt={`${selectedEvent.title} photo ${index + 1}`}
                       style={{
                         width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
+                        height: 'auto',
+                        objectFit: 'contain'
                       }}
                     />
                   </div>
@@ -374,7 +397,15 @@ export default function PreviousEvents() {
             <h3 className="events-action-title">Intramurals</h3>
             <p className="events-action-description">Explore and Join Vensa intramural sports</p>
           </div>
-          <button className="events-action-button">Join Intramurals</button>
+          <a 
+            href="https://chat.whatsapp.com/DaZ66qAsf5pIk8Jf4qrR1K?mode=gi_t"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="events-action-button"
+            style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}
+          >
+            Join Intramurals
+          </a>
         </div>
       </section>
 

@@ -693,19 +693,17 @@ body {
 }
 
 .exec-board-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2.5rem;
-  justify-content: center;
-  max-width: 1400px;
-  margin: 0 auto;
+  justify-items: center;
 }
 
+/* Executive Board Card */
 .exec-card-container {
   perspective: 1000px;
   width: 100%;
   max-width: 320px;
-  min-width: 280px;
 }
 
 .exec-card {
@@ -1383,7 +1381,7 @@ body {
 .event-card-image {
   flex-shrink: 0;
   width: 45%;
-  min-height: 22rem;
+  min-height: 350px;
 }
 
 .event-card-image img {

@@ -14,13 +14,10 @@ import instagramIcon from "../images/VENSA Website Instagram.png";
 import facebookIcon from "../images/VENSA Website Facebook.png";
 import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
-import { fetchCalendarEvents, separateEvents } from "../lib/calendar";
 
 export default function Home() {
   const bannerImages = [bannerBg1, bannerBg2, bannerBg3, bannerBg4, bannerBg5];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [nextEvent, setNextEvent] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [timeRemaining, setTimeRemaining] = useState({
     days: 0,
     hours: 0,
@@ -37,35 +34,13 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [bannerImages.length]);
 
-  // Fetch upcoming events from Google Calendar
+  // Countdown timer
   useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        setLoading(true);
-        const events = await fetchCalendarEvents();
-        const { upcoming } = separateEvents(events);
-        
-        // Get the next upcoming event
-        if (upcoming.length > 0) {
-          setNextEvent(upcoming[0]);
-        }
-      } catch (error) {
-        console.error('Error loading events:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadEvents();
-  }, []);
-
-  // Countdown timer - updates based on next event
-  useEffect(() => {
-    if (!nextEvent) return;
+    const eventDate = new Date('2026-01-23T17:30:00');
 
     const updateCountdown = () => {
       const now = new Date();
-      const difference = nextEvent.startDate - now;
+      const difference = eventDate - now;
 
       if (difference > 0) {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
@@ -83,7 +58,7 @@ export default function Home() {
     const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, [nextEvent]);
+  }, []);
   return (
     <div className="home-page">
       {/* Hero Section */}
@@ -118,52 +93,39 @@ export default function Home() {
       {/* Featured Event Section */}
       <section className="home-featured">
         <h2 className="home-featured-title">Featured Event</h2>
-        {loading ? (
-          <div className="home-featured-content">
-            <p>Loading event...</p>
+        <div className="home-featured-content">
+          <div className="home-featured-image">
+            <img src={BonfireImg} alt="VENSA Event" />
           </div>
-        ) : nextEvent ? (
-          <div className="home-featured-content">
-            <div className="home-featured-image">
-              <img src={nextEvent.imageUrl} alt={nextEvent.title} />
-            </div>
-            <div className="home-featured-details">
-              <h3 className="home-featured-event-title">{nextEvent.title}</h3>
-              <p className="home-featured-event-info">
-                {nextEvent.startDateFormatted} @ {nextEvent.startTime}
-                {nextEvent.location !== 'TBD' && ` • ${nextEvent.location}`}
-              </p>
-              <p className="home-featured-event-desc">
-                {nextEvent.description || 'Join us for this exciting event!'}
-              </p>
-            </div>
-            <div className="home-featured-countdown">
-              <h3 className="home-countdown-title">Countdown</h3>
-              <div className="countdown-display">
-                <div className="countdown-item">
-                  <div className="countdown-value">{timeRemaining.days}</div>
-                  <div className="countdown-label">Days</div>
-                </div>
-                <div className="countdown-item">
-                  <div className="countdown-value">{timeRemaining.hours}</div>
-                  <div className="countdown-label">Hours</div>
-                </div>
-                <div className="countdown-item">
-                  <div className="countdown-value">{timeRemaining.minutes}</div>
-                  <div className="countdown-label">Minutes</div>
-                </div>
-                <div className="countdown-item">
-                  <div className="countdown-value">{timeRemaining.seconds}</div>
-                  <div className="countdown-label">Seconds</div>
-                </div>
+          <div className="home-featured-details">
+            <h3 className="home-featured-event-title">Bonfire</h3>
+            <p className="home-featured-event-info">January 23rd, 2026 @ 5:30 pm • Food & Snacks</p>
+            <p className="home-featured-event-desc">
+              Warm up your winter and join us for an evening<br />of fun, food, and friendship around the fire.
+            </p>
+          </div>
+          <div className="home-featured-countdown">
+            <h3 className="home-countdown-title">Countdown</h3>
+            <div className="countdown-display">
+              <div className="countdown-item">
+                <div className="countdown-value">{timeRemaining.days}</div>
+                <div className="countdown-label">Days</div>
+              </div>
+              <div className="countdown-item">
+                <div className="countdown-value">{timeRemaining.hours}</div>
+                <div className="countdown-label">Hours</div>
+              </div>
+              <div className="countdown-item">
+                <div className="countdown-value">{timeRemaining.minutes}</div>
+                <div className="countdown-label">Minutes</div>
+              </div>
+              <div className="countdown-item">
+                <div className="countdown-value">{timeRemaining.seconds}</div>
+                <div className="countdown-label">Seconds</div>
               </div>
             </div>
           </div>
-        ) : (
-          <div className="home-featured-content">
-            <p>No upcoming events at this time. Check back soon!</p>
-          </div>
-        )}
+        </div>
       </section>
 
       {/* Bottom Sections */}

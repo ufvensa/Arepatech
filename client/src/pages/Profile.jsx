@@ -719,7 +719,7 @@ export default function Profile() {
                     />
                     <span>Remember me</span>
                   </label>
-                  <Link to="/forgot-password" className="profile-forgot">Forgot Password?</Link>
+                  <Link to="#" className="profile-forgot">Forgot Password?</Link>
                 </div>
 
                 <button

@@ -11,6 +11,7 @@ import { fetchCalendarEvents, separateEvents } from "../lib/calendar";
 
 export default function Events() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [rsvpCounts, setRsvpCounts] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,9 +21,37 @@ export default function Events() {
       const { upcoming } = separateEvents(events);
       setUpcomingEvents(upcoming);
       setLoading(false);
+      
+      // Load RSVP counts for events that have spreadsheetId
+      loadRSVPCounts(upcoming);
     }
     loadEvents();
   }, []);
+
+  async function loadRSVPCounts(events) {
+    // Fetch RSVP counts for events that have a spreadsheetId
+    const counts = {};
+    
+    for (const event of events) {
+      if (event.spreadsheetId) {
+        try {
+          const response = await fetch(
+            `http://localhost:5000/api/sheets/rsvp-count/${event.spreadsheetId}`
+          );
+          const data = await response.json();
+          
+          if (data.success) {
+            counts[event.id] = data.count;
+          }
+        } catch (error) {
+          console.error(`Failed to fetch RSVP count for event ${event.id}:`, error);
+        }
+      }
+    }
+    
+    setRsvpCounts(counts);
+  }
+  
   return (
     <div className="events-page">
       {/* Hero Banner */}
@@ -113,10 +142,25 @@ export default function Events() {
                   </div>
                   {event.description && (
                     <p className="event-card-description">
-                      {event.description}
+                      {event.description
+                        .replace(/<[^>]*>/g, '') // Remove HTML tags
+                        .split(/FORM_URL:/i)[0] // Get text before FORM_URL
+                        .split(/SPREADSHEET_ID:/i)[0] // Get text before SPREADSHEET_ID
+                        .trim()}
                     </p>
                   )}
-                  <button className="event-rsvp-button">RSVP Now</button>
+                  <button 
+                    className="event-rsvp-button"
+                    onClick={() => {
+                      if (event.formUrl) {
+                        window.open(event.formUrl, '_blank');
+                      } else {
+                        alert('RSVP form not available for this event yet.');
+                      }
+                    }}
+                  >
+                    RSVP Now
+                  </button>
                 </div>
               </div>
             ))}

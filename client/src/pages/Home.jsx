@@ -134,7 +134,13 @@ export default function Home() {
                 {nextEvent.location !== 'TBD' && ` • ${nextEvent.location}`}
               </p>
               <p className="home-featured-event-desc">
-                {nextEvent.description || 'Join us for this exciting event!'}
+                {nextEvent.description 
+                  ? nextEvent.description
+                      .replace(/<[^>]*>/g, '') // Remove HTML tags
+                      .split(/FORM_URL:/i)[0] // Get text before FORM_URL
+                      .split(/SPREADSHEET_ID:/i)[0] // Get text before SPREADSHEET_ID
+                      .trim() || 'Join us for this exciting event!'
+                  : 'Join us for this exciting event!'}
               </p>
             </div>
             <div className="home-featured-countdown">

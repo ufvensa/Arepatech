@@ -6,6 +6,19 @@ import pilatesImage from '../images/VENSA Pilates.png';
 import eboardImage from '../images/VENSA Eboard.png';
 import vensaLogo from '../images/VENSA Website Logo.png';
 
+/**
+ * To enable RSVP functionality for an event:
+ * 1. Create a Google Form for the event
+ * 2. In the form settings, link it to a Google Spreadsheet (Form -> Responses -> Link to Sheets)
+ * 3. Share the spreadsheet with: vensa-drive-access@vensa-photo-gallery.iam.gserviceaccount.com
+ * 4. Add to the calendar event description in this format:
+ *    FORM_URL: https://forms.gle/YOUR_FORM_ID
+ *    SPREADSHEET_ID: YOUR_SPREADSHEET_ID_HERE
+ * 
+ * The spreadsheet ID is found in the URL: 
+ * https://docs.google.com/spreadsheets/d/SPREADSHEET_ID_HERE/edit
+ */
+
 const API_KEY = import.meta.env.VITE_GOOGLE_CALENDAR_API_KEY;
 const CALENDAR_IDS = import.meta.env.VITE_GOOGLE_CALENDAR_IDS?.split(',') || [];
 
@@ -90,14 +103,53 @@ export function parseCalendarEvent(event) {
   const startDate = new Date(start);
   const endDate = new Date(end);
   const title = event.summary || event.title || 'Event';
+  const description = event.description || '';
 
   // Use local images based on event title keywords
   const imageUrl = getEventImage(title);
 
+  // Strip HTML tags from description before parsing
+  // Remove anchor tags but keep only the inner text (not the href) to avoid duplication
+  let cleanDescription = description
+    .replace(/<a[^>]*>([^<]*)<\/a>/gi, '$1') // Replace <a href="...">text</a> with just text
+    .replace(/<br\s*\/?>/gi, ' ') // Replace <br> with space
+    .replace(/<[^>]*>/g, ''); // Remove any remaining HTML tags
+
+  // Debug: Log the cleaned description to see what we're parsing
+  if (cleanDescription.includes('FORM_URL')) {
+    console.log('Cleaned description for', event.summary, ':', cleanDescription);
+  }
+
+  // Extract Google Form URL and Spreadsheet ID from description
+  // Format: FORM_URL: https://forms.gle/xyz
+  //         SPREADSHEET_ID: abc123def456
+  let formUrl = null;
+  let spreadsheetId = null;
+
+  const formUrlMatch = cleanDescription.match(/FORM_URL:\s*(https?:\/\/[^\s]+)/i);
+  const spreadsheetIdMatch = cleanDescription.match(/SPREADSHEET_ID:\s*([^\s]+)/i);
+
+  if (formUrlMatch) {
+    formUrl = formUrlMatch[1];
+    console.log('Extracted formUrl:', formUrl);
+  }
+  if (spreadsheetIdMatch) {
+    spreadsheetId = spreadsheetIdMatch[1];
+    console.log('Extracted spreadsheetId:', spreadsheetId);
+  }
+
+  if (formUrlMatch) {
+    formUrl = formUrlMatch[1].trim();
+  }
+
+  if (spreadsheetIdMatch) {
+    spreadsheetId = spreadsheetIdMatch[1].trim();
+  }
+
   return {
     id: event.id,
     title: title,
-    description: event.description || '',
+    description: description,
     location: event.location || 'TBD',
     imageUrl: imageUrl,
     startDate: startDate,
@@ -114,6 +166,8 @@ export function parseCalendarEvent(event) {
     }),
     isPast: endDate < new Date(),
     isUpcoming: startDate > new Date(),
+    formUrl: formUrl,
+    spreadsheetId: spreadsheetId,
   };
 }
 

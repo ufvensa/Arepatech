@@ -48,6 +48,8 @@ export default function PreviousEvents() {
   const [loading, setLoading] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [driveEvents, setDriveEvents] = useState([]);
+  const [useDrivePhotos, setUseDrivePhotos] = useState(false);
 
   console.log('PreviousEvents render - pastEvents:', pastEvents);
   console.log('PreviousEvents render - loading:', loading);
@@ -64,6 +66,31 @@ export default function PreviousEvents() {
 
   useEffect(() => {
     console.log('useEffect running - initial pastEvents:', pastEvents);
+    
+    // Fetch from Google Drive
+    async function loadDriveEvents() {
+      try {
+        const response = await fetch('http://localhost:5000/api/drive/events');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Fetched Google Drive events:', data);
+          if (data.success && data.events.length > 0) {
+            setDriveEvents(data.events);
+            setUseDrivePhotos(true);
+            console.log('✅ Google Drive photos loaded successfully');
+          }
+        } else {
+          console.log('⚠️ Google Drive API not available, using fallback');
+        }
+      } catch (error) {
+        console.error('Error loading Google Drive events:', error);
+        console.log('⚠️ Falling back to calendar/hardcoded events');
+      }
+    }
+
+    loadDriveEvents();
+
+    // Fetch from calendar
     async function loadEvents() {
       try {
         const events = await fetchCalendarEvents();
@@ -149,7 +176,7 @@ export default function PreviousEvents() {
           <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
             <p>Loading events...</p>
           </div>
-        ) : pastEvents.length === 0 ? (
+        ) : (useDrivePhotos && driveEvents.length > 0 ? driveEvents : pastEvents).length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
             <p>No past events to display.</p>
           </div>
@@ -162,7 +189,7 @@ export default function PreviousEvents() {
             maxWidth: '1400px',
             margin: '0 auto'
           }}>
-            {pastEvents.map((event, index) => {
+            {(useDrivePhotos && driveEvents.length > 0 ? driveEvents : pastEvents).map((event, index) => {
               // Venezuela flag colors: yellow, blue, red
               const colors = ['#FFCC00', '#0052D4', '#CF142B'];
               const textColor = colors[index % 3];
@@ -197,13 +224,13 @@ export default function PreviousEvents() {
                   position: 'relative'
                 }}>
                   <img 
-                    src={event.imageUrl || vensaLogo} 
-                    alt={event.title} 
+                    src={event.photos && event.photos.length > 0 ? event.photos[0].url : (event.imageUrl || vensaLogo)} 
+                    alt={event.name || event.title} 
                     style={{ 
                       width: '100%',
                       height: '100%',
-                      objectFit: event.imageUrl ? 'cover' : 'contain',
-                      padding: event.imageUrl ? '0' : '40px'
+                      objectFit: (event.photos && event.photos.length > 0) || event.imageUrl ? 'cover' : 'contain',
+                      padding: (event.photos && event.photos.length > 0) || event.imageUrl ? '0' : '40px'
                     }} 
                   />
                   {/* Title Overlay */}
@@ -223,7 +250,16 @@ export default function PreviousEvents() {
                       textShadow: '3px 3px 6px rgba(0,0,0,0.9), -1px -1px 2px rgba(0,0,0,0.9), 1px -1px 2px rgba(0,0,0,0.9), -1px 1px 2px rgba(0,0,0,0.9)',
                       WebkitTextStroke: isBlue ? '0.5px rgba(255,255,255,0.8)' : '1px rgba(0,0,0,0.5)'
                     }}>
-                      {event.title.replace(/\s*#\d+/i, '').trim()}
+                      {(event.name || event.title).replace(/\s*#\d+/i, '').trim()}
+                      {event.photoCount && (
+                        <span style={{ 
+                          fontSize: '0.9rem', 
+                          marginLeft: '10px',
+                          opacity: 0.9 
+                        }}>
+                          ({event.photoCount} photos)
+                        </span>
+                      )}
                     </h3>
                   </div>
                 </div>
@@ -302,7 +338,7 @@ export default function PreviousEvents() {
               borderRadius: '16px 16px 0 0'
             }}>
               <h2 style={{ margin: '0', fontSize: '2rem', fontWeight: '700' }}>
-                {selectedEvent.title.replace(/\s*#\d+/i, '').trim()}
+                {(selectedEvent.name || selectedEvent.title).replace(/\s*#\d+/i, '').trim()}
               </h2>
               {selectedEvent.description && (
                 <p style={{ marginTop: '15px', opacity: 0.95, lineHeight: '1.6' }}>
@@ -314,42 +350,77 @@ export default function PreviousEvents() {
             {/* Event Photos Gallery */}
             <div style={{ padding: '30px' }}>
               <h3 style={{ marginBottom: '20px', fontSize: '1.5rem', color: '#1f2937' }}>
-                Event Photos
+                Event Photos {selectedEvent.photoCount && `(${selectedEvent.photoCount} photos)`}
               </h3>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
                 gap: '20px'
               }}>
-                {/* Display main event image as a photo */}
-                {[selectedEvent.imageUrl, selectedEvent.imageUrl, selectedEvent.imageUrl].map((photo, index) => (
-                  <div 
-                    key={index}
-                    style={{
-                      borderRadius: '8px',
-                      overflow: 'hidden',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      transition: 'transform 0.2s',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      backgroundColor: '#f3f4f6'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                  >
-                    <img 
-                      src={photo || vensaLogo}
-                      alt={`${selectedEvent.title} photo ${index + 1}`}
+                {/* Check if event has Google Drive photos */}
+                {selectedEvent.photos && selectedEvent.photos.length > 0 ? (
+                  selectedEvent.photos.map((photo, index) => (
+                    <div 
+                      key={photo.id || index}
                       style={{
-                        width: '100%',
-                        height: 'auto',
-                        objectFit: 'contain'
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        transition: 'transform 0.2s',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#f3f4f6',
+                        aspectRatio: '4/3'
                       }}
-                    />
-                  </div>
-                ))}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      onClick={() => window.open(photo.viewLink, '_blank')}
+                    >
+                      <img 
+                        src={photo.url}
+                        alt={photo.name || `${selectedEvent.title} photo ${index + 1}`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                        loading="lazy"
+                      />
+                    </div>
+                  ))
+                ) : (
+                  /* Fallback: Display placeholder images */
+                  [selectedEvent.imageUrl, selectedEvent.imageUrl, selectedEvent.imageUrl].map((photo, index) => (
+                    <div 
+                      key={index}
+                      style={{
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        transition: 'transform 0.2s',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#f3f4f6'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                    >
+                      <img 
+                        src={photo || vensaLogo}
+                        alt={`${selectedEvent.title} photo ${index + 1}`}
+                        style={{
+                          width: '100%',
+                          height: 'auto',
+                          objectFit: 'contain'
+                        }}
+                      />
+                    </div>
+                  ))
+                )}
               </div>
               <p style={{
                 marginTop: '30px',
@@ -357,7 +428,10 @@ export default function PreviousEvents() {
                 color: '#6b7280',
                 fontStyle: 'italic'
               }}>
-                Photos from {selectedEvent.title} - More photos coming soon!
+                {selectedEvent.photos && selectedEvent.photos.length > 0 
+                  ? `Photos from ${selectedEvent.name || selectedEvent.title} - Click to view full size`
+                  : `Photos from ${selectedEvent.title} - More photos coming soon!`
+                }
               </p>
             </div>
           </div>

@@ -1,16 +1,57 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import bannerBg from "../images/VENSA Website Banner Background.png";
-import gbmImg from "../images/VENSA GBM.png";
-import bonfireImg from "../images/VENSA Bonfire.png";
-import resumeWorkshopImg from "../images/VENSA Resume Workshop.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
 import facebookIcon from "../images/VENSA Website Facebook.png";
 import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
+import { fetchCalendarEvents, separateEvents } from "../lib/calendar";
 
 export default function Events() {
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [rsvpCounts, setRsvpCounts] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadEvents() {
+      setLoading(true);
+      const events = await fetchCalendarEvents();
+      const { upcoming } = separateEvents(events);
+      setUpcomingEvents(upcoming);
+      setLoading(false);
+      
+      // Load RSVP counts for events that have spreadsheetId
+      loadRSVPCounts(upcoming);
+    }
+    loadEvents();
+  }, []);
+
+  async function loadRSVPCounts(events) {
+    // Fetch RSVP counts for events that have a spreadsheetId
+    const counts = {};
+    
+    for (const event of events) {
+      if (event.spreadsheetId) {
+        try {
+          const response = await fetch(
+            `http://localhost:5000/api/sheets/rsvp-count/${event.spreadsheetId}`
+          );
+          const data = await response.json();
+          
+          if (data.success) {
+            counts[event.id] = data.count;
+          }
+        } catch (error) {
+          console.error(`Failed to fetch RSVP count for event ${event.id}:`, error);
+        }
+      }
+    }
+    
+    setRsvpCounts(counts);
+  }
+  
   return (
     <div className="events-page">
       {/* Hero Banner */}
@@ -61,84 +102,70 @@ export default function Events() {
 
       {/* This Month's Events Section */}
       <section className="events-monthly">
-        <h2 className="events-section-title">This Month's Events</h2>
-        <div className="events-cards-container">
-          <div className="event-card">
-            <div className="event-card-image">
-              <img src={gbmImg} alt="Spring GBM #1" />
-            </div>
-            <div className="event-card-content">
-              <h3 className="event-card-title">Spring GBM #1</h3>
-              <div className="event-card-detail">
-                <span className="event-label">Date:</span>
-                <span>January 21, 2026</span>
-              </div>
-              <div className="event-card-detail">
-                <span className="event-label">Time:</span>
-                <span>6:00 PM</span>
-              </div>
-              <div className="event-card-detail">
-                <span className="event-label">Location:</span>
-                <span>NPB Physics Building 1002</span>
-              </div>
-              <p className="event-card-description">
-                Come join us for our first event of the semester! Meet new people, <br />learn about upcoming events,
-                and get involved with VENSA!
-              </p>
-              <button className="event-rsvp-button">RSVP Now</button>
-            </div>
+        <h2 className="events-section-title">Upcoming Events</h2>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+            <p>Loading events...</p>
           </div>
-
-          <div className="event-card event-card-reverse">
-            <div className="event-card-image">
-              <img src={bonfireImg} alt="Bonfire Night" />
-            </div>
-            <div className="event-card-content">
-              <h3 className="event-card-title">Bonfire</h3>
-              <div className="event-card-detail">
-                <span className="event-label">Date:</span>
-                <span>January 23, 2026</span>
-              </div>
-              <div className="event-card-detail">
-                <span className="event-label">Time:</span>
-                <span>5:30 PM</span>
-              </div>
-              <div className="event-card-detail">
-                <span className="event-label">Location:</span>
-                <span>TBD</span>
-              </div>
-              <p className="event-card-description">
-                Warm up your winter and join us for an evening of fun, <br />food, and friendship around the fire.
-              </p>
-              <button className="event-rsvp-button">RSVP Now</button>
-            </div>
+        ) : upcomingEvents.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+            <p>No upcoming events at the moment. Check back soon!</p>
           </div>
-
-          <div className="event-card">
-            <div className="event-card-image">
-              <img src={resumeWorkshopImg} alt="Resume Workshop" />
-            </div>
-            <div className="event-card-content">
-              <h3 className="event-card-title">Resume Workshop</h3>
-              <div className="event-card-detail">
-                <span className="event-label">Date:</span>
-                <span>January 28, 2026</span>
+        ) : (
+          <div className="events-cards-container">
+            {upcomingEvents.slice(0, 3).map((event, index) => (
+              <div key={event.id} className={index % 2 === 0 ? "event-card" : "event-card event-card-reverse"}>
+                <div className="event-card-image">
+                  <img 
+                    src={event.imageUrl || vensaLogo} 
+                    alt={event.title} 
+                    style={{ 
+                      objectFit: event.imageUrl ? 'cover' : 'contain', 
+                      padding: event.imageUrl ? '0' : '40px', 
+                      backgroundColor: event.imageUrl ? 'transparent' : '#f3f4f6'
+                    }} 
+                  />
+                </div>
+                <div className="event-card-content">
+                  <h3 className="event-card-title">{event.title}</h3>
+                  <div className="event-card-detail">
+                    <span className="event-label">Date:</span>
+                    <span>{event.startDateFormatted}</span>
+                  </div>
+                  <div className="event-card-detail">
+                    <span className="event-label">Time:</span>
+                    <span>{event.startTime}</span>
+                  </div>
+                  <div className="event-card-detail">
+                    <span className="event-label">Location:</span>
+                    <span>{event.location}</span>
+                  </div>
+                  {event.description && (
+                    <p className="event-card-description">
+                      {event.description
+                        .replace(/<[^>]*>/g, '') // Remove HTML tags
+                        .split(/FORM_URL:/i)[0] // Get text before FORM_URL
+                        .split(/SPREADSHEET_ID:/i)[0] // Get text before SPREADSHEET_ID
+                        .trim()}
+                    </p>
+                  )}
+                  <button 
+                    className="event-rsvp-button"
+                    onClick={() => {
+                      if (event.formUrl) {
+                        window.open(event.formUrl, '_blank');
+                      } else {
+                        alert('RSVP form not available for this event yet.');
+                      }
+                    }}
+                  >
+                    RSVP Now
+                  </button>
+                </div>
               </div>
-              <div className="event-card-detail">
-                <span className="event-label">Time:</span>
-                <span>4:00 PM</span>
-              </div>
-              <div className="event-card-detail">
-                <span className="event-label">Location:</span>
-                <span>TBD</span>
-              </div>
-              <p className="event-card-description">
-                Want to make your resume stand out right before Career Showcase? <br /> Join us to get tips and tricks on building the best resume!
-              </p>
-              <button className="event-rsvp-button">RSVP Now</button>
-            </div>
+            ))}
           </div>
-        </div>
+        )}
       </section>
 
       {/* Bottom Action Sections */}
@@ -156,7 +183,7 @@ export default function Events() {
             <h3 className="events-action-title">Past Events</h3>
             <p className="events-action-description">See Past Events we have hosted!</p>
           </div>
-          <button className="events-action-button">See Past Events</button>
+          <Link to="/previous-events" className="events-action-button">See Past Events</Link>
         </div>
 
         <div className="events-action-item">
@@ -164,7 +191,15 @@ export default function Events() {
             <h3 className="events-action-title">Intramurals</h3>
             <p className="events-action-description">Explore and Join Vensa intramural sports</p>
           </div>
-          <button className="events-action-button">Join Intramurals</button>
+          <a 
+            href="https://chat.whatsapp.com/DaZ66qAsf5pIk8Jf4qrR1K?mode=gi_t"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="events-action-button"
+            style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}
+          >
+            Join Intramurals
+          </a>
         </div>
       </section>
 

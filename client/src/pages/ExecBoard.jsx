@@ -18,9 +18,9 @@ import allisonBonnemaison from "../images/Allison Bonnemaison.jpg";
 import carmeloUrdanetaImg from "../images/Carmelo Urdaneta.jpg";
 import johnRileyImg from "../images/John Riley.jpg";
 import camilaAlmandozImg from "../images/Camila Almandoz.jpg";
-import valeriaMaggioloImg from "../images/Valeria Maggiolo.jpeg";
+import valeriaMaggioloImg from "../images/VENSA Website Valeria.png";
 import victoriaMedinaImg from "../images/Victoria Medina.jpg";
-import WebDevImg from "../images/arepatech web dev picture.png";
+import WebDevImg from "../images/VENSA ugly background web.png";
 
 const boardMembers = [
     {
@@ -152,8 +152,8 @@ function ExecutiveBoardCard({ member }) {
 
     const handleLearnMore = () => {
         if (member.id === 12) {
-            // Navigate to dev team page
-            navigate('/dev-team');
+            // Do nothing for dev team card
+            return;
         } else {
             setIsFlipped(true);
         }

@@ -2123,11 +2123,7 @@ body {
   line-height: 1.2;
 }
 
-.profile-username {
-  font-size: 0.95rem;
-  color: #6b7280;
-  margin: 0 0 0.75rem;
-}
+
 
 .profile-status-badge {
   display: inline-block;
@@ -4054,14 +4050,16 @@ body {
 
 /* Directory Grid */
 .directory-grid-section {
-  max-width: 1152px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 2rem 2rem 4rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .directory-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
 }
 
@@ -4217,6 +4215,12 @@ body {
     justify-content: center;
   }
 
+  .directory-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
   .directory-grid {
     grid-template-columns: 1fr;
   }

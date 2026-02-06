@@ -175,7 +175,13 @@ export default function Events() {
             <h3 className="events-action-title">Newsletter</h3>
             <p className="events-action-description">Stay updated with VENSA news and announcements!</p>
           </div>
-          <button className="events-action-button">Subscribe</button>
+          <a
+            href="https://vensanewsletter.my.canva.site/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="events-action-button"
+            style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}
+          >Subscribe</a>
         </div>
 
         <div className="events-action-item">

@@ -53,7 +53,7 @@ CREATE TABLE public.profiles (
   year year_status DEFAULT 'Freshman',
   status member_status DEFAULT 'member',
   workplace TEXT,
-  attendance_rate INTEGER DEFAULT 0 CHECK (attendance_rate >= 0 AND attendance_rate <= 100),
+  attendance_rate INTEGER DEFAULT 100 CHECK (attendance_rate >= 0 AND attendance_rate <= 100),
   avatar_url TEXT,
   bio TEXT,
   linkedin_url TEXT,

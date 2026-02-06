@@ -11,6 +11,7 @@ import gbmImage from "../images/VENSA GBM.png";
 import bonfireImage from "../images/VENSA Bonfire.png";
 import resumeWorkshopImage from "../images/VENSA Resume Workshop.png";
 import { fetchCalendarEvents, separateEvents } from "../lib/calendar";
+import { fetchDriveEvents } from "../lib/googleDrive";
 
 // Hardcoded fallback events
 const fallbackEvents = [
@@ -51,9 +52,6 @@ export default function PreviousEvents() {
   const [driveEvents, setDriveEvents] = useState([]);
   const [useDrivePhotos, setUseDrivePhotos] = useState(false);
 
-  console.log('PreviousEvents render - pastEvents:', pastEvents);
-  console.log('PreviousEvents render - loading:', loading);
-
   const openEventModal = (event) => {
     setSelectedEvent(event);
     setIsModalOpen(true);
@@ -65,26 +63,16 @@ export default function PreviousEvents() {
   };
 
   useEffect(() => {
-    console.log('useEffect running - initial pastEvents:', pastEvents);
-    
-    // Fetch from Google Drive
+    // Fetch from Google Drive (serverless, client-side)
     async function loadDriveEvents() {
       try {
-        const response = await fetch('http://localhost:5000/api/drive/events');
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Fetched Google Drive events:', data);
-          if (data.success && data.events.length > 0) {
-            setDriveEvents(data.events);
-            setUseDrivePhotos(true);
-            console.log('✅ Google Drive photos loaded successfully');
-          }
-        } else {
-          console.log('⚠️ Google Drive API not available, using fallback');
+        const events = await fetchDriveEvents();
+        if (events.length > 0) {
+          setDriveEvents(events);
+          setUseDrivePhotos(true);
         }
       } catch (error) {
         console.error('Error loading Google Drive events:', error);
-        console.log('⚠️ Falling back to calendar/hardcoded events');
       }
     }
 
@@ -94,10 +82,7 @@ export default function PreviousEvents() {
     async function loadEvents() {
       try {
         const events = await fetchCalendarEvents();
-        console.log('Fetched calendar events:', events);
         const { past } = separateEvents(events);
-        console.log('Separated past events:', past);
-        console.log('Individual past events:', past.map(e => ({ id: e.id, title: e.title, imageUrl: e.imageUrl })));
         
         // Group events by base name (e.g., "GBM #1", "GBM #2" become "GBM")
         const groupedEvents = {};
@@ -120,7 +105,6 @@ export default function PreviousEvents() {
         // Only update if we got events from calendar
         if (uniqueEvents.length > 0) {
           setPastEvents(uniqueEvents);
-          console.log('Updated pastEvents state with grouped calendar events');
         }
       } catch (error) {
         console.error('Error loading calendar events:', error);
@@ -456,7 +440,13 @@ export default function PreviousEvents() {
             <h3 className="events-action-title">Newsletter</h3>
             <p className="events-action-description">Stay updated with VENSA news and announcements!</p>
           </div>
-          <button className="events-action-button">Subscribe</button>
+          <a
+            href="https://vensanewsletter.my.canva.site/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="events-action-button"
+            style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}
+          >Subscribe</a>
         </div>
 
         <div className="events-action-item">

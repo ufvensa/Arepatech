@@ -1,4 +1,4 @@
-# VENSA - Venezuelan Student Association at UF
+# VENSA - Venezuelan Student Association at UFL
 
 **Creating a home away from home while fostering professional development and cultural connection!**
 

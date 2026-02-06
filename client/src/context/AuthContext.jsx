@@ -27,20 +27,24 @@ export function AuthProvider({ children }) {
       // If profile doesn't exist, try to create it (fallback for missing trigger)
       if (!profileData) {
         console.log('Profile not found, attempting to create...');
+        
+        // Try upsert instead of insert to handle edge cases
         const { data: newProfile, error: insertError } = await supabase
           .from('profiles')
-          .insert({
+          .upsert({
             id: userId,
             email: userEmail || '',
             first_name: '',
             last_name: '',
-          })
+          }, { onConflict: 'id' })
           .select()
           .single();
 
         if (insertError) {
           console.error('Error creating profile:', insertError);
-          setProfile(null);
+          // Try one more fetch in case the profile was created by a trigger in the meantime
+          const retryData = await getProfile(userId);
+          setProfile(retryData || null);
         } else {
           setProfile(newProfile);
         }
@@ -49,7 +53,13 @@ export function AuthProvider({ children }) {
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
-      setProfile(null);
+      // Last resort: try a simple fetch in case the error was during insert
+      try {
+        const fallbackData = await getProfile(userId);
+        setProfile(fallbackData || null);
+      } catch {
+        setProfile(null);
+      }
     }
   };
 

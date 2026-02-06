@@ -623,11 +623,26 @@ export default function Profile() {
                 Logged in as: {user.email}
               </p>
               <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>
-                Your profile is being set up. If this persists, please try logging out and back in.
+                Your profile is being set up. Click below to retry or set up your profile.
               </p>
-              <button onClick={handleLogout} className="profile-logout-btn">
-                Log Out
-              </button>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button
+                  onClick={async () => {
+                    try {
+                      await refreshProfile();
+                    } catch (err) {
+                      console.error('Retry failed:', err);
+                    }
+                  }}
+                  className="profile-btn-primary"
+                  style={{ padding: '0.625rem 1.5rem' }}
+                >
+                  Retry Loading Profile
+                </button>
+                <button onClick={handleLogout} className="profile-logout-btn">
+                  Log Out
+                </button>
+              </div>
             </div>
           </div>
         </section>

@@ -52,6 +52,22 @@ export default function PreviousEvents() {
   const [driveEvents, setDriveEvents] = useState([]);
   const [useDrivePhotos, setUseDrivePhotos] = useState(false);
 
+  // Handle image load errors by trying fallback URLs
+  const handleImageError = (e, photo) => {
+    if (photo?.fallbacks) {
+      const currentSrc = e.target.src;
+      const nextIndex = photo.fallbacks.indexOf(currentSrc) + 1;
+      if (nextIndex > 0 && nextIndex < photo.fallbacks.length) {
+        e.target.src = photo.fallbacks[nextIndex];
+        return;
+      }
+    }
+    // All fallbacks failed — show VENSA logo
+    e.target.src = vensaLogo;
+    e.target.style.objectFit = 'contain';
+    e.target.style.padding = '40px';
+  };
+
   const openEventModal = (event) => {
     setSelectedEvent(event);
     setIsModalOpen(true);
@@ -215,7 +231,8 @@ export default function PreviousEvents() {
                       height: '100%',
                       objectFit: (event.photos && event.photos.length > 0) || event.imageUrl ? 'cover' : 'contain',
                       padding: (event.photos && event.photos.length > 0) || event.imageUrl ? '0' : '40px'
-                    }} 
+                    }}
+                    onError={(e) => handleImageError(e, event.photos?.[0])}
                   />
                   {/* Title Overlay */}
                   <div style={{
@@ -371,6 +388,7 @@ export default function PreviousEvents() {
                           objectFit: 'cover'
                         }}
                         loading="lazy"
+                        onError={(e) => handleImageError(e, photo)}
                       />
                     </div>
                   ))

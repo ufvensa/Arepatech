@@ -4109,8 +4109,9 @@ body {
 
 .directory-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
   gap: 1.25rem;
+  width: 100%;
 }
 
 /* Member Card */
@@ -4123,6 +4124,8 @@ body {
   gap: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  position: relative;
 }
 
 .directory-card:hover {
@@ -4148,7 +4151,6 @@ body {
 
 .directory-card-info {
   flex: 1;
-  min-width: 0;
 }
 
 .directory-card-name {
@@ -4156,7 +4158,6 @@ body {
   font-weight: 600;
   color: #1e3a8a;
   margin-bottom: 0.25rem;
-  white-space: nowrap;
 }
 
 .directory-card-major {
@@ -4164,8 +4165,6 @@ body {
   color: #1e3a8a;
   font-weight: 600;
   margin-bottom: 0.25rem;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
 }
 
 .directory-card-year {
@@ -4188,11 +4187,9 @@ body {
 }
 
 .directory-card-badges {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
-  flex-shrink: 0;
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
 }
 
 .directory-status-badge {
@@ -4206,9 +4203,7 @@ body {
 }
 
 .directory-attendance {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  display: none;
 }
 
 .attendance-label {

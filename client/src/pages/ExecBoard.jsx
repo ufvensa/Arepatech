@@ -22,7 +22,7 @@ import valeriaMaggioloImg from "../images/Valeria Maggiolo.jpeg";
 import victoriaMedinaImg from "../images/Victoria Medina.jpg";
 import WebDevImg from "../images/arepatech web dev picture.png";
 
-const boardMembers = [
+export const boardMembers = [
     {
         id: 1,
         name: "Jose Peaguda",

@@ -7,13 +7,17 @@ import instagramIcon from "../images/VENSA Website Instagram.png";
 import facebookIcon from "../images/VENSA Website Facebook.png";
 import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
+import johnRileyImg from "../images/John Riley web dev picture.jpeg";
+import stefiImg from "../images/stefi web dev picture.jpeg";
+import andyImg from "../images/andy web dev picture.jpeg";
+import diegoImg from "../images/diego web dev picture.jpeg";
 
 const devTeamMembers = [
   {
     id: 1,
     name: "John Riley",
     position: "Project Manager",
-    image: vensaLogo,
+    image: johnRileyImg,
     major: "Computer Engineering",
     year: "Senior",
     description: "Lead developer overseeing the VENSA website development and architecture.",
@@ -23,7 +27,7 @@ const devTeamMembers = [
     id: 2,
     name: "Estefania Rodriguez",
     position: "Scrum Master",
-    image: vensaLogo,
+    image: stefiImg,
     major: "Computer Science",
     year: "Graduate",
     description: "Project leader coordinating development efforts and team collaboration.",
@@ -53,7 +57,7 @@ const devTeamMembers = [
     id: 5,
     name: "Andy Arvelo",
     position: "Full-stack Developer",
-    image: vensaLogo,
+    image: andyImg,
     major: "Computer Science",
     year: "Freshman",
     description: "Full-stack developer passionate about creating impactful web applications for the VENSA community.",
@@ -63,7 +67,7 @@ const devTeamMembers = [
     id: 6,
     name: "Diego Canas",
     position: "Full-stack Developer",
-    image: vensaLogo,
+    image: diegoImg,
     major: "Computer Science",
     year: "Freshman",
     description: "Full-stack developer working across the entire stack to deliver complete features.",

@@ -11,6 +11,7 @@ import johnRileyImg from "../images/John Riley web dev picture.jpeg";
 import stefiImg from "../images/stefi web dev picture.jpeg";
 import andyImg from "../images/andy web dev picture.jpeg";
 import diegoImg from "../images/diego web dev picture.jpeg";
+import joseImg from "../images/jose web dev picture.jpeg";
 
 const devTeamMembers = [
   {
@@ -47,7 +48,7 @@ const devTeamMembers = [
     id: 4,
     name: "Jose Pulido",
     position: "Full-stack Developer",
-    image: vensaLogo,
+    image: joseImg,
     major: "Computer Science",
     year: "Senior",
     description: "Full-stack developer working across the entire stack to deliver complete features.",
@@ -142,6 +143,14 @@ export default function DevTeam() {
         <div className="hero-overlay"></div>
         <div className="hero-content">
           <h1 className="hero-title">Development Team</h1>
+          <a 
+            href="https://forms.gle/SWrJd7EUF5GSYtnG8" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hero-button"
+          >
+            See an Issue with the Website? Report it to Our Team Here!
+          </a>
         </div>
       </div>
 

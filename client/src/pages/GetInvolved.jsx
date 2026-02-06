@@ -25,7 +25,7 @@ export default function GetInvolved() {
             Whether you're Venezuelan or simply interested in our culture, we are excited to meet you and have you join VENSA!
           </p>
           <div className="get-involved-hero-buttons">
-            <Link to="/alumni" className="get-involved-hero-button">Alumni</Link>
+            <Link to="/alumni" className="hero-button">Alumni</Link>
           </div>
         </div>
       </div>

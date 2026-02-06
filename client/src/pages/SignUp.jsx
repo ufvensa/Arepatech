@@ -32,7 +32,7 @@ export default function SignUp() {
 
   // Check if email is valid UFL email in real-time
   const emailError = email && !isAllowedEmail(email)
-    ? "Please use your @ufl.edu email address"
+    ? "Please enter a valid email address"
     : "";
 
   // Handle profile picture selection
@@ -111,7 +111,7 @@ export default function SignUp() {
 
       // Check if email confirmation is required
       if (data?.user && !data.session) {
-        alert("Please check your UFL email to confirm your account!");
+        alert("Please check your email to confirm your account!");
         navigate("/profile");
       } else {
         navigate("/");

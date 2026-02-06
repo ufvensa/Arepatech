@@ -126,13 +126,17 @@ export function AuthProvider({ children }) {
     setError(null);
 
     try {
-      // Sign up with Supabase Auth
+      // Sign up with Supabase Auth — pass ALL fields in metadata
+      // so the DB trigger can save them immediately on user creation
       const data = await supabaseSignUp({
         email,
         password,
         metadata: {
           first_name: firstName,
           last_name: lastName,
+          major: major || null,
+          year: year || null,
+          date_of_birth: dateOfBirth || null,
         },
       });
 

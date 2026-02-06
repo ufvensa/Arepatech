@@ -46,7 +46,7 @@ CREATE TABLE public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
-  username TEXT UNIQUE NOT NULL,
+  username TEXT UNIQUE,
   email TEXT NOT NULL,
   date_of_birth DATE,
   major TEXT,
@@ -355,14 +355,23 @@ CREATE POLICY "E-Board can update attendance"
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, first_name, last_name, username)
+  INSERT INTO public.profiles (id, email, first_name, last_name, major, year, date_of_birth)
   VALUES (
     NEW.id,
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'first_name', ''),
     COALESCE(NEW.raw_user_meta_data->>'last_name', ''),
-    COALESCE(NEW.raw_user_meta_data->>'username', NEW.email)
-  );
+    NULLIF(NEW.raw_user_meta_data->>'major', ''),
+    COALESCE(NULLIF(NEW.raw_user_meta_data->>'year', ''), 'Freshman')::year_status,
+    NULLIF(NEW.raw_user_meta_data->>'date_of_birth', '')::DATE
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    first_name = EXCLUDED.first_name,
+    last_name = EXCLUDED.last_name,
+    major = EXCLUDED.major,
+    year = EXCLUDED.year,
+    date_of_birth = EXCLUDED.date_of_birth;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

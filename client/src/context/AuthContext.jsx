@@ -34,7 +34,6 @@ export function AuthProvider({ children }) {
             email: userEmail || '',
             first_name: '',
             last_name: '',
-            username: userEmail?.split('@')[0] || userId.slice(0, 8),
           })
           .select()
           .single();
@@ -108,12 +107,11 @@ export function AuthProvider({ children }) {
    * @param {string} params.password - User password
    * @param {string} params.firstName - First name
    * @param {string} params.lastName - Last name
-   * @param {string} params.username - Unique username
    * @param {string} params.major - User's major
    * @param {string} params.year - Academic year
    * @param {string} params.dateOfBirth - Date of birth
    */
-  const signUp = async ({ email, password, firstName, lastName, username, major, year, dateOfBirth }) => {
+  const signUp = async ({ email, password, firstName, lastName, major, year, dateOfBirth }) => {
     setLoading(true);
     setError(null);
 
@@ -125,7 +123,6 @@ export function AuthProvider({ children }) {
         metadata: {
           first_name: firstName,
           last_name: lastName,
-          username,
         },
       });
 
@@ -142,7 +139,6 @@ export function AuthProvider({ children }) {
             email: email,
             first_name: firstName,
             last_name: lastName,
-            username: username,
             major: major || null,
             year: year || null,
             date_of_birth: dateOfBirth || null,

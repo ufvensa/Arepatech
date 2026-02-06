@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { updateProfile, uploadAvatar } from "../lib/supabase";
+import { checkFormProfanity, profanityErrorMessage } from "../lib/profanityFilter";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
@@ -59,6 +60,20 @@ function EditProfileForm({ profile, onSave, onCancel }) {
     e.preventDefault();
     setSaving(true);
     setError("");
+
+    // Check for inappropriate language
+    const profanityCheck = checkFormProfanity({
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      major: formData.major,
+      workplace: formData.workplace,
+      bio: formData.bio,
+    });
+    if (!profanityCheck.clean) {
+      setError(profanityErrorMessage(profanityCheck.field));
+      setSaving(false);
+      return;
+    }
 
     try {
       // Upload profile picture first if one was selected
@@ -410,7 +425,7 @@ function UserProfileView({ profile, onEdit, onLogout }) {
           <h1 className="profile-name">
             {profile?.first_name} {profile?.last_name}
           </h1>
-          <p className="profile-username">@{profile?.username}</p>
+
           <span
             className="profile-status-badge"
             style={{ backgroundColor: getStatusColor(profile?.status) }}
@@ -518,7 +533,7 @@ function UserProfileView({ profile, onEdit, onLogout }) {
       {/* Stats Section */}
       <div className="profile-stats">
         <div className="profile-stat">
-          <span className="profile-stat-value">{profile?.attendance_rate ?? 0}%</span>
+          <span className="profile-stat-value">{profile?.attendance_rate ?? 100}%</span>
           <span className="profile-stat-label">Attendance Rate</span>
         </div>
       </div>
@@ -660,7 +675,7 @@ export default function Profile() {
                     id="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="yourname@ufl.edu"
+                    placeholder="Enter your email"
                     required
                   />
                 </div>

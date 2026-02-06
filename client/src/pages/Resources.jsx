@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getResources, createResource, uploadResourceImage, uploadResourceFile } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
+import { checkFormProfanity, profanityErrorMessage } from "../lib/profanityFilter";
 import bannerBg from "../images/VENSA Website Banner Background.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
@@ -71,6 +72,16 @@ export default function Resources() {
 
     if (!user) {
       alert("Please log in to add a resource");
+      return;
+    }
+
+    // Check for inappropriate language
+    const profanityCheck = checkFormProfanity({
+      title: newResource.title,
+      description: newResource.description,
+    });
+    if (!profanityCheck.clean) {
+      alert(profanityErrorMessage(profanityCheck.field));
       return;
     }
 

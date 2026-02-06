@@ -38,7 +38,7 @@ const getAttendanceColor = (rate) => {
 
 function MemberCard({ member, onClick }) {
     const displayName = `${member.first_name} ${member.last_name}`;
-    const attendanceRate = member.attendance_rate || 0;
+    const attendanceRate = member.attendance_rate ?? 100;
 
     return (
         <div className="directory-card" onClick={onClick}>
@@ -91,7 +91,7 @@ function MemberModal({ member, onClose }) {
     if (!member) return null;
 
     const displayName = `${member.first_name} ${member.last_name}`;
-    const attendanceRate = member.attendance_rate || 0;
+    const attendanceRate = member.attendance_rate ?? 100;
 
     return (
         <div className="member-modal-overlay" onClick={onClose}>
@@ -118,12 +118,6 @@ function MemberModal({ member, onClose }) {
                 </div>
 
                 <div className="member-modal-details">
-                    {member.username && (
-                        <div className="member-detail-row">
-                            <span className="detail-label">Username</span>
-                            <span className="detail-value">@{member.username}</span>
-                        </div>
-                    )}
                     <div className="member-detail-row">
                         <span className="detail-label">Major</span>
                         <span className="detail-value">{member.major || 'Undeclared'}</span>

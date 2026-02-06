@@ -167,7 +167,6 @@ export async function getProfiles(filters = {}) {
       id,
       first_name,
       last_name,
-      username,
       major,
       year,
       status,

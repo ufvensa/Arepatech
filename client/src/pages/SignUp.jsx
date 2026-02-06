@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, isAllowedEmail } from "../context/AuthContext";
 import { uploadAvatar } from "../lib/supabase";
+import { checkFormProfanity, profanityErrorMessage } from "../lib/profanityFilter";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
@@ -16,7 +17,6 @@ export default function SignUp() {
   const [major, setMajor] = useState("");
   const [year, setYear] = useState("");
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -74,6 +74,13 @@ export default function SignUp() {
       return;
     }
 
+    // Check for inappropriate language
+    const profanityCheck = checkFormProfanity({ firstName, lastName, major });
+    if (!profanityCheck.clean) {
+      setError(profanityErrorMessage(profanityCheck.field));
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -82,7 +89,6 @@ export default function SignUp() {
         password,
         firstName,
         lastName,
-        username,
         major,
         year,
         dateOfBirth: dateOfBirth || null,
@@ -340,13 +346,13 @@ export default function SignUp() {
               </div>
 
               <div className="signup-form-group">
-                <label htmlFor="email" className="signup-label">Email (UFL Only)</label>
+                <label htmlFor="email" className="signup-label">Email</label>
                 <input
                   type="email"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="yourname@ufl.edu"
+                  placeholder="Enter your email"
                   className="signup-input"
                   style={emailError ? { borderColor: '#ef4444' } : {}}
                   required
@@ -356,19 +362,6 @@ export default function SignUp() {
                     {emailError}
                   </span>
                 )}
-              </div>
-
-              <div className="signup-form-group">
-                <label htmlFor="username" className="signup-label">Username (UFL Only)</label>
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter Username"
-                  className="signup-input"
-                  required
-                />
               </div>
 
               <div className="signup-form-group">

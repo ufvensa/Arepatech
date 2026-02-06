@@ -30,10 +30,23 @@ const DRIVE_API_BASE = 'https://www.googleapis.com/drive/v3';
 let cache = { data: null, timestamp: null, ttl: 5 * 60 * 1000 };
 
 /**
- * Get a publicly viewable image URL for a Google Drive file
+ * Get a publicly viewable image URL for a Google Drive file.
+ * Uses lh3.googleusercontent.com which works reliably on any domain.
+ * The thumbnail endpoint gets blocked by Google on production sites.
  */
 function getDriveImageUrl(fileId) {
-  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+  return `https://lh3.googleusercontent.com/d/${fileId}=w800`;
+}
+
+/**
+ * Get fallback image URLs in case the primary one fails
+ */
+function getDriveImageFallbacks(fileId) {
+  return [
+    `https://lh3.googleusercontent.com/d/${fileId}=w800`,
+    `https://drive.google.com/uc?export=view&id=${fileId}`,
+    `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`,
+  ];
 }
 
 /**
@@ -98,6 +111,7 @@ async function listFolderPhotos(folderId) {
     id: file.id,
     name: file.name,
     url: getDriveImageUrl(file.id),
+    fallbacks: getDriveImageFallbacks(file.id),
     viewLink: getDriveViewLink(file.id),
     size: file.size,
   }));

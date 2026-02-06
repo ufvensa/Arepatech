@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getProfiles } from "../lib/supabase";
+import { boardMembers } from "./ExecBoard";
 import bannerBg from "../images/VENSA Website Banner Background.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
@@ -10,6 +11,17 @@ import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 
 const STATUS_OPTIONS = ["all", "eboard", "member", "alumni"];
+
+// Get list of e-board member names (exclude dev team card with id 12)
+const eboardNames = boardMembers
+    .filter(member => member.id !== 12)
+    .map(member => member.name.toLowerCase());
+
+// Helper function to check if a member is on the e-board
+const isEboardMember = (firstName, lastName) => {
+    const fullName = `${firstName} ${lastName}`.toLowerCase();
+    return eboardNames.includes(fullName);
+};
 
 // Helper functions for status colors and labels
 const getStatusColor = (status) => {
@@ -39,6 +51,9 @@ const getAttendanceColor = (rate) => {
 function MemberCard({ member, onClick }) {
     const displayName = `${member.first_name} ${member.last_name}`;
     const attendanceRate = member.attendance_rate ?? 100;
+    
+    // Override status to 'eboard' if member name matches an e-board member
+    const actualStatus = isEboardMember(member.first_name, member.last_name) ? 'eboard' : member.status;
 
     return (
         <div className="directory-card" onClick={onClick}>
@@ -60,28 +75,10 @@ function MemberCard({ member, onClick }) {
             <div className="directory-card-badges">
                 <span
                     className="directory-status-badge"
-                    style={{ backgroundColor: getStatusColor(member.status) }}
+                    style={{ backgroundColor: getStatusColor(actualStatus) }}
                 >
-                    {getStatusLabel(member.status)}
+                    {getStatusLabel(actualStatus)}
                 </span>
-                <div className="directory-attendance">
-                    <span className="attendance-label">Attendance</span>
-                    <div className="attendance-bar">
-                        <div
-                            className="attendance-fill"
-                            style={{
-                                width: `${attendanceRate}%`,
-                                backgroundColor: getAttendanceColor(attendanceRate)
-                            }}
-                        ></div>
-                    </div>
-                    <span
-                        className="attendance-rate"
-                        style={{ color: getAttendanceColor(attendanceRate) }}
-                    >
-                        {attendanceRate}%
-                    </span>
-                </div>
             </div>
         </div>
     );
@@ -92,6 +89,9 @@ function MemberModal({ member, onClose }) {
 
     const displayName = `${member.first_name} ${member.last_name}`;
     const attendanceRate = member.attendance_rate ?? 100;
+    
+    // Override status to 'eboard' if member name matches an e-board member
+    const actualStatus = isEboardMember(member.first_name, member.last_name) ? 'eboard' : member.status;
 
     return (
         <div className="member-modal-overlay" onClick={onClose}>
@@ -110,9 +110,9 @@ function MemberModal({ member, onClose }) {
                         <h2>{displayName}</h2>
                         <span
                             className="member-modal-status"
-                            style={{ backgroundColor: getStatusColor(member.status) }}
+                            style={{ backgroundColor: getStatusColor(actualStatus) }}
                         >
-                            {getStatusLabel(member.status)}
+                            {getStatusLabel(actualStatus)}
                         </span>
                     </div>
                 </div>
@@ -198,18 +198,21 @@ export default function Directory() {
         const fullName = `${member.first_name} ${member.last_name}`.toLowerCase();
         const majorLower = (member.major || '').toLowerCase();
         const searchLower = searchQuery.toLowerCase();
+        
+        // Determine actual status based on e-board name matching
+        const actualStatus = isEboardMember(member.first_name, member.last_name) ? 'eboard' : member.status;
 
         const matchesSearch = fullName.includes(searchLower) || majorLower.includes(searchLower);
-        const matchesStatus = selectedStatus === "all" || member.status === selectedStatus;
+        const matchesStatus = selectedStatus === "all" || actualStatus === selectedStatus;
         return matchesSearch && matchesStatus;
     });
 
-    // Calculate member counts
+    // Calculate member counts (using actual e-board status based on name matching)
     const memberCounts = {
         all: members.length,
-        eboard: members.filter(m => m.status === "eboard").length,
-        member: members.filter(m => m.status === "member").length,
-        alumni: members.filter(m => m.status === "alumni").length,
+        eboard: members.filter(m => isEboardMember(m.first_name, m.last_name)).length,
+        member: members.filter(m => !isEboardMember(m.first_name, m.last_name) && m.status === "member").length,
+        alumni: members.filter(m => !isEboardMember(m.first_name, m.last_name) && m.status === "alumni").length,
     };
 
     return (

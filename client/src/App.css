@@ -2324,6 +2324,16 @@ body {
   box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
 }
 
+.profile-edit-field input:-webkit-autofill,
+.profile-edit-field input:-webkit-autofill:hover,
+.profile-edit-field input:-webkit-autofill:focus,
+.profile-edit-field input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: #1f2937;
+}
+
 .profile-edit-field textarea {
   resize: vertical;
   min-height: 100px;
@@ -2435,6 +2445,16 @@ body {
 
 .profile-field input::placeholder {
   color: rgba(255, 255, 255, 0.7);
+}
+
+.profile-field input:-webkit-autofill,
+.profile-field input:-webkit-autofill:hover,
+.profile-field input:-webkit-autofill:focus,
+.profile-field input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #1e3a8a inset !important;
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: white;
 }
 
 .profile-field input:focus {
@@ -2665,6 +2685,16 @@ body {
   color: white;
 }
 
+.signup-input:-webkit-autofill,
+.signup-input:-webkit-autofill:hover,
+.signup-input:-webkit-autofill:focus,
+.signup-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #1e3a8a inset !important;
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: white;
+}
+
 .signup-select {
   cursor: pointer;
 }
@@ -2874,6 +2904,16 @@ body {
   outline: none;
   border-color: #1e3a8a;
   box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+.resources-search-input:-webkit-autofill,
+.resources-search-input:-webkit-autofill:hover,
+.resources-search-input:-webkit-autofill:focus,
+.resources-search-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #1e3a8a inset !important;
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: white;
 }
 
 .add-resource-button {
@@ -4003,6 +4043,16 @@ body {
 .directory-search-input:focus {
   outline: none;
   border-color: #1e3a8a;
+}
+
+.directory-search-input:-webkit-autofill,
+.directory-search-input:-webkit-autofill:hover,
+.directory-search-input:-webkit-autofill:focus,
+.directory-search-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #1e3a8a inset !important;
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: white;
 }
 
 .directory-status-filters {

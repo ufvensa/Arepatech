@@ -99,23 +99,23 @@ function EditProfileForm({ profile, onSave, onCancel }) {
       <div className="profile-edit-field profile-edit-field-full" style={{ textAlign: 'center', marginBottom: '20px' }}>
         <label>Profile Picture</label>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-          <label htmlFor="profile-picture-input" style={{ 
-            position: 'relative', 
+          <label htmlFor="profile-picture-input" style={{
+            position: 'relative',
             cursor: 'pointer',
             display: 'inline-block'
           }}>
             {profilePicturePreview ? (
-              <img 
-                src={profilePicturePreview} 
-                alt="Profile" 
-                style={{ 
-                  width: '120px', 
-                  height: '120px', 
-                  borderRadius: '50%', 
+              <img
+                src={profilePicturePreview}
+                alt="Profile"
+                style={{
+                  width: '120px',
+                  height: '120px',
+                  borderRadius: '50%',
                   objectFit: 'cover',
                   border: '3px solid #0021A5',
                   transition: 'opacity 0.3s'
-                }} 
+                }}
                 onMouseOver={(e) => e.target.style.opacity = '0.7'}
                 onMouseOut={(e) => e.target.style.opacity = '1'}
               />
@@ -132,16 +132,16 @@ function EditProfileForm({ profile, onSave, onCancel }) {
                 transition: 'background-color 0.3s',
                 overflow: 'hidden'
               }}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#e5e7eb'}
-              onMouseOut={(e) => e.target.style.backgroundColor = '#f3f4f6'}>
-                <img 
-                  src={vensaLogo} 
-                  alt="VENSA Logo" 
-                  style={{ 
-                    width: '80px', 
-                    height: '80px', 
+                onMouseOver={(e) => e.target.style.backgroundColor = '#e5e7eb'}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#f3f4f6'}>
+                <img
+                  src={vensaLogo}
+                  alt="VENSA Logo"
+                  style={{
+                    width: '80px',
+                    height: '80px',
                     objectFit: 'contain'
-                  }} 
+                  }}
                 />
               </div>
             )}
@@ -557,7 +557,7 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const { user, profile, signIn, signOut, loading, refreshProfile } = useAuth();
+  const { user, profile, signIn, signOut, loading, refreshProfile, error: authError } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -677,9 +677,9 @@ export default function Profile() {
               <p className="profile-login-subtitle">Sign in to access your VENSA account</p>
 
               <form onSubmit={handleLogin} className="profile-login-form">
-                {error && (
+                {(error || authError) && (
                   <div className="profile-error-banner">
-                    {error}
+                    {error || authError}
                   </div>
                 )}
 

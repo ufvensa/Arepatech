@@ -6,7 +6,7 @@
  */
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, getProfile, signUp as supabaseSignUp, signIn as supabaseSignIn, signOut as supabaseSignOut, isAllowedEmail } from '../lib/supabase';
+import { supabase, getProfile, signUp as supabaseSignUp, signIn as supabaseSignIn, signOut as supabaseSignOut, isAllowedEmail, isEmailBanned } from '../lib/supabase';
 
 // Re-export email validation for use in components
 export { isAllowedEmail } from '../lib/supabase';
@@ -27,7 +27,7 @@ export function AuthProvider({ children }) {
       // If profile doesn't exist, try to create it (fallback for missing trigger)
       if (!profileData) {
         console.log('Profile not found, attempting to create...');
-        
+
         // Try upsert instead of insert to handle edge cases
         const { data: newProfile, error: insertError } = await supabase
           .from('profiles')
@@ -57,8 +57,11 @@ export function AuthProvider({ children }) {
       try {
         const fallbackData = await getProfile(userId);
         setProfile(fallbackData || null);
-      } catch {
+        if (!fallbackData) setError("Could not load profile data");
+      } catch (fallbackError) {
+        console.error('Fallback fetch failed:', fallbackError);
         setProfile(null);
+        setError(`Profile load failed: ${err.message}`);
       }
     }
   };
@@ -90,6 +93,21 @@ export function AuthProvider({ children }) {
         setUser(session?.user ?? null);
 
         if (session?.user) {
+          // Check ban status safely
+          try {
+            const isBanned = await isEmailBanned(session.user.email);
+            if (isBanned) {
+              console.warn('User email is banned. Signing out.');
+              await supabase.auth.signOut();
+              setUser(null);
+              setProfile(null);
+              setError("Your account has been suspended.");
+              return;
+            }
+          } catch (err) {
+            console.error('Ban check failed (allowing access):', err);
+          }
+
           // Small delay to allow profile trigger to complete on signup
           if (event === 'SIGNED_IN') {
             setTimeout(() => fetchProfile(session.user.id, session.user.email), 500);
@@ -126,7 +144,19 @@ export function AuthProvider({ children }) {
     setError(null);
 
     try {
-      // Sign up with Supabase Auth — pass ALL fields in metadata
+      // 1. Check if email is restricted/banned BEFORE calling Supabase
+      try {
+        const isBanned = await isEmailBanned(email);
+        if (isBanned) {
+          throw new Error("This email is currently suspended and cannot register.");
+        }
+      } catch (banCheckErr) {
+        // If the specific ban error was thrown above, rethrow it
+        if (banCheckErr.message.includes("suspended")) throw banCheckErr;
+        console.error("Ban check failed during signup:", banCheckErr);
+      }
+
+      // 2. Sign up with Supabase Auth — pass ALL fields in metadata
       // so the DB trigger can save them immediately on user creation
       const data = await supabaseSignUp({
         email,
@@ -184,8 +214,28 @@ export function AuthProvider({ children }) {
     setError(null);
 
     try {
-      const data = await supabaseSignIn({ email, password });
-      return { data, error: null };
+      // 1. Authenticate
+      // Note: supabaseSignIn returns the data object directly ({ user, session })
+      const authData = await supabaseSignIn({ email, password });
+
+      // 2. Check Ban Status Immediately
+      if (authData.user) {
+        try {
+          const isBanned = await isEmailBanned(email);
+          if (isBanned) {
+            console.warn('User is banned. Aborting login.');
+            await supabaseSignOut();
+            return {
+              data: null,
+              error: { message: "Your account has been suspended." }
+            };
+          }
+        } catch (banError) {
+          console.error('Ban check error:', banError);
+        }
+      }
+
+      return { data: authData, error: null };
     } catch (err) {
       setError(err.message);
       return { data: null, error: err };
@@ -236,6 +286,34 @@ export function AuthProvider({ children }) {
   const isEBoard = () => hasRole('eboard');
 
   /**
+   * Check if user is an admin (e-board member based on name matching)
+   */
+  const isAdmin = () => {
+    if (!profile) return false;
+    // Check DB flag immediately
+    if (profile.is_admin === true) return true;
+
+    // Fallback: name check (useful for dev/testing)
+    const fullName = `${profile.first_name} ${profile.last_name}`.toLowerCase().trim();
+    const eboardNames = [
+      'jose peaguda',
+      'victoria consalvo',
+      'alejandro arvelo',
+      'ana calleja',
+      'chipi rincon',
+      'allison bonnemaison',
+      'carmelo urdaneta',
+      'john riley',
+      'camila almandoz',
+      'valeria maggiolo',
+      'victoria medina',
+      'estefi rodriguez'
+    ];
+
+    return eboardNames.includes(fullName);
+  };
+
+  /**
    * Check if user is logged in
    */
   const isAuthenticated = () => !!user;
@@ -251,6 +329,7 @@ export function AuthProvider({ children }) {
     refreshProfile,
     hasRole,
     isEBoard,
+    isAdmin,
     isAuthenticated,
   };
 

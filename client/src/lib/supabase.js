@@ -536,4 +536,101 @@ export async function uploadEventImage(file) {
   return publicUrl;
 }
 
+// ============================================================================
+// ADMIN HELPERS
+// ============================================================================
+
+/**
+ * Check if the current user is an admin
+ */
+export async function isAdmin() {
+  const user = await getCurrentUser();
+  if (!user) return false;
+
+  const profile = await getProfile(user.id);
+  return profile?.is_admin === true;
+}
+
+/**
+ * Check if an email is banned
+ * @param {string} email - Email to check
+ */
+export async function isEmailBanned(email) {
+  try {
+    // Create a timeout promise that rejects after 3 seconds
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Ban check timed out')), 3000)
+    );
+
+    // Race the RPC call against the timeout
+    const { data, error } = await Promise.race([
+      supabase.rpc('is_email_banned', { check_email: email }),
+      timeout
+    ]);
+
+    if (error) {
+      console.error('Error checking banned email:', error);
+      return false;
+    }
+
+    return data === true;
+  } catch (err) {
+    console.error('Ban check failed or timed out:', err);
+    return false; // Fail open to avoid blocking valid users if DB is slow
+  }
+}
+
+/**
+ * Delete a user account (Admin only)
+ * @param {string} userId - ID of user to delete
+ * @param {boolean} banEmail - Whether to ban the user's email
+ * @param {string} reason - Reason for deletion/ban
+ */
+export async function adminDeleteUser(userId, banEmail = true, reason = 'Removed by admin') {
+  const { data, error } = await supabase.rpc('admin_delete_user', {
+    target_user_id: userId,
+    ban_email: banEmail,
+    ban_reason: reason
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Get all banned emails (Admin only)
+ */
+export async function getBannedEmails() {
+  const { data, error } = await supabase
+    .from('banned_emails')
+    .select('*')
+    .order('banned_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Manually ban an email (Admin only)
+ * @param {string} email - Email to ban
+ * @param {string} reason - Reason for banning
+ */
+export async function banEmail(email, reason = 'Banned by admin') {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('Must be logged in');
+
+  const { data, error } = await supabase
+    .from('banned_emails')
+    .insert({
+      email: email.toLowerCase(),
+      banned_by: user.id,
+      reason: reason
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
 export default supabase;

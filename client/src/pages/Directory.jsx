@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getProfiles } from "../lib/supabase";
+import { getProfiles, adminDeleteUser } from "../lib/supabase";
+import { useAuth } from "../context/AuthContext";
 import { boardMembers } from "./ExecBoard";
 import bannerBg from "../images/VENSA Website Banner Background.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
@@ -51,7 +52,7 @@ const getAttendanceColor = (rate) => {
 function MemberCard({ member, onClick }) {
     const displayName = `${member.first_name} ${member.last_name}`;
     const attendanceRate = member.attendance_rate ?? 100;
-    
+
     // Override status to 'eboard' if member name matches an e-board member
     const actualStatus = isEboardMember(member.first_name, member.last_name) ? 'eboard' : member.status;
 
@@ -84,14 +85,35 @@ function MemberCard({ member, onClick }) {
     );
 }
 
-function MemberModal({ member, onClose }) {
+function MemberModal({ member, onClose, onDelete, isUserAdmin }) {
     if (!member) return null;
+
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const displayName = `${member.first_name} ${member.last_name}`;
     const attendanceRate = member.attendance_rate ?? 100;
-    
+
     // Override status to 'eboard' if member name matches an e-board member
     const actualStatus = isEboardMember(member.first_name, member.last_name) ? 'eboard' : member.status;
+
+    const handleDeleteClick = () => {
+        setShowConfirmDelete(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        setIsDeleting(true);
+        try {
+            await onDelete(member);
+            onClose();
+        } catch (error) {
+            console.error('Error deleting member:', error);
+            alert('Failed to delete member: ' + error.message);
+        } finally {
+            setIsDeleting(false);
+            setShowConfirmDelete(false);
+        }
+    };
 
     return (
         <div className="member-modal-overlay" onClick={onClose}>
@@ -161,12 +183,52 @@ function MemberModal({ member, onClose }) {
                         </div>
                     </div>
                 </div>
+
+                {/* Admin Delete Button */}
+                {isUserAdmin && !showConfirmDelete && (
+                    <div className="member-modal-admin-actions">
+                        <button
+                            className="member-delete-button"
+                            onClick={handleDeleteClick}
+                            disabled={isDeleting}
+                        >
+                            Remove Member
+                        </button>
+                    </div>
+                )}
+
+                {/* Confirmation Dialog */}
+                {showConfirmDelete && (
+                    <div className="member-modal-confirm-delete">
+                        <p className="confirm-delete-text">
+                            Are you sure you want to remove <strong>{displayName}</strong> from the directory?
+                            This will delete their account and ban their email.
+                        </p>
+                        <div className="confirm-delete-buttons">
+                            <button
+                                className="confirm-delete-cancel"
+                                onClick={() => setShowConfirmDelete(false)}
+                                disabled={isDeleting}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="confirm-delete-confirm"
+                                onClick={handleConfirmDelete}
+                                disabled={isDeleting}
+                            >
+                                {isDeleting ? 'Removing...' : 'Yes, Remove'}
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
 }
 
 export default function Directory() {
+    const { isAdmin } = useAuth();
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -193,12 +255,29 @@ export default function Directory() {
         fetchMembers();
     }, []);
 
+    // Handle member deletion (admin only)
+    const handleDeleteMember = async (member) => {
+        try {
+            // Call the admin delete function
+            await adminDeleteUser(member.id, true, 'Removed by admin');
+
+            // Remove from local state
+            setMembers(prevMembers => prevMembers.filter(m => m.id !== member.id));
+
+            // Close modal
+            setSelectedMember(null);
+        } catch (err) {
+            console.error('Error deleting member:', err);
+            throw err; // Re-throw to be caught by modal
+        }
+    };
+
     // Filter members based on search and status
     const filteredMembers = members.filter(member => {
         const fullName = `${member.first_name} ${member.last_name}`.toLowerCase();
         const majorLower = (member.major || '').toLowerCase();
         const searchLower = searchQuery.toLowerCase();
-        
+
         // Determine actual status based on e-board name matching
         const actualStatus = isEboardMember(member.first_name, member.last_name) ? 'eboard' : member.status;
 
@@ -290,6 +369,8 @@ export default function Directory() {
                 <MemberModal
                     member={selectedMember}
                     onClose={() => setSelectedMember(null)}
+                    onDelete={handleDeleteMember}
+                    isUserAdmin={isAdmin()}
                 />
             )}
 

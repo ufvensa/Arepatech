@@ -52,7 +52,7 @@ const devTeamMembers = [
     major: "Computer Science",
     year: "Senior",
     description: "Developer working across the entire website to deliver complete features.",
-    contact: "Contact info",
+    contact: "Pulido.jd@ufl.edu",
   },
   {
     id: 5,

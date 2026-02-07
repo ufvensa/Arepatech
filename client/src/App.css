@@ -1618,7 +1618,7 @@ body {
 }
 
 .get-involved-hero-title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
 }
@@ -1739,9 +1739,9 @@ body {
 }
 
 .alumni-hero-title {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: bold;
-  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
 }
 
 /* Alumni Content Section */
@@ -1820,55 +1820,49 @@ body {
 /* Mentorship Hero */
 .mentorship-hero {
   position: relative;
-  height: 450px;
+  height: 16rem;
   background-size: cover;
   background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
 }
 
 .mentorship-hero-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(30, 58, 138, 0.6);
+  background-color: rgba(30, 58, 138, 0.7);
 }
 
 .mentorship-hero-content {
   position: relative;
-  z-index: 1;
+  z-index: 10;
   text-align: center;
   color: white;
-  max-width: 1152px;
-  padding: 0 1.5rem;
 }
 
 .mentorship-hero-title {
-  font-size: 3.5rem;
+  font-size: 2.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
-  letter-spacing: 0.05em;
 }
 
 .mentorship-hero-subtitle {
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-  line-height: 1.6;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.95;
 }
 
 .mentorship-hero-button {
   background-color: white;
   color: #1e3a8a;
-  padding: 0.75rem 2rem;
+  padding: 0.5rem 1.5rem;
   border: none;
   border-radius: 0.25rem;
   font-weight: 600;
-  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition: background-color 0.2s;
   text-decoration: none;
   display: inline-block;
 }

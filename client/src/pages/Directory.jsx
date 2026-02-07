@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { getProfiles, adminDeleteUser } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { boardMembers } from "./ExecBoard";
-import bannerBg from "../images/VENSA Website Banner Background.png";
+import bannerBg from "../images/VENSA UF Banner.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";

@@ -27,7 +27,7 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { signUp } = useAuth();
+  const { signUp, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   // Check if email is valid UFL email in real-time
@@ -103,6 +103,7 @@ export default function SignUp() {
       if (profilePicture && data?.user) {
         try {
           await uploadAvatar(data.user.id, profilePicture);
+          await refreshProfile();
         } catch (uploadError) {
           console.error("Failed to upload profile picture:", uploadError);
           // Don't fail the signup if avatar upload fails

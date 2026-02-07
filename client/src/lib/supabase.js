@@ -470,10 +470,11 @@ export async function uploadAvatar(userId, file) {
     .from('avatars')
     .getPublicUrl(filePath);
 
-  // Update profile with new avatar URL
-  await updateProfile(userId, { avatar_url: publicUrl });
+  // Update profile with new avatar URL (cache-busting timestamp)
+  const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+  await updateProfile(userId, { avatar_url: avatarUrl });
 
-  return publicUrl;
+  return avatarUrl;
 }
 
 /**

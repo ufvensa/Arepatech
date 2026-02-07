@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import bannerBg from "../images/VENSA Website Banner Background.png";
+import bannerBg from "../images/VENSA UF Banner.png";
 import img1 from "../images/VENSA Mentorship One.png";
 import img2 from "../images/VENSA Mentorship OneTwo.png";
 import img3 from "../images/VENSA Mentorship OneThree.png";

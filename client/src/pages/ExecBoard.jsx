@@ -31,7 +31,7 @@ export const boardMembers = [
         major: "Biomedical Engineering/Pre-Med",
         year: "Senior",
         description: "Supervises and aids E-Board members and aids Treasurer with budget.",
-        contact: "(786) 731-6000",
+        contact: "jpeaguda@ufl.edu",
     },
     {
         id: 2,
@@ -41,7 +41,7 @@ export const boardMembers = [
         major: "Biomedical Engineering",
         year: "Senior",
         description: "Assists the President when needed and leads Mentorship/VLC programs.",
-        contact: "(754) 317-1148",
+        contact: "vconsalvo@ufl.edu",
     },
     {
         id: 3,
@@ -51,7 +51,7 @@ export const boardMembers = [
         major: "Finance",
         year: "Senior",
         description: "Manages the organization's finances and budgets.",
-        contact: "(321) 947-7682",
+        contact: "alejandro.arvelo@ufl.edu",
     },
     {
         id: 4,
@@ -61,7 +61,7 @@ export const boardMembers = [
         major: "Psychology",
         year: "Junior",
         description: "Creates and shares GBM slides and calendar and tracks attendance.",
-        contact: "(786) 805-3526",
+        contact: "anacalleja@ufl.edu",
     },
     {
         id: 5,
@@ -71,7 +71,7 @@ export const boardMembers = [
         major: "Media Production",
         year: "Junior",
         description: "Showcases VENSA through social media management.",
-        contact: "(305) 484-9036",
+        contact: "dianarincon@ufl.edu",
     },
     {
         id: 6,
@@ -91,7 +91,7 @@ export const boardMembers = [
         major: "Economics/Political Science",
         year: "Senior",
         description: "Organizes community service initiatives and volunteer events.",
-        contact: "(786) 477-9674",
+        contact: "carmelourdaneta@ufl.edu",
     },
     {
         id: 8,
@@ -101,7 +101,7 @@ export const boardMembers = [
         major: "Computer Engineering",
         year: "Senior",
         description: "Coordinate events for members' professional growth and networking.",
-        contact: "(786) 647-3624",
+        contact: "john.riley@ufl.edu",
     },
     {
         id: 9,
@@ -111,7 +111,7 @@ export const boardMembers = [
         major: "Dietetics",
         year: "Junior",
         description: "Coordinates athletics events that foster healthy lifestyles.",
-        contact: "(786) 451-1321",
+        contact: "camila.almandoz@ufl.edu",
     },
     {
         id: 10,
@@ -121,7 +121,7 @@ export const boardMembers = [
         major: "Pre Professional Biology",
         year: "Senior",
         description: "Chooses the year's affiliate NGO and leads events to raise funds.",
-        contact: "(954) 204-5048",
+        contact: "vmaggiolo@ufl.edu",
     },
     {
         id: 11,
@@ -131,7 +131,7 @@ export const boardMembers = [
         major: "Psychology (BCN)/Pre Law",
         year: "Junior",
         description: "Coordinates logistics and execution of social events.",
-        contact: "(941) 580-4644",
+        contact: "vmedinalaguado@ufl.edu",
     },
 
     {

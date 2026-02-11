@@ -18,26 +18,6 @@ Our core pillars:
 
 VENSA's website serves as the **digital hub** for our community, with a strong emphasis on **professional development and career growth**. This platform goes beyond event management—it's designed to connect members with opportunities, mentors, alumni, and resources that will shape their professional journeys.
 
-### Key Focus Areas
-
-#### 1. **Professional Development First**
-- **Opportunity Backboard**: Centralized platform for internships, co-ops, and job postings
-- **Mentorship Network**: Connect students with experienced members and alumni for career guidance
-- **Referral System**: Members can refer each other for opportunities with direct email integration
-- **Alumni Engagement**: Tap into the professional network of VENSA alumni for advice and connections
-- **Resource Library**: Curated advice on courses, career paths, and professional growth
-
-#### 2. **Community Building**
-- **Events & Activities**: Organize cultural events, social gatherings, and professional workshops
-- **Intramural Sports**: Foster team spirit and friendly competition
-- **Member Directory**: Find and connect with fellow Venezuelans on campus
-- **Cultural Content**: Blog posts celebrating Venezuelan culture and student achievements
-
-#### 3. **Support & Resources**
-- **Immigration Resources**: Essential information for international students
-- **Academic Guidance**: Course recommendations and academic support
-- **Student Resources**: General university and life resources
-
 ---
 
 ## Project Architecture

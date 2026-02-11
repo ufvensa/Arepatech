@@ -64,7 +64,7 @@ export default function ForgotPassword() {
                     id="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="yourname@ufl.edu"
+                    placeholder="Enter your email address"
                     required
                   />
                 </div>
@@ -117,18 +117,9 @@ export default function ForgotPassword() {
                   Click the link in the email to reset your password. If you don't see it, check your spam folder.
                 </p>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmailSent(false);
-                    setMessage("");
-                    setEmail("");
-                  }}
-                  className="profile-submit-btn"
-                  style={{ backgroundColor: '#374151' }}
-                >
+                <Link to="/profile" className="profile-submit-btn" style={{ backgroundColor: '#374151', display: 'block', textAlign: 'center', textDecoration: 'none' }}>
                   Try Again
-                </button>
+                </Link>
 
                 <div className="profile-divider">
                   <span>or</span>

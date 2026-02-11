@@ -101,7 +101,7 @@ export default function Home() {
             VENEZUELAN<br />STUDENT ASSOCIATION
           </h1>
           <h2 className="home-hero-subtitle">UNIVERSITY OF FLORIDA</h2>
-          <Link to="/signup" className="home-hero-button">JOIN VENSA</Link>
+          <Link to="/profile" className="home-hero-button">JOIN VENSA</Link>
         </div>
       </div>
 

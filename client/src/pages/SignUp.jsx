@@ -343,6 +343,7 @@ export default function SignUp() {
                   <option value="Junior">Junior</option>
                   <option value="Senior">Senior</option>
                   <option value="Graduate">Graduate</option>
+                  <option value="Alumni">Alumni</option>
                 </select>
               </div>
 

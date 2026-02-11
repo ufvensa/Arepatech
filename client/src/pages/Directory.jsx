@@ -24,6 +24,20 @@ const isEboardMember = (firstName, lastName) => {
     return eboardNames.includes(fullName);
 };
 
+// Helper function to get actual status based on e-board name or year
+const getActualStatus = (member) => {
+    // E-board members take priority
+    if (isEboardMember(member.first_name, member.last_name)) {
+        return 'eboard';
+    }
+    // If year is Alumni, they get alumni status
+    if (member.year === 'Alumni') {
+        return 'alumni';
+    }
+    // Otherwise use their profile status
+    return member.status;
+};
+
 // Helper functions for status colors and labels
 const getStatusColor = (status) => {
     switch (status) {
@@ -53,8 +67,8 @@ function MemberCard({ member, onClick }) {
     const displayName = `${member.first_name} ${member.last_name}`;
     const attendanceRate = member.attendance_rate ?? 100;
 
-    // Override status to 'eboard' if member name matches an e-board member
-    const actualStatus = isEboardMember(member.first_name, member.last_name) ? 'eboard' : member.status;
+    // Get actual status based on e-board name matching or alumni year
+    const actualStatus = getActualStatus(member);
 
     return (
         <div className="directory-card" onClick={onClick}>
@@ -94,8 +108,8 @@ function MemberModal({ member, onClose, onDelete, isUserAdmin }) {
     const displayName = `${member.first_name} ${member.last_name}`;
     const attendanceRate = member.attendance_rate ?? 100;
 
-    // Override status to 'eboard' if member name matches an e-board member
-    const actualStatus = isEboardMember(member.first_name, member.last_name) ? 'eboard' : member.status;
+    // Get actual status based on e-board name matching or alumni year
+    const actualStatus = getActualStatus(member);
 
     const handleDeleteClick = () => {
         setShowConfirmDelete(true);
@@ -278,20 +292,20 @@ export default function Directory() {
         const majorLower = (member.major || '').toLowerCase();
         const searchLower = searchQuery.toLowerCase();
 
-        // Determine actual status based on e-board name matching
-        const actualStatus = isEboardMember(member.first_name, member.last_name) ? 'eboard' : member.status;
+        // Determine actual status
+        const actualStatus = getActualStatus(member);
 
         const matchesSearch = fullName.includes(searchLower) || majorLower.includes(searchLower);
         const matchesStatus = selectedStatus === "all" || actualStatus === selectedStatus;
         return matchesSearch && matchesStatus;
     });
 
-    // Calculate member counts (using actual e-board status based on name matching)
+    // Calculate member counts (using actual status based on e-board name or year)
     const memberCounts = {
         all: members.length,
-        eboard: members.filter(m => isEboardMember(m.first_name, m.last_name)).length,
-        member: members.filter(m => !isEboardMember(m.first_name, m.last_name) && m.status === "member").length,
-        alumni: members.filter(m => !isEboardMember(m.first_name, m.last_name) && m.status === "alumni").length,
+        eboard: members.filter(m => getActualStatus(m) === 'eboard').length,
+        member: members.filter(m => getActualStatus(m) === 'member').length,
+        alumni: members.filter(m => getActualStatus(m) === 'alumni').length,
     };
 
     return (

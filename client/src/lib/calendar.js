@@ -4,6 +4,7 @@ import bonfireImage from '../images/VENSA Bonfire.png';
 import resumeWorkshopImage from '../images/VENSA Resume Workshop.png';
 import pilatesImage from '../images/VENSA Pilates.png';
 import eboardImage from '../images/VENSA Eboard.png';
+import volunteerImage from '../images/VENSA Volunteering.jpeg';
 import vensaLogo from '../images/VENSA Website Logo.png';
 import valentineBbqImage from '../images/VENSA Valentines BBQ.jpeg';
 
@@ -31,6 +32,7 @@ const EVENT_IMAGE_MAP = [
   { keywords: ['pilates', 'yoga', 'fitness', 'wellness', 'exercise'], image: pilatesImage },
   { keywords: ['eboard', 'e-board', 'executive', 'leadership'], image: eboardImage },
   { keywords: ['valentine', 'day', 'bbq', 'annual'], image: valentineBbqImage },
+  { keywords: ['volunteering', 'food bank', 'community service', 'volunteer', 'blood drive'], image: volunteerImage },
   // Add more mappings as needed
 ];
 

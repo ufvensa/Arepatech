@@ -3,12 +3,39 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { updateProfile, uploadAvatar } from "../lib/supabase";
 import { checkFormProfanity, profanityErrorMessage } from "../lib/profanityFilter";
+import { boardMembers } from "./ExecBoard";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
 import facebookIcon from "../images/VENSA Website Facebook.png";
 import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
+
+// Get list of e-board member names (exclude dev team card with id 12)
+const eboardNames = boardMembers
+    .filter(member => member.id !== 12)
+    .map(member => member.name.toLowerCase());
+
+// Helper function to check if a member is on the e-board
+const isEboardMember = (firstName, lastName) => {
+    const fullName = `${firstName} ${lastName}`.toLowerCase();
+    return eboardNames.includes(fullName);
+};
+
+// Helper function to get actual status based on e-board name or year
+const getActualStatus = (profile) => {
+    if (!profile) return 'member';
+    // E-board members take priority
+    if (isEboardMember(profile.first_name, profile.last_name)) {
+        return 'eboard';
+    }
+    // If year is Alumni, they get alumni status
+    if (profile.year === 'Alumni') {
+        return 'alumni';
+    }
+    // Otherwise use their profile status
+    return profile.status;
+};
 
 // Edit Profile Form Component
 function EditProfileForm({ profile, onSave, onCancel }) {
@@ -381,6 +408,8 @@ function EditProfileForm({ profile, onSave, onCancel }) {
 
 // User Profile Display Component (shown when logged in)
 function UserProfileView({ profile, onEdit, onLogout }) {
+  const actualStatus = getActualStatus(profile);
+
   const getStatusColor = (status) => {
     switch (status) {
       case "eboard": return "#1e3a8a";
@@ -428,9 +457,9 @@ function UserProfileView({ profile, onEdit, onLogout }) {
 
           <span
             className="profile-status-badge"
-            style={{ backgroundColor: getStatusColor(profile?.status) }}
+            style={{ backgroundColor: getStatusColor(actualStatus) }}
           >
-            {getStatusLabel(profile?.status)}
+            {getStatusLabel(actualStatus)}
           </span>
         </div>
 

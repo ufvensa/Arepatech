@@ -81,7 +81,7 @@ export const boardMembers = [
         major: "Journalism/International Studies",
         year: "Junior",
         description: "Advertises VENSA with recruitment events and designs the merch.",
-        contact: "(305) 790-3422",
+        contact: "a.bonnemaison@ufl.edu",
     },
     {
         id: 7,
@@ -141,7 +141,7 @@ export const boardMembers = [
         image: WebDevImg,
         major: "Computer Science + Engineering",
         year: "All over",
-        description: "Made the Website due",
+        description: "Made the Website",
         contact: "Will fix",
     },
 ];

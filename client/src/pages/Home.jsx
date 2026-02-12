@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import bannerBg1 from "../images/VENSA Website Banner Background.png";
 import bannerBg2 from "../images/VENSA Website About Us.png";
 import bannerBg3 from "../images/VENSA Website Vision.png";
@@ -17,16 +18,33 @@ import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 import { fetchCalendarEvents, separateEvents } from "../lib/calendar";
 
 export default function Home() {
+  const { user } = useAuth();
   const bannerImages = [bannerBg1, bannerBg2, bannerBg3, bannerBg4, bannerBg5];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [nextEvent, setNextEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isTicketsTime, setIsTicketsTime] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState({
     days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0
   });
+
+  // Check if it's past 5:30 PM EST on Feb 12, 2026
+  useEffect(() => {
+    const checkTicketTime = () => {
+      const now = new Date();
+      // Create target time: Feb 12, 2026 at 5:30 PM EST
+      const targetTime = new Date('2026-02-12T17:30:00-05:00');
+      setIsTicketsTime(now >= targetTime);
+    };
+
+    checkTicketTime();
+    // Check every minute
+    const interval = setInterval(checkTicketTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Banner image rotation
   useEffect(() => {
@@ -101,7 +119,26 @@ export default function Home() {
             VENEZUELAN<br />STUDENT ASSOCIATION
           </h1>
           <h2 className="home-hero-subtitle">UNIVERSITY OF FLORIDA</h2>
-          <Link to="/signup" className="home-hero-button">JOIN VENSA</Link>
+          {!user ? (
+            <Link to="/signup" className="home-hero-button">JOIN VENSA & GET ACCESS TO EXCLUSIVE ANNOUNCEMENTS</Link>
+          ) : isTicketsTime ? (
+            <a 
+              href="https://docs.google.com/forms/d/e/1FAIpQLSdgTT6WXn67OMvAD6NgkyscpTOHR3y4mutzC7b95DOQBLg-jQ/viewform" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="home-hero-button"
+            >
+              VENSA BEACH DAY TICKETS OUT NOW! CLICK HERE TO SECURE YOUR SPOT!
+            </a>
+          ) : (
+            <button 
+              className="home-hero-button" 
+              style={{ cursor: 'not-allowed', opacity: 0.8 }}
+              disabled
+            >
+              TICKETS FOR VENSA BEACH DAY OUT @5:30 PM! STAY TUNED!
+            </button>
+          )}
         </div>
       </div>
 

@@ -64,6 +64,7 @@ export async function signUp({ email, password, metadata }) {
     password,
     options: {
       data: metadata, // This gets stored in raw_user_meta_data and used by trigger
+      emailRedirectTo: window.location.origin, // Redirect back to the same origin after email confirmation
     },
   });
 

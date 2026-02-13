@@ -6,7 +6,8 @@
  */
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, getProfile, signUp as supabaseSignUp, signIn as supabaseSignIn, signOut as supabaseSignOut, isAllowedEmail, isEmailBanned } from '../lib/supabase';
+import { supabase, getProfile, signUp as supabaseSignUp, signIn as supabaseSignIn, signOut as supabaseSignOut, isAllowedEmail, isEmailBanned, uploadAvatar } from '../lib/supabase';
+import { savePendingAvatar, getPendingAvatar, clearPendingAvatar } from '../lib/pendingAvatar';
 
 // Re-export email validation for use in components
 export { isAllowedEmail } from '../lib/supabase';
@@ -22,6 +23,19 @@ export function AuthProvider({ children }) {
   // Fetch user profile when user changes
   const fetchProfile = async (userId, userEmail = null) => {
     try {
+      // Check for a pending avatar saved during signup (before email confirmation)
+      try {
+        const pending = await getPendingAvatar();
+        if (pending && pending.userId === userId) {
+          console.log('Found pending avatar in IndexedDB, uploading...');
+          await uploadAvatar(userId, pending.file);
+          await clearPendingAvatar();
+          console.log('Pending avatar uploaded successfully');
+        }
+      } catch (avatarErr) {
+        console.error('Failed to upload pending avatar:', avatarErr);
+      }
+
       const profileData = await getProfile(userId);
 
       // If profile doesn't exist, try to create it (fallback for missing trigger)
@@ -93,20 +107,18 @@ export function AuthProvider({ children }) {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          // Check ban status safely
-          try {
-            const isBanned = await isEmailBanned(session.user.email);
+          // Run ban check in the background — don't block profile loading
+          isEmailBanned(session.user.email).then(isBanned => {
             if (isBanned) {
               console.warn('User email is banned. Signing out.');
-              await supabase.auth.signOut();
+              supabase.auth.signOut();
               setUser(null);
               setProfile(null);
               setError("Your account has been suspended.");
-              return;
             }
-          } catch (err) {
+          }).catch(err => {
             console.error('Ban check failed (allowing access):', err);
-          }
+          });
 
           // Small delay to allow profile trigger to complete on signup
           if (event === 'SIGNED_IN') {
@@ -139,7 +151,7 @@ export function AuthProvider({ children }) {
    * @param {string} params.year - Academic year
    * @param {string} params.dateOfBirth - Date of birth
    */
-  const signUp = async ({ email, password, firstName, lastName, major, year, dateOfBirth }) => {
+  const signUp = async ({ email, password, firstName, lastName, major, year, dateOfBirth, profilePicture }) => {
     setLoading(true);
     setError(null);
 
@@ -192,6 +204,24 @@ export function AuthProvider({ children }) {
 
         if (upsertError) {
           console.error('Error creating/updating profile:', upsertError);
+        }
+
+        // Upload profile picture if provided
+        if (profilePicture) {
+          if (data.session) {
+            // We have a session — upload immediately
+            try {
+              await uploadAvatar(data.user.id, profilePicture);
+            } catch (uploadError) {
+              console.error('Failed to upload profile picture during signup:', uploadError);
+              // Store in IndexedDB for retry on next sign-in
+              await savePendingAvatar(profilePicture, data.user.id);
+            }
+          } else {
+            // No session yet (email confirmation required)
+            // Persist the file in IndexedDB so it survives page reloads
+            await savePendingAvatar(profilePicture, data.user.id);
+          }
         }
 
         await fetchProfile(data.user.id, email);
@@ -248,7 +278,6 @@ export function AuthProvider({ children }) {
    * Sign out the current user
    */
   const signOut = async () => {
-    setLoading(true);
     setError(null);
 
     try {
@@ -259,8 +288,6 @@ export function AuthProvider({ children }) {
     } catch (err) {
       setError(err.message);
       return { error: err };
-    } finally {
-      setLoading(false);
     }
   };
 

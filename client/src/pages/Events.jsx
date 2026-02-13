@@ -9,6 +9,8 @@ import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 import { fetchCalendarEvents, separateEvents } from "../lib/calendar";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function Events() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [rsvpCounts, setRsvpCounts] = useState({});
@@ -36,7 +38,7 @@ export default function Events() {
       if (event.spreadsheetId) {
         try {
           const response = await fetch(
-            `http://localhost:5000/api/sheets/rsvp-count/${event.spreadsheetId}`
+            `${API_BASE_URL}/api/sheets/rsvp-count/${event.spreadsheetId}`
           );
           const data = await response.json();
           

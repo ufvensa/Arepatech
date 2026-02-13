@@ -18,13 +18,38 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
+  const [sessionReady, setSessionReady] = useState(false);
+
   useEffect(() => {
-    // Check if user has a valid recovery session
+    // Listen for the PASSWORD_RECOVERY event which fires when Supabase
+    // processes the recovery token from the URL
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
+          setSessionReady(true);
+          setError("");
+        }
+      }
+    );
+
+    // Also check if there's already a session (e.g. token was already processed)
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        setError("Invalid or expired reset link. Please request a new password reset.");
+      if (session) {
+        setSessionReady(true);
+      } else {
+        // Give Supabase a moment to process the URL token
+        setTimeout(async () => {
+          const { data: { session: retrySession } } = await supabase.auth.getSession();
+          if (retrySession) {
+            setSessionReady(true);
+          } else {
+            setError("Invalid or expired reset link. Please request a new password reset.");
+          }
+        }, 2000);
       }
     });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleResetPassword = async (e) => {
@@ -47,20 +72,31 @@ export default function ResetPassword() {
     }
 
     try {
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: password,
-      });
+      const { error: updateError } = await Promise.race([
+        supabase.auth.updateUser({ password: password }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+      ]);
 
       if (updateError) {
         setError(updateError.message);
-      } else {
-        setSuccess(true);
-        setTimeout(() => {
-          navigate("/profile");
-        }, 3000);
+        setIsLoading(false);
+        return;
       }
+
+      // Password updated successfully — do a hard redirect
+      // signOut + full page reload avoids all React/auth state issues
+      supabase.auth.signOut().catch(() => {}); // fire-and-forget
+      window.location.href = "/profile";
+      return;
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+      // If we timed out, the update may have still succeeded
+      // Redirect anyway since the password was likely changed
+      if (err.message === 'timeout') {
+        supabase.auth.signOut().catch(() => {});
+        window.location.href = "/profile";
+        return;
+      }
+      setError(err.message || "An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -177,9 +213,9 @@ export default function ResetPassword() {
                 <button
                   type="submit"
                   className="profile-submit-btn"
-                  disabled={isLoading}
+                  disabled={isLoading || !sessionReady}
                 >
-                  {isLoading ? "Resetting Password..." : "Reset Password"}
+                  {isLoading ? "Resetting Password..." : !sessionReady ? "Verifying Link..." : "Reset Password"}
                 </button>
 
                 <div className="profile-divider">

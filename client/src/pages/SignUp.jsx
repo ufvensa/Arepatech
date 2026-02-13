@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, isAllowedEmail } from "../context/AuthContext";
-import { uploadAvatar } from "../lib/supabase";
 import { checkFormProfanity, profanityErrorMessage } from "../lib/profanityFilter";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import vensaLogo from "../images/VENSA Website Logo.png";
@@ -27,7 +26,7 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { signUp, refreshProfile } = useAuth();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
 
   // Check if email is valid UFL email in real-time
@@ -92,22 +91,12 @@ export default function SignUp() {
         major,
         year,
         dateOfBirth: dateOfBirth || null,
+        profilePicture: profilePicture || null,
       });
 
       if (signUpError) {
         setError(signUpError.message);
         return;
-      }
-
-      // Upload profile picture if provided
-      if (profilePicture && data?.user) {
-        try {
-          await uploadAvatar(data.user.id, profilePicture);
-          await refreshProfile();
-        } catch (uploadError) {
-          console.error("Failed to upload profile picture:", uploadError);
-          // Don't fail the signup if avatar upload fails
-        }
       }
 
       // Check if email confirmation is required

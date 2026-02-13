@@ -9,7 +9,7 @@ import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 import { fetchCalendarEvents, separateEvents } from "../lib/calendar";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 export default function Events() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
@@ -31,6 +31,9 @@ export default function Events() {
   }, []);
 
   async function loadRSVPCounts(events) {
+    // Skip RSVP count fetching if no backend API URL is configured
+    if (!API_BASE_URL) return;
+
     // Fetch RSVP counts for events that have a spreadsheetId
     const counts = {};
     

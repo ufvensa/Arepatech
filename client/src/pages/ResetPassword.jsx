@@ -21,35 +21,65 @@ export default function ResetPassword() {
   const [sessionReady, setSessionReady] = useState(false);
 
   useEffect(() => {
+    let timeoutId;
+
     // Listen for the PASSWORD_RECOVERY event which fires when Supabase
-    // processes the recovery token from the URL
+    // auto-processes the token_hash from the URL (detectSessionInUrl: true)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
+          clearTimeout(timeoutId);
           setSessionReady(true);
           setError("");
+          // Clean up the URL so token_hash isn't visible
+          window.history.replaceState({}, '', window.location.pathname);
         }
       }
     );
 
-    // Also check if there's already a session (e.g. token was already processed)
+    // Check if there's already a valid session (e.g. user refreshed the page)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setSessionReady(true);
       } else {
-        // Give Supabase a moment to process the URL token
-        setTimeout(async () => {
+        // Give Supabase time to auto-process the token_hash or hash fragment.
+        // detectSessionInUrl: true handles verifyOtp automatically — do NOT call it manually.
+        timeoutId = setTimeout(async () => {
+          // Retry session check after Supabase has had time to process
           const { data: { session: retrySession } } = await supabase.auth.getSession();
           if (retrySession) {
             setSessionReady(true);
+            return;
+          }
+
+          // No session — check for errors in URL hash (Supabase error redirect format)
+          const hashParams = new URLSearchParams(
+            window.location.hash.substring(1)
+          );
+          const errorCode = hashParams.get('error_code') || '';
+          const errorDesc = hashParams.get('error_description') || '';
+
+          // Also check query params for errors
+          const searchParams = new URLSearchParams(window.location.search);
+          const searchErrorCode = searchParams.get('error_code') || '';
+          const searchErrorDesc = searchParams.get('error_description') || '';
+
+          const combinedErrorCode = errorCode || searchErrorCode;
+          const combinedErrorDesc = errorDesc || searchErrorDesc;
+
+          if (combinedErrorCode === 'otp_expired' || combinedErrorDesc.includes('expired')) {
+            setError("This reset link has expired. Please request a new one below.");
           } else {
             setError("Invalid or expired reset link. Please request a new password reset.");
           }
-        }, 2000);
+        }, 4000);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleResetPassword = async (e) => {
@@ -117,6 +147,13 @@ export default function ResetPassword() {
                 {error && (
                   <div className="profile-error-banner">
                     {error}
+                    {error.includes("expired") && (
+                      <div style={{ marginTop: '10px' }}>
+                        <Link to="/forgot-password" style={{ color: '#0021A5', fontWeight: 600, textDecoration: 'underline' }}>
+                          Request a New Reset Link
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 )}
 

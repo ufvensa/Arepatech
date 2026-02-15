@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { updateProfile, uploadAvatar } from "../lib/supabase";
+import { getPendingAvatar, clearPendingAvatar } from "../lib/pendingAvatar";
 import { checkFormProfanity, profanityErrorMessage } from "../lib/profanityFilter";
 import { boardMembers } from "./ExecBoard";
 import ufLogo from "../images/VENSA Website UF Logo.png";
@@ -105,7 +106,14 @@ function EditProfileForm({ profile, onSave, onCancel }) {
     try {
       // Upload profile picture first if one was selected
       if (profilePicture) {
-        await uploadAvatar(profile.id, profilePicture);
+        try {
+          await uploadAvatar(profile.id, profilePicture);
+        } catch (avatarErr) {
+          console.error('Avatar upload failed:', avatarErr);
+          setError(`Profile picture upload failed: ${avatarErr.message}`);
+          setSaving(false);
+          return;
+        }
       }
       await onSave(formData);
     } catch (err) {
@@ -588,6 +596,30 @@ export default function Profile() {
 
   const { user, profile, signIn, signOut, loading, refreshProfile, error: authError } = useAuth();
   const navigate = useNavigate();
+
+  // Check for pending avatar on profile page load (safety net)
+  useEffect(() => {
+    const checkPendingAvatar = async () => {
+      if (!user || !profile) return;
+      // Only attempt if the profile has no avatar set
+      if (profile.avatar_url) return;
+
+      try {
+        const pending = await getPendingAvatar();
+        if (pending && pending.userId === user.id) {
+          console.log('[Profile] Found pending avatar in IndexedDB, uploading...');
+          await uploadAvatar(user.id, pending.file);
+          await clearPendingAvatar();
+          console.log('[Profile] Pending avatar uploaded from Profile page');
+          await refreshProfile();
+        }
+      } catch (err) {
+        console.error('[Profile] Failed to upload pending avatar:', err);
+      }
+    };
+
+    checkPendingAvatar();
+  }, [user, profile]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

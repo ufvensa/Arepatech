@@ -465,7 +465,10 @@ export async function uploadAvatar(userId, file) {
     .from('avatars')
     .upload(filePath, file, { upsert: true });
 
-  if (uploadError) throw uploadError;
+  if (uploadError) {
+    console.error('Avatar upload failed:', uploadError);
+    throw uploadError;
+  }
 
   const { data: { publicUrl } } = supabase.storage
     .from('avatars')

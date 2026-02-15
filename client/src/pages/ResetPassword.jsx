@@ -21,63 +21,80 @@ export default function ResetPassword() {
   const [sessionReady, setSessionReady] = useState(false);
 
   useEffect(() => {
-    let timeoutId;
+    let cancelled = false;
 
-    // Listen for the PASSWORD_RECOVERY event which fires when Supabase
-    // auto-processes the token_hash from the URL (detectSessionInUrl: true)
+    // Listen for auth state changes — verifyOtp fires PASSWORD_RECOVERY on success
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && session)) {
-          clearTimeout(timeoutId);
-          setSessionReady(true);
-          setError("");
-          // Clean up the URL so token_hash isn't visible
-          window.history.replaceState({}, '', window.location.pathname);
+          if (!cancelled) {
+            setSessionReady(true);
+            setError("");
+            // Clean up the URL so token_hash isn't visible
+            window.history.replaceState({}, '', window.location.pathname);
+          }
         }
       }
     );
 
-    // Check if there's already a valid session (e.g. user refreshed the page)
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    async function verifyToken() {
+      // First check if there's already a valid session
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        setSessionReady(true);
-      } else {
-        // Give Supabase time to auto-process the token_hash or hash fragment.
-        // detectSessionInUrl: true handles verifyOtp automatically — do NOT call it manually.
-        timeoutId = setTimeout(async () => {
-          // Retry session check after Supabase has had time to process
-          const { data: { session: retrySession } } = await supabase.auth.getSession();
-          if (retrySession) {
-            setSessionReady(true);
-            return;
-          }
+        if (!cancelled) setSessionReady(true);
+        return;
+      }
 
-          // No session — check for errors in URL hash (Supabase error redirect format)
-          const hashParams = new URLSearchParams(
-            window.location.hash.substring(1)
-          );
-          const errorCode = hashParams.get('error_code') || '';
-          const errorDesc = hashParams.get('error_description') || '';
+      // Extract token_hash from query params (our custom email template puts it there)
+      const params = new URLSearchParams(window.location.search);
+      const tokenHash = params.get('token_hash');
+      const type = params.get('type');
 
-          // Also check query params for errors
-          const searchParams = new URLSearchParams(window.location.search);
-          const searchErrorCode = searchParams.get('error_code') || '';
-          const searchErrorDesc = searchParams.get('error_description') || '';
+      if (tokenHash && type === 'recovery') {
+        // Manually exchange the token_hash for a session.
+        // detectSessionInUrl does NOT handle token_hash — only implicit grant and PKCE flows.
+        const { data, error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: 'recovery',
+        });
 
-          const combinedErrorCode = errorCode || searchErrorCode;
-          const combinedErrorDesc = errorDesc || searchErrorDesc;
+        if (cancelled) return;
 
-          if (combinedErrorCode === 'otp_expired' || combinedErrorDesc.includes('expired')) {
+        if (verifyError) {
+          console.error('verifyOtp error:', verifyError.message, verifyError);
+          if (verifyError.message?.toLowerCase().includes('expired')) {
             setError("This reset link has expired. Please request a new one below.");
           } else {
-            setError("Invalid or expired reset link. Please request a new password reset.");
+            setError(verifyError.message || "Invalid or expired reset link. Please request a new password reset.");
           }
-        }, 4000);
+          return;
+        }
+
+        if (data?.session) {
+          setSessionReady(true);
+          window.history.replaceState({}, '', window.location.pathname);
+          return;
+        }
       }
-    });
+
+      // Fallback: check for error params in URL (hash fragment or query string)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const searchParams = new URLSearchParams(window.location.search);
+      const errorCode = hashParams.get('error_code') || searchParams.get('error_code') || '';
+      const errorDesc = hashParams.get('error_description') || searchParams.get('error_description') || '';
+
+      if (errorCode === 'otp_expired' || errorDesc.includes('expired')) {
+        if (!cancelled) setError("This reset link has expired. Please request a new one below.");
+      } else if (!tokenHash) {
+        // No token_hash at all — likely a stale/bookmarked URL
+        if (!cancelled) setError("Invalid or expired reset link. Please request a new password reset.");
+      }
+    }
+
+    verifyToken();
 
     return () => {
-      clearTimeout(timeoutId);
+      cancelled = true;
       subscription.unsubscribe();
     };
   }, []);

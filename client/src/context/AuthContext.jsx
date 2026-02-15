@@ -20,6 +20,9 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Flag to prevent onAuthStateChange from overwriting profile during signup
+  const signupInProgressRef = { current: false };
+
   // Fetch user profile when user changes
   const fetchProfile = async (userId, userEmail = null) => {
     try {
@@ -27,13 +30,15 @@ export function AuthProvider({ children }) {
       try {
         const pending = await getPendingAvatar();
         if (pending && pending.userId === userId) {
-          console.log('Found pending avatar in IndexedDB, uploading...');
-          await uploadAvatar(userId, pending.file);
-          await clearPendingAvatar();
-          console.log('Pending avatar uploaded successfully');
+          try {
+            await uploadAvatar(userId, pending.file);
+            await clearPendingAvatar();
+          } catch (uploadErr) {
+            console.error('Failed to upload pending avatar (will retry on next load):', uploadErr);
+          }
         }
       } catch (avatarErr) {
-        console.error('Failed to upload pending avatar:', avatarErr);
+        console.error('Error checking pending avatar:', avatarErr);
       }
 
       const profileData = await getProfile(userId);
@@ -120,9 +125,16 @@ export function AuthProvider({ children }) {
             console.error('Ban check failed (allowing access):', err);
           });
 
-          // Small delay to allow profile trigger to complete on signup
-          if (event === 'SIGNED_IN') {
-            setTimeout(() => fetchProfile(session.user.id, session.user.email), 500);
+          // Skip fetchProfile if signup is in progress (to avoid race condition)
+          if (signupInProgressRef.current) {
+            // Do nothing — signUp() will call fetchProfile when ready
+          } else if (event === 'SIGNED_IN') {
+            // Small delay to allow profile trigger to complete on signup
+            setTimeout(() => {
+              if (!signupInProgressRef.current) {
+                fetchProfile(session.user.id, session.user.email);
+              }
+            }, 500);
           } else {
             await fetchProfile(session.user.id, session.user.email);
           }
@@ -154,6 +166,7 @@ export function AuthProvider({ children }) {
   const signUp = async ({ email, password, firstName, lastName, major, year, dateOfBirth, profilePicture }) => {
     setLoading(true);
     setError(null);
+    signupInProgressRef.current = true;
 
     try {
       // 1. Check if email is restricted/banned BEFORE calling Supabase
@@ -213,8 +226,7 @@ export function AuthProvider({ children }) {
             try {
               await uploadAvatar(data.user.id, profilePicture);
             } catch (uploadError) {
-              console.error('Failed to upload profile picture during signup:', uploadError);
-              // Store in IndexedDB for retry on next sign-in
+              console.error('Direct avatar upload failed, saving to IndexedDB:', uploadError);
               await savePendingAvatar(profilePicture, data.user.id);
             }
           } else {
@@ -232,6 +244,7 @@ export function AuthProvider({ children }) {
       setError(err.message);
       return { data: null, error: err };
     } finally {
+      signupInProgressRef.current = false;
       setLoading(false);
     }
   };

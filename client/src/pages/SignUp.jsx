@@ -15,6 +15,7 @@ export default function SignUp() {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [major, setMajor] = useState("");
   const [year, setYear] = useState("");
+  const [linkedinUrl, setLinkedinUrl] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -90,6 +91,7 @@ export default function SignUp() {
         lastName,
         major,
         year,
+        linkedinUrl: linkedinUrl || null,
         dateOfBirth: dateOfBirth || null,
         profilePicture: profilePicture || null,
       });
@@ -334,6 +336,18 @@ export default function SignUp() {
                   <option value="Graduate">Graduate</option>
                   <option value="Alumni">Alumni</option>
                 </select>
+              </div>
+
+              <div className="signup-form-group">
+                <label htmlFor="linkedinUrl" className="signup-label">LinkedIn Profile (Optional)</label>
+                <input
+                  type="url"
+                  id="linkedinUrl"
+                  value={linkedinUrl}
+                  onChange={(e) => setLinkedinUrl(e.target.value)}
+                  placeholder="https://www.linkedin.com/in/your-profile"
+                  className="signup-input"
+                />
               </div>
 
               <div className="signup-form-group">

@@ -41,6 +41,28 @@ export function AuthProvider({ children }) {
         console.error('Error checking pending avatar:', avatarErr);
       }
 
+      // Check auth metadata for linkedin_url that may not have been saved
+      // during signup (due to RLS blocking upsert without session)
+      try {
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser?.user_metadata?.linkedin_url) {
+          const { data: existingProfile } = await supabase
+            .from('profiles')
+            .select('linkedin_url')
+            .eq('id', userId)
+            .single();
+
+          if (existingProfile && !existingProfile.linkedin_url) {
+            await supabase
+              .from('profiles')
+              .update({ linkedin_url: currentUser.user_metadata.linkedin_url })
+              .eq('id', userId);
+          }
+        }
+      } catch (metaErr) {
+        console.error('Error syncing linkedin_url from metadata:', metaErr);
+      }
+
       const profileData = await getProfile(userId);
 
       // If profile doesn't exist, try to create it (fallback for missing trigger)
@@ -162,8 +184,9 @@ export function AuthProvider({ children }) {
    * @param {string} params.major - User's major
    * @param {string} params.year - Academic year
    * @param {string} params.dateOfBirth - Date of birth
+   * @param {string} params.linkedinUrl - LinkedIn profile URL
    */
-  const signUp = async ({ email, password, firstName, lastName, major, year, dateOfBirth, profilePicture }) => {
+  const signUp = async ({ email, password, firstName, lastName, major, year, dateOfBirth, linkedinUrl, profilePicture }) => {
     setLoading(true);
     setError(null);
     signupInProgressRef.current = true;
@@ -192,6 +215,7 @@ export function AuthProvider({ children }) {
           major: major || null,
           year: year || null,
           date_of_birth: dateOfBirth || null,
+          linkedin_url: linkedinUrl || null,
         },
       });
 
@@ -200,23 +224,33 @@ export function AuthProvider({ children }) {
         // Wait a moment for any trigger to complete first
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Upsert profile with all signup data
-        const { error: upsertError } = await supabase
-          .from('profiles')
-          .upsert({
-            id: data.user.id,
-            email: email,
-            first_name: firstName,
-            last_name: lastName,
-            major: major || null,
-            year: year || null,
-            date_of_birth: dateOfBirth || null,
-          }, {
-            onConflict: 'id'
-          });
+        if (data.session) {
+          // We have a session — upsert directly (RLS allows authenticated users)
+          const { error: upsertError } = await supabase
+            .from('profiles')
+            .upsert({
+              id: data.user.id,
+              email: email,
+              first_name: firstName,
+              last_name: lastName,
+              major: major || null,
+              year: year || null,
+              date_of_birth: dateOfBirth || null,
+              linkedin_url: linkedinUrl || null,
+            }, {
+              onConflict: 'id'
+            });
 
-        if (upsertError) {
-          console.error('Error creating/updating profile:', upsertError);
+          if (upsertError) {
+            console.error('Error creating/updating profile:', upsertError);
+          }
+        } else {
+          // No session (email confirmation required)
+          // The DB trigger already created the profile from auth metadata.
+          // linkedin_url is stored in raw_user_meta_data and will be
+          // applied when the user confirms their email and signs in
+          // (see fetchProfile for the recovery logic).
+          console.log('No session during signup — linkedin_url stored in auth metadata for recovery on first sign-in.');
         }
 
         // Upload profile picture if provided

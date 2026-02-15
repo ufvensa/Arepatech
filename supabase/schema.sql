@@ -355,7 +355,7 @@ CREATE POLICY "E-Board can update attendance"
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, first_name, last_name, major, year, date_of_birth)
+  INSERT INTO public.profiles (id, email, first_name, last_name, major, year, date_of_birth, linkedin_url)
   VALUES (
     NEW.id,
     NEW.email,
@@ -363,7 +363,8 @@ BEGIN
     COALESCE(NEW.raw_user_meta_data->>'last_name', ''),
     NULLIF(NEW.raw_user_meta_data->>'major', ''),
     COALESCE(NULLIF(NEW.raw_user_meta_data->>'year', ''), 'Freshman')::year_status,
-    NULLIF(NEW.raw_user_meta_data->>'date_of_birth', '')::DATE
+    NULLIF(NEW.raw_user_meta_data->>'date_of_birth', '')::DATE,
+    NULLIF(NEW.raw_user_meta_data->>'linkedin_url', '')
   )
   ON CONFLICT (id) DO UPDATE SET
     email = EXCLUDED.email,
@@ -371,7 +372,8 @@ BEGIN
     last_name = EXCLUDED.last_name,
     major = EXCLUDED.major,
     year = EXCLUDED.year,
-    date_of_birth = EXCLUDED.date_of_birth;
+    date_of_birth = EXCLUDED.date_of_birth,
+    linkedin_url = COALESCE(EXCLUDED.linkedin_url, profiles.linkedin_url);
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

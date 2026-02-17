@@ -27,7 +27,9 @@ const API_KEY = import.meta.env.VITE_GOOGLE_CALENDAR_API_KEY;
 const CALENDAR_IDS = import.meta.env.VITE_GOOGLE_CALENDAR_IDS?.split(',') || [];
 
 // Map event keywords to images
+// More specific keywords should come before general ones (e.g., 'tabling' before 'gbm')
 const EVENT_IMAGE_MAP = [
+  { keywords: ['tabling', 'information', 'booth', 'promotion'], image: tablingImage },
   { keywords: ['gbm', 'general body meeting', 'general meeting'], image: gbmImage },
   { keywords: ['bonfire', 'social', 'mixer', 'networking'], image: bonfireImage },
   { keywords: ['resume', 'workshop', 'career', 'professional', 'opening'], image: resumeWorkshopImage },
@@ -36,7 +38,6 @@ const EVENT_IMAGE_MAP = [
   { keywords: ['valentine', 'day', 'bbq', 'annual'], image: valentineBbqImage },
   { keywords: ['volunteering', 'food bank', 'community service', 'volunteer', 'blood drive'], image: volunteerImage },
   { keywords: ['pickleball', 'sports', 'recreation', 'tournament'], image: pickleballImage },
-  { keywords: ['tabling', 'information', 'booth', 'promotion'], image: tablingImage },
   // Add more mappings as needed
 ];
 

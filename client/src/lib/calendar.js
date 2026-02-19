@@ -9,6 +9,7 @@ import vensaLogo from '../images/VENSA Website Logo.png';
 import valentineBbqImage from '../images/VENSA Valentines BBQ.jpeg';
 import pickleballImage from '../images/VENSA Pickleball.jpeg';
 import tablingImage from '../images/VENSA Tabling.jpeg';
+import totalBodyImage from '../images/VENSA Total Body.jpg';
 
 /**
  * To enable RSVP functionality for an event:
@@ -33,11 +34,12 @@ const EVENT_IMAGE_MAP = [
   { keywords: ['gbm', 'general body meeting', 'general meeting'], image: gbmImage },
   { keywords: ['bonfire', 'social', 'mixer', 'networking'], image: bonfireImage },
   { keywords: ['resume', 'workshop', 'career', 'professional', 'opening'], image: resumeWorkshopImage },
-  { keywords: ['pilates', 'yoga', 'fitness', 'wellness', 'exercise', 'total body'], image: pilatesImage },
+  { keywords: ['pilates', 'yoga', 'fitness', 'wellness', 'exercise'], image: pilatesImage },
   { keywords: ['eboard', 'e-board', 'executive', 'leadership'], image: eboardImage },
   { keywords: ['valentine', 'day', 'bbq', 'annual'], image: valentineBbqImage },
   { keywords: ['volunteering', 'food bank', 'community service', 'volunteer', 'blood drive'], image: volunteerImage },
   { keywords: ['pickleball', 'sports', 'recreation', 'tournament'], image: pickleballImage },
+  { keywords: ['total', 'body', 'class', 'workout', 'active'], image: totalBodyImage },
   // Add more mappings as needed
 ];
 

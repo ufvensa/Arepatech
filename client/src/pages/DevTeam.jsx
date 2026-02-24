@@ -12,6 +12,7 @@ import stefiImg from "../images/stefi web dev picture.jpeg";
 import andyImg from "../images/andy web dev picture.jpeg";
 import diegoImg from "../images/diego web dev picture.jpeg";
 import joseImg from "../images/jose web dev picture.jpeg";
+import fabioImg from "../images/fabio web dev picture.jpeg";
 
 const devTeamMembers = [
   {
@@ -38,7 +39,7 @@ const devTeamMembers = [
     id: 3,
     name: "Fabio Jorge",
     position: "Full-stack Developer",
-    image: vensaLogo,
+    image: fabioImg,
     major: "Computer Science",
     year: "Senior",
     description: "Developer working across the entire website to deliver complete features.",

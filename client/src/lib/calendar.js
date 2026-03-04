@@ -13,6 +13,7 @@ import tablingImage from '../images/VENSA Tabling.jpeg';
 import totalBodyImage from '../images/VENSA Total Body.jpg';
 import fiestaCaracasImage from '../images/Caracas en el 2000 fiesta.jpg';
 import Run5kImage from '../images/VENSA Pace 1.jpeg';
+import vensaSpring from '../images/VENSA Springs.jpeg';
 
 /**
  * To enable RSVP functionality for an event:
@@ -46,7 +47,8 @@ const EVENT_IMAGE_MAP = [
   { keywords: ['fiesta', 'caracas', 'latin', 'culture'], image: fiestaCaracasImage },
   { keywords: ['beach', 'summer'], image: vensaBeachDay },
   { keywords: ['5k', 'run', 'race', 'walk'], image: Run5kImage },
-];
+  { keywords: ['spring', 'picnic', 'outdoor'], image: vensaSpring },
+]
 
 function getEventImage(eventTitle) {
   const titleLower = eventTitle.toLowerCase();

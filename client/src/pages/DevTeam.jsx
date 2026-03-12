@@ -41,7 +41,7 @@ const devTeamMembers = [
     position: "Full-stack Developer",
     image: fabioImg,
     major: "Computer Science",
-    year: "Juniorr",
+    year: "Junior",
     description: "Developer working across the entire website to deliver complete features.",
     contact: "f.jorgehernandez@ufl.edu",
   },

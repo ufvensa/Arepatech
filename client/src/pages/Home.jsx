@@ -128,7 +128,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="home-hero-button"
             >
-              VENSA BEACH DAY TICKETS OUT NOW! CLICK HERE TO SECURE YOUR SPOT!
+              NEW MEMBER? SIGN UP OR LOG IN TO JOIN VENSA TODAY!
             </a>
           ) : (
             <button 
@@ -136,7 +136,7 @@ export default function Home() {
               style={{ cursor: 'not-allowed', opacity: 0.8 }}
               disabled
             >
-              TICKETS FOR VENSA BEACH DAY OUT @5:30 PM! STAY TUNED!
+              NEW MEMBER? SIGN UP OR LOG IN TO JOIN VENSA TODAY!
             </button>
           )}
         </div>
@@ -203,8 +203,9 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="home-featured-content">
-            <p>No upcoming events at this time. Check back soon!</p>
+          <div className="home-featured-content home-featured-empty">
+            <p className="home-featured-empty-title">🎉 More Events Coming Soon!</p>
+            <p className="home-featured-empty-sub">Stay tuned — we're always planning something exciting for our VENSA family. Check back soon!</p>
           </div>
         )}
       </section>

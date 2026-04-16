@@ -1022,6 +1022,32 @@ body {
   align-items: center;
 }
 
+.home-featured-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2.5rem 1rem;
+  grid-template-columns: unset;
+}
+
+.home-featured-empty-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.75rem;
+  color: #ffffff;
+}
+
+.home-featured-empty-sub {
+  font-size: 1.125rem;
+  opacity: 0.85;
+  max-width: 480px;
+  line-height: 1.6;
+  color: #ffffff;
+}
+
 .home-featured-image {
   border-radius: 0.5rem;
   overflow: hidden;

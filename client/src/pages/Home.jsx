@@ -131,16 +131,11 @@ export default function Home() {
           </h1>
           <h2 className="home-hero-subtitle">UNIVERSITY OF FLORIDA</h2>
           {!user ? (
-            <Link to="/signup" className="home-hero-button">JOIN VENSA & GET ACCESS TO EXCLUSIVE ANNOUNCEMENTS</Link>
+            <Link to="/signup" className="home-hero-button">NEW MEMBER? SIGN UP OR LOG IN TO JOIN VENSA TODAY!</Link>
           ) : isTicketsTime ? (
-            <a 
-              href="https://docs.google.com/forms/d/e/1FAIpQLSdgTT6WXn67OMvAD6NgkyscpTOHR3y4mutzC7b95DOQBLg-jQ/viewform" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="home-hero-button"
-            >
+            <Link to="/signup" className="home-hero-button">
               NEW MEMBER? SIGN UP OR LOG IN TO JOIN VENSA TODAY!
-            </a>
+            </Link>
           ) : (
             <button 
               className="home-hero-button" 

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import bannerBg1 from "../images/VENSA Website Banner Background.png";
@@ -19,33 +19,16 @@ import { fetchCalendarEvents, separateEvents } from "../lib/calendar";
 
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
   const bannerImages = [bannerBg1, bannerBg2, bannerBg3, bannerBg4, bannerBg5];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [nextEvent, setNextEvent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isTicketsTime, setIsTicketsTime] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState({
     days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0
   });
-
-  // Check if it's past 5:30 PM EST on Feb 12, 2026
-  useEffect(() => {
-    const checkTicketTime = () => {
-      const now = new Date();
-      // Create target time: Feb 12, 2026 at 5:30 PM EST
-      const targetTime = new Date('2026-02-12T17:30:00-05:00');
-      setIsTicketsTime(now >= targetTime);
-    };
-
-    checkTicketTime();
-    // Check every minute
-    const interval = setInterval(checkTicketTime, 60000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Banner image rotation
   useEffect(() => {
@@ -78,12 +61,6 @@ export default function Home() {
     loadEvents();
   }, []);
 
-  useEffect(() => {
-    if (!authLoading && user) {
-      navigate("/profile", { replace: true });
-    }
-  }, [authLoading, navigate, user]);
-
   // Countdown timer - updates based on next event
   useEffect(() => {
     if (!nextEvent) return;
@@ -109,10 +86,6 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, [nextEvent]);
-  if (!authLoading && user) {
-    return null;
-  }
-
   return (
     <div className="home-page">
       {/* Hero Section */}
@@ -130,21 +103,12 @@ export default function Home() {
             VENEZUELAN<br />STUDENT ASSOCIATION
           </h1>
           <h2 className="home-hero-subtitle">UNIVERSITY OF FLORIDA</h2>
-          {!user ? (
-            <Link to="/signup" className="home-hero-button">NEW MEMBER? SIGN UP OR LOG IN TO JOIN VENSA TODAY!</Link>
-          ) : isTicketsTime ? (
-            <Link to="/signup" className="home-hero-button">
-              NEW MEMBER? SIGN UP OR LOG IN TO JOIN VENSA TODAY!
-            </Link>
-          ) : (
-            <button 
-              className="home-hero-button" 
-              style={{ cursor: 'not-allowed', opacity: 0.8 }}
-              disabled
-            >
-              NEW MEMBER? SIGN UP OR LOG IN TO JOIN VENSA TODAY!
-            </button>
-          )}
+          <Link
+            to={!authLoading && user ? "/profile" : "/signup"}
+            className="home-hero-button"
+          >
+            NEW MEMBER? SIGN UP OR LOG IN TO JOIN VENSA TODAY!
+          </Link>
         </div>
       </div>
 

@@ -1367,16 +1367,42 @@ body {
 .events-monthly {
   width: 100%;
   margin: 0 auto;
-  padding: 4rem 1.5rem;
+  padding: 3rem 1.5rem;
   background-color: #1e3a8a;
 }
 
 .events-section-title {
-  font-size: 2.5rem;
+  font-size: 4rem;
   font-weight: bold;
   color: white;
   text-align: center;
-  margin-bottom: 3rem;
+  text-decoration: underline;
+  margin-bottom: 1.5rem;
+}
+
+.events-empty-state {
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem;
+  color: white;
+  text-align: center;
+}
+
+.events-empty-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.75rem;
+  color: #ffffff;
+}
+
+.events-empty-subtitle {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  opacity: 0.85;
+  max-width: 520px;
+  margin: 0 auto;
+  color: #ffffff;
 }
 
 .events-cards-container {
@@ -1585,6 +1611,14 @@ body {
 @media (max-width: 768px) {
   .events-hero-title {
     font-size: 2rem;
+  }
+
+  .events-section-title {
+    font-size: 2.5rem;
+  }
+
+  .events-empty-title {
+    font-size: 1.6rem;
   }
 
   .event-card {

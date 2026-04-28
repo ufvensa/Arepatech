@@ -109,12 +109,13 @@ export default function Events() {
       <section className="events-monthly">
         <h2 className="events-section-title">Upcoming Events</h2>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+          <div className="events-empty-state">
             <p>Loading events...</p>
           </div>
         ) : upcomingEvents.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
-            <p>No upcoming events at the moment. Check back soon!</p>
+          <div className="events-empty-state">
+            <p className="events-empty-title">More Events Coming Soon!</p>
+            <p className="events-empty-subtitle">Stay tuned. We're always planning something exciting for our VENSA family.</p>
           </div>
         ) : (
           <div className="events-cards-container">

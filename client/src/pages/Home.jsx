@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import bannerBg1 from "../images/VENSA Website Banner Background.png";
@@ -18,7 +18,8 @@ import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 import { fetchCalendarEvents, separateEvents } from "../lib/calendar";
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const bannerImages = [bannerBg1, bannerBg2, bannerBg3, bannerBg4, bannerBg5];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [nextEvent, setNextEvent] = useState(null);
@@ -77,6 +78,12 @@ export default function Home() {
     loadEvents();
   }, []);
 
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate("/profile", { replace: true });
+    }
+  }, [authLoading, navigate, user]);
+
   // Countdown timer - updates based on next event
   useEffect(() => {
     if (!nextEvent) return;
@@ -102,6 +109,10 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, [nextEvent]);
+  if (!authLoading && user) {
+    return null;
+  }
+
   return (
     <div className="home-page">
       {/* Hero Section */}

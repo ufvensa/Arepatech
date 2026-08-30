@@ -6,7 +6,7 @@ import resumeWorkshopImage from '../images/VENSA Resume Workshop.png';
 import pilatesImage from '../images/VENSA Pilates.png';
 import eboardImage from '../images/VENSA Eboard.png';
 import volunteerImage from '../images/VENSA Volunteering.jpeg';
-import vensaLogo from '../images/VENSA Website Logo.png';
+const vensaLogo = '/vensa-logo.png';
 import valentineBbqImage from '../images/VENSA Valentines BBQ.jpeg';
 import pickleballImage from '../images/VENSA Pickleball.jpeg';
 import tablingImage from '../images/VENSA Tabling.jpeg';
@@ -118,8 +118,15 @@ export async function fetchCalendarEvents() {
 export function parseCalendarEvent(event) {
   const start = event.start.dateTime || event.start.date;
   const end = event.end.dateTime || event.end.date;
-  const startDate = new Date(start);
-  const endDate = new Date(end);
+  const parseEventDate = (value) => {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [year, month, day] = value.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+    return new Date(value);
+  };
+  const startDate = parseEventDate(start);
+  const endDate = parseEventDate(end);
   const title = event.summary || event.title || 'Event';
   const description = event.description || '';
 
@@ -182,6 +189,7 @@ export function parseCalendarEvent(event) {
       minute: '2-digit',
       hour12: true 
     }),
+    isAllDay: Boolean(event.start.date && !event.start.dateTime),
     isPast: endDate < new Date(),
     isUpcoming: startDate > new Date(),
     formUrl: formUrl,

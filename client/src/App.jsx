@@ -17,6 +17,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Resources from "./pages/Resources";
 import ResourceDetail from "./pages/ResourceDetail";
 import Directory from "./pages/Directory";
+import Calendar from "./pages/Calendar";
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/events" element={<Events />} />
+        <Route path="/calendar" element={<Calendar />} />
         <Route path="/previous-events" element={<PreviousEvents />} />
         <Route path="/exec-board" element={<ExecBoard />} />
         <Route path="/dev-team" element={<DevTeam />} />

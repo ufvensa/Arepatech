@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import ufLogo from "../images/VENSA Website UF Logo.png";
-import vensaLogo from "../images/VENSA Website Logo.png";
+const vensaLogo = "/vensa-logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
 import facebookIcon from "../images/VENSA Website Facebook.png";
 import pinIcon from "../images/VENSA Website Pin.png";

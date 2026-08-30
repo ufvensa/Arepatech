@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import bannerBg from "../images/VENSA Website Banner Background.png";
-import vensaLogo from "../images/VENSA Website Logo.png";
+const vensaLogo = "/vensa-logo.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
 import facebookIcon from "../images/VENSA Website Facebook.png";

@@ -13,7 +13,7 @@ import img10 from "../images/VENSA Mentorship Four.png";
 import img11 from "../images/VENSA Mentorship FourTwo.png";
 import img12 from "../images/VENSA Mentorship FourThree.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
-import vensaLogo from "../images/VENSA Website Logo.png";
+const vensaLogo = "/vensa-logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
 import facebookIcon from "../images/VENSA Website Facebook.png";
 import pinIcon from "../images/VENSA Website Pin.png";

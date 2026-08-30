@@ -4,7 +4,7 @@ import missionImg from "../images/VENSA Website Mission.png";
 import visionImg from "../images/VENSA Website Vision.png";
 import mentorshipInvolvedImg from "../images/VENSA Mentorship Involved.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
-import vensaLogo from "../images/VENSA Website Logo.png";
+const vensaLogo = "/vensa-logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
 import facebookIcon from "../images/VENSA Website Facebook.png";
 import pinIcon from "../images/VENSA Website Pin.png";

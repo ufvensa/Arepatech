@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ufLogo from "../images/VENSA Website UF Logo.png";
-import vensaLogo from "../images/VENSA Website Logo.png";
+const vensaLogo = "/vensa-logo.png";
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -54,6 +54,8 @@ export default function Navbar() {
           <NavLink to="/about" className="navbar-link" onClick={closeMobileMenu}>About</NavLink>
           <span className="navbar-separator">|</span>
           <NavLink to="/events" className="navbar-link" onClick={closeMobileMenu}>Events</NavLink>
+          <span className="navbar-separator">|</span>
+          <NavLink to="/calendar" className="navbar-link" onClick={closeMobileMenu}>Calendar</NavLink>
           <span className="navbar-separator">|</span>
           <NavLink to="/get-involved" className="navbar-link" onClick={closeMobileMenu}>Get Involved</NavLink>
           <span className="navbar-separator">|</span>

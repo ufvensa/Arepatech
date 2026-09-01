@@ -3999,6 +3999,7 @@ body {
 /* ===== Calendar Page ===== */
 .calendar-page {
   min-height: 100vh;
+  display: flow-root;
   background: #f7f8fc;
   color: #172554;
 }
@@ -4441,40 +4442,6 @@ body {
   border-radius: 50%;
 }
 
-.calendar-cta {
-  padding: 3.25rem max(1.5rem, calc((100% - 1120px) / 2));
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  background: #1e3a8a;
-  color: white;
-}
-
-.calendar-cta h2 {
-  max-width: 620px;
-  margin: 0;
-  font-size: clamp(1.65rem, 3vw, 2.35rem);
-  line-height: 1.15;
-}
-
-.calendar-cta a {
-  padding: 0.9rem 1.2rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  border-radius: 0.55rem;
-  background: #fbbf24;
-  color: #172554;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.calendar-cta a:hover {
-  color: #172554;
-  background: #fcd34d;
-}
-
 .sr-only {
   width: 1px;
   height: 1px;
@@ -4542,7 +4509,8 @@ body {
   }
 
   .calendar-heading-group {
-    justify-content: space-between;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .calendar-heading-group h2 {
@@ -4584,10 +4552,6 @@ body {
     font-size: 0.6rem;
   }
 
-  .calendar-cta {
-    align-items: flex-start;
-    flex-direction: column;
-  }
 }
 
 /* ===== Member Directory Page Styles ===== */

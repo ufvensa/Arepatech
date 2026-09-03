@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "npm:@supabase/supabase-js@2";
 import { json } from "../_shared/http.ts";
 
 function decodeSecret(value: string) {

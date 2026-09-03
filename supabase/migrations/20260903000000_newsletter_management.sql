@@ -25,7 +25,7 @@ create table if not exists public.members (
   email_subscribed boolean not null default true,
   membership_status text not null default 'active'
     check (membership_status in ('active', 'inactive', 'alumni', 'bounced', 'complained')),
-  unsubscribe_token text not null default encode(gen_random_bytes(32), 'hex'),
+  unsubscribe_token text not null default encode(extensions.gen_random_bytes(32), 'hex'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint members_email_unique unique (email),

@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "npm:@supabase/supabase-js@2";
 import { renderNewsletterHtml, renderNewsletterText } from "../../../shared/newsletter-template.js";
 import { corsHeaders, isValidEmail, json, sleep } from "../_shared/http.ts";
 

@@ -9,13 +9,25 @@ import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 import { fetchCalendarEvents, parseCalendarEvent } from "../lib/calendar";
 
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const VENSA_CALENDAR_ID = "f3d770ab054ee200e74807a9efa1660f1b96c34aaae38e10474a9edaeedc57e9@group.calendar.google.com";
+const GOOGLE_CALENDAR_SUBSCRIBE_URL = `https://calendar.google.com/calendar/u/0/r?cid=${encodeURIComponent(VENSA_CALENDAR_ID)}`;
 
 const CATEGORY_RULES = [
-  { name: "Community", color: "#f59e0b", keywords: ["social", "picnic", "beach", "bonfire", "fiesta", "bbq"] },
-  { name: "Professional", color: "#3b82f6", keywords: ["career", "resume", "workshop", "network", "professional"] },
-  { name: "Wellness", color: "#10b981", keywords: ["run", "pilates", "fitness", "wellness", "pickleball", "sports"] },
+  { name: "GBM", color: "#5df51b", textColor: "#102a05", labelColor: "#287500", keywords: ["gbm", "general body meeting"] },
+  { name: "Athletics", color: "#47ad5a", textColor: "#ffffff", labelColor: "#28783a", keywords: ["athletics", "intramural", "sports"] },
+  { name: "Events", color: "#fff725", textColor: "#172554", labelColor: "#8a6900", keywords: ["vensa x vida social", "welcome event", "lake day", "piscinada", "halloween party", "secret santa", "bbq", "social", "event"] },
+  { name: "Community Service", color: "#9828e8", textColor: "#ffffff", labelColor: "#7b1dbc", keywords: ["jornada medica", "community service", "volunteer", "volunteering", "food bank", "blood drive"] },
+  { name: "Marketing", color: "#d02a9c", textColor: "#ffffff", labelColor: "#a71877", keywords: ["hlsa tabling", "tabling", "marketing", "promotion"] },
+  { name: "Professional Development", color: "#3c79bd", textColor: "#ffffff", labelColor: "#285f9d", keywords: ["cafecito", "career showcase", "prof. dev", "professional", "resume", "workshop", "network"] },
+  { name: "Important Dates", color: "#c75c62", textColor: "#ffffff", labelColor: "#a23e44", keywords: ["classes begin", "classes end", "graduation"] },
+  { name: "Mentorship", color: "#a3bae8", textColor: "#172554", labelColor: "#5876b2", keywords: ["mentor draft", "meet mentors", "mentorship", "mentor"] },
+  { name: "Game Day", color: "#f49a24", textColor: "#172554", labelColor: "#a75a00", keywords: ["uf vs.", "game day"] },
+  { name: "Outreach", color: "#ef2229", textColor: "#ffffff", labelColor: "#bd151b", keywords: ["movie night", "pickleball tournament", "outreach"] },
+  { name: "No Classes", color: "#4a4a4a", textColor: "#ffffff", labelColor: "#4a4a4a", keywords: ["labor day", "homecoming", "veteran's day", "thanksgiving break", "reading day", "no classes"] },
 ];
+
+const DEFAULT_CATEGORY = CATEGORY_RULES.find((category) => category.name === "Events");
 
 function dateKey(date) {
   const year = date.getFullYear();
@@ -24,19 +36,29 @@ function dateKey(date) {
   return `${year}-${month}-${day}`;
 }
 
-function getCategory(title = "") {
-  const normalizedTitle = title.toLowerCase();
+function getCategory(event = {}) {
+  const descriptionCategory = event.description?.match(/CATEGORY:\s*([^\n<]+)/i)?.[1]?.trim();
+
+  if (descriptionCategory) {
+    const explicitCategory = CATEGORY_RULES.find(
+      (rule) => rule.name.toLowerCase() === descriptionCategory.toLowerCase()
+    );
+    if (explicitCategory) return explicitCategory;
+  }
+
+  const normalizedText = `${event.title || ""} ${event.description || ""}`.toLowerCase();
   return CATEGORY_RULES.find((rule) =>
-    rule.keywords.some((keyword) => normalizedTitle.includes(keyword))
-  ) || { name: "VENSA", color: "#1e3a8a" };
+    rule.keywords.some((keyword) => normalizedText.includes(keyword))
+  ) || DEFAULT_CATEGORY;
 }
 
 function getCalendarDays(month) {
   const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
   const gridStart = new Date(firstDay);
-  gridStart.setDate(firstDay.getDate() - firstDay.getDay());
+  const daysSinceMonday = (firstDay.getDay() + 6) % 7;
+  gridStart.setDate(firstDay.getDate() - daysSinceMonday);
 
-  return Array.from({ length: 42 }, (_, index) => {
+  return Array.from({ length: 35 }, (_, index) => {
     const day = new Date(gridStart);
     day.setDate(gridStart.getDate() + index);
     return day;
@@ -44,13 +66,13 @@ function getCalendarDays(month) {
 }
 
 function CalendarEvent({ event, compact = false }) {
-  const category = getCategory(event.title);
+  const category = getCategory(event);
 
   return (
     <button
       type="button"
       className={`calendar-event-chip${compact ? " compact" : ""}`}
-      style={{ "--event-color": category.color }}
+      style={{ "--event-color": category.color, "--event-text-color": category.textColor }}
       title={`${event.title} · ${event.isAllDay ? "All day" : event.startTime}`}
     >
       <span className="calendar-event-dot" aria-hidden="true" />
@@ -144,6 +166,16 @@ export default function Calendar() {
           </div>
 
           <div className="calendar-toolbar-actions">
+            <a
+              className="calendar-subscribe-button"
+              href={GOOGLE_CALENDAR_SUBSCRIBE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Sync the VENSA calendar to your Google Calendar"
+            >
+              <span aria-hidden="true">+</span>
+              Sync to Google Calendar
+            </a>
             <label className="calendar-search">
               <span className="sr-only">Search events</span>
               <span aria-hidden="true">⌕</span>
@@ -207,9 +239,13 @@ export default function Calendar() {
             ) : selectedEvents.length ? (
               <div className="calendar-agenda-list">
                 {selectedEvents.map((event) => {
-                  const category = getCategory(event.title);
+                  const category = getCategory(event);
                   return (
-                    <article key={event.id} className="calendar-agenda-card" style={{ "--event-color": category.color }}>
+                    <article
+                      key={event.id}
+                      className="calendar-agenda-card"
+                      style={{ "--event-color": category.color, "--event-label-color": category.labelColor }}
+                    >
                       <span className="calendar-agenda-category">{category.name}</span>
                       <h3>{event.title}</h3>
                       <p><span aria-hidden="true">◷</span> {event.isAllDay ? "All day" : event.startTime}</p>
@@ -230,7 +266,7 @@ export default function Calendar() {
             )}
 
             <div className="calendar-legend">
-              {[...CATEGORY_RULES, { name: "VENSA", color: "#1e3a8a" }].map((category) => (
+              {CATEGORY_RULES.map((category) => (
                 <span key={category.name}><i style={{ backgroundColor: category.color }} />{category.name}</span>
               ))}
             </div>

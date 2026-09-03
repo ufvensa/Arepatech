@@ -41,6 +41,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  margin-left: 1rem;
   text-decoration: none;
   color: white;
   cursor: pointer;
@@ -4109,6 +4110,35 @@ body {
   gap: 0.75rem;
 }
 
+.calendar-subscribe-button {
+  min-height: 2.65rem;
+  padding: 0.65rem 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid #1e3a8a;
+  border-radius: 0.65rem;
+  background: #1e3a8a;
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.calendar-subscribe-button span {
+  font-size: 1.15rem;
+  line-height: 0;
+}
+
+.calendar-subscribe-button:hover {
+  border-color: #fbbf24;
+  background: #fbbf24;
+  color: #172554;
+}
+
 .calendar-search {
   min-width: 230px;
   padding: 0 0.8rem;
@@ -4261,15 +4291,16 @@ body {
   gap: 0.4rem;
   border: 0;
   border-radius: 0.4rem;
-  background: color-mix(in srgb, var(--event-color) 10%, white);
-  color: #172554;
+  background: var(--event-color);
+  color: var(--event-text-color);
   font-size: 0.7rem;
   text-align: left;
 }
 
 .calendar-event-chip:hover {
   border-color: transparent;
-  background: color-mix(in srgb, var(--event-color) 17%, white);
+  background: var(--event-color);
+  filter: brightness(0.94);
 }
 
 .calendar-event-dot {
@@ -4277,7 +4308,8 @@ body {
   height: 0.42rem;
   flex: 0 0 auto;
   border-radius: 50%;
-  background: var(--event-color);
+  background: currentColor;
+  opacity: 0.75;
 }
 
 .calendar-event-chip-title {
@@ -4357,7 +4389,7 @@ body {
 }
 
 .calendar-agenda-category {
-  color: var(--event-color);
+  color: var(--event-label-color);
   font-size: 0.66rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -4482,11 +4514,16 @@ body {
 
   .calendar-toolbar-actions {
     justify-content: space-between;
+    flex-wrap: wrap;
   }
 
   .calendar-search {
     min-width: 0;
     flex: 1;
+  }
+
+  .calendar-subscribe-button {
+    flex: 0 0 auto;
   }
 
   .calendar-agenda {
@@ -4515,6 +4552,11 @@ body {
 
   .calendar-heading-group h2 {
     font-size: 1.35rem;
+  }
+
+  .calendar-subscribe-button,
+  .calendar-search {
+    width: 100%;
   }
 
   .calendar-day {

@@ -154,11 +154,24 @@ export async function getRecipientCount() {
   return Number(data || 0);
 }
 
+async function getFunctionErrorMessage(error) {
+  const response = error?.context;
+  if (response && typeof response.clone === "function") {
+    try {
+      const payload = await response.clone().json();
+      if (typeof payload?.error === "string" && payload.error.trim()) return payload.error;
+    } catch {
+      // Fall back to the Supabase client error when the response has no JSON body.
+    }
+  }
+  return error?.message || "The newsletter request failed";
+}
+
 export async function sendNewsletter(id, testEmail = null) {
   const { data, error } = await supabase.functions.invoke("send-newsletter", {
     body: { newsletter_id: id, ...(testEmail ? { test_email: testEmail } : {}) },
   });
-  throwIfError(error);
+  if (error) throw new Error(await getFunctionErrorMessage(error));
   if (data?.error) throw new Error(data.error);
   return data;
 }

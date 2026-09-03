@@ -18,6 +18,13 @@ import Resources from "./pages/Resources";
 import ResourceDetail from "./pages/ResourceDetail";
 import Directory from "./pages/Directory";
 import Calendar from "./pages/Calendar";
+import NewsletterAdminRoute from "./components/admin/NewsletterAdminRoute";
+import NewsletterDashboard from "./pages/admin/NewsletterDashboard";
+import NewNewsletter from "./pages/admin/NewNewsletter";
+import NewsletterEditor from "./pages/admin/NewsletterEditor";
+import NewsletterPreview from "./pages/admin/NewsletterPreview";
+import NewsletterUnsubscribe from "./pages/NewsletterUnsubscribe";
+import "./newsletter.css";
 
 export default function App() {
   return (
@@ -42,6 +49,11 @@ export default function App() {
         <Route path="/resources" element={<Resources />} />
         <Route path="/resources/:id" element={<ResourceDetail />} />
         <Route path="/directory" element={<Directory />} />
+        <Route path="/unsubscribe" element={<NewsletterUnsubscribe />} />
+        <Route path="/admin/newsletters" element={<NewsletterAdminRoute><NewsletterDashboard /></NewsletterAdminRoute>} />
+        <Route path="/admin/newsletters/new" element={<NewsletterAdminRoute><NewNewsletter /></NewsletterAdminRoute>} />
+        <Route path="/admin/newsletters/:id" element={<NewsletterAdminRoute><NewsletterEditor /></NewsletterAdminRoute>} />
+        <Route path="/admin/newsletters/:id/preview" element={<NewsletterAdminRoute><NewsletterPreview /></NewsletterAdminRoute>} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { canAccessNewsletters } from "../lib/newsletters";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 const vensaLogo = "/vensa-logo.png";
 
 export default function Navbar() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const isLoggedIn = !!user;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -60,6 +61,10 @@ export default function Navbar() {
           <NavLink to="/get-involved" className="navbar-link" onClick={closeMobileMenu}>Get Involved</NavLink>
           <span className="navbar-separator">|</span>
           <NavLink to="/resources" className="navbar-link" onClick={closeMobileMenu}>Resources</NavLink>
+          {canAccessNewsletters(profile) && <>
+            <span className="navbar-separator">|</span>
+            <NavLink to="/admin/newsletters" className="navbar-link" onClick={closeMobileMenu}>Admin</NavLink>
+          </>}
 
           <NavLink to="/profile" className="navbar-profile" onClick={closeMobileMenu}>
             {isLoggedIn ? "Profile" : "Sign In"}

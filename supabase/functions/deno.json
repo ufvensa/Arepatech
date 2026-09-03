@@ -1,0 +1,10 @@
+{
+  "nodeModulesDir": "auto",
+  "imports": {
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2"
+  },
+  "compilerOptions": {
+    "checkJs": false,
+    "strict": true
+  }
+}

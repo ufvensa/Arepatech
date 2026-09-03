@@ -324,11 +324,22 @@ Deno.serve(async (request) => {
       if (actor.kind !== "user") throw new FunctionError("Tests require a signed-in staff member", "TEST_REQUIRES_USER", 403);
       if (!isValidEmail(testEmail)) throw new FunctionError("Enter a valid test email", "INVALID_TEST_EMAIL", 400);
 
+      const { data: testMember, error: testMemberError } = await admin.from("members")
+        .select("id,unsubscribe_token")
+        .eq("email", testEmail)
+        .maybeSingle();
+      if (testMemberError) throw databaseFailure(context, "load_test_recipient_preferences", testMemberError);
+      logEvent("info", "test_recipient_preferences_checked", context, {
+        member_found: Boolean(testMember),
+        member_id: testMember?.id || null,
+        unsubscribe_link_included: Boolean(testMember?.unsubscribe_token),
+      });
+
       let html: string;
       let text: string;
       try {
-        html = renderNewsletterHtml({ newsletter, sections, siteUrl: SITE_URL, recipientToken: "test-preview" });
-        text = renderNewsletterText({ newsletter, sections, siteUrl: SITE_URL, recipientToken: "test-preview" });
+        html = renderNewsletterHtml({ newsletter, sections, siteUrl: SITE_URL, recipientToken: testMember?.unsubscribe_token || "" });
+        text = renderNewsletterText({ newsletter, sections, siteUrl: SITE_URL, recipientToken: testMember?.unsubscribe_token || "" });
         logEvent("info", "newsletter_rendered", context, { html_length: html.length, text_length: text.length });
       } catch (error) {
         logEvent("error", "newsletter_render_failed", context, { error: safeError(error) });

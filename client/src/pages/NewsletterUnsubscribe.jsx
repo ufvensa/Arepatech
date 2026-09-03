@@ -2,6 +2,19 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
+async function getFunctionErrorMessage(error) {
+  const response = error?.context;
+  if (response && typeof response.clone === "function") {
+    try {
+      const payload = await response.clone().json();
+      if (typeof payload?.error === "string" && payload.error.trim()) return payload.error;
+    } catch {
+      // Fall back to the Supabase client error when the response has no JSON body.
+    }
+  }
+  return error?.message || "Unable to update your email preferences.";
+}
+
 export default function NewsletterUnsubscribe() {
   const [params] = useSearchParams();
   const token = params.get("token") || "";
@@ -9,8 +22,18 @@ export default function NewsletterUnsubscribe() {
 
   const update = async (action) => {
     setState((current) => ({ ...current, loading: true, message: "" }));
-    const { data, error } = await supabase.functions.invoke("newsletter-unsubscribe", { body: { token, action } });
-    setState({ loading: false, subscribed: error ? null : data.email_subscribed, message: error?.message || data?.error || data?.message });
+    try {
+      const { data, error } = await supabase.functions.invoke("newsletter-unsubscribe", { body: { token, action } });
+      if (error) throw new Error(await getFunctionErrorMessage(error));
+      if (data?.error) throw new Error(data.error);
+      setState({ loading: false, subscribed: data.email_subscribed, message: data.message });
+    } catch (updateError) {
+      setState((current) => ({
+        ...current,
+        loading: false,
+        message: updateError instanceof Error ? updateError.message : "Unable to update your email preferences.",
+      }));
+    }
   };
 
   return (

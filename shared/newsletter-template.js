@@ -71,6 +71,7 @@ function renderSection(section) {
  */
 export function renderNewsletterHtml({ newsletter, sections = [], siteUrl = "https://ufvensa.org", recipientToken = "preview" }) {
   const normalizedSiteUrl = siteUrl.replace(/\/$/, "");
+  const hasPreferencesToken = /^[a-f0-9]{64}$/i.test(recipientToken);
   const preferencesUrl = `${normalizedSiteUrl}/unsubscribe?token=${encodeURIComponent(recipientToken)}`;
   const visibleSections = [...sections]
     .filter((section) => section.is_visible !== false)
@@ -104,9 +105,9 @@ export function renderNewsletterHtml({ newsletter, sections = [], siteUrl = "htt
             <a href="https://www.linkedin.com/company/ufvensa" style="color:#ffffff">LinkedIn</a>
           </div>
           <div style="margin-top:20px;padding-top:18px;border-top:1px solid #5670b2;font-size:12px;color:#c8d3ee">
-            <a href="${safeUrl(preferencesUrl)}" style="color:#ffffff">Manage Email Preferences</a>
+            ${hasPreferencesToken ? `<a href="${safeUrl(preferencesUrl)}" style="color:#ffffff">Manage Email Preferences</a>
             &nbsp;•&nbsp;
-            <a href="${safeUrl(preferencesUrl)}" style="color:#ffffff">Unsubscribe</a><br>
+            <a href="${safeUrl(preferencesUrl)}" style="color:#ffffff">Unsubscribe</a><br>` : ""}
             <span style="display:inline-block;padding-top:10px">© ${new Date().getUTCFullYear()} VENSA. All Rights Reserved.</span>
           </div>
         </td></tr>
@@ -125,5 +126,8 @@ export function renderNewsletterText({ newsletter, sections = [], siteUrl = "htt
     .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
     .map((section) => `${section.title || NEWSLETTER_SECTION_LABELS[section.section_type] || "Update"}\n${section.content || ""}\n${section.button_url || ""}`)
     .join("\n\n");
-  return `${newsletter.title || newsletter.subject || "VENSA Update"}\n\n${newsletter.intro || ""}\n\n${body}\n\nManage preferences or unsubscribe: ${siteUrl.replace(/\/$/, "")}/unsubscribe?token=${recipientToken}`;
+  const preferences = /^[a-f0-9]{64}$/i.test(recipientToken)
+    ? `\n\nManage preferences or unsubscribe: ${siteUrl.replace(/\/$/, "")}/unsubscribe?token=${encodeURIComponent(recipientToken)}`
+    : "";
+  return `${newsletter.title || newsletter.subject || "VENSA Update"}\n\n${newsletter.intro || ""}\n\n${body}${preferences}`;
 }

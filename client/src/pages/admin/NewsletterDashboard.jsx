@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   canApproveNewsletter,
@@ -27,8 +27,10 @@ function formatDate(value) {
 export default function NewsletterDashboard() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [newsletters, setNewsletters] = useState([]);
-  const [tab, setTab] = useState("drafts");
+  const requestedTab = searchParams.get("tab");
+  const tab = requestedTab && GROUPS[requestedTab] ? requestedTab : "drafts";
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
@@ -46,7 +48,11 @@ export default function NewsletterDashboard() {
 
   const perform = async (key, action) => {
     setBusy(key); setError("");
-    try { await action(); await load(); }
+    try {
+      const result = await action();
+      await load();
+      return result;
+    }
     catch (actionError) { setError(actionError.message); }
     finally { setBusy(""); }
   };
@@ -59,7 +65,8 @@ export default function NewsletterDashboard() {
   const sendNow = async (newsletter) => {
     const count = await getRecipientCount();
     if (!window.confirm(`You are about to email ${count} VENSA members.\n\nSubject:\n${newsletter.subject}\n\nThis action cannot be undone.`)) return;
-    await perform(`send-${newsletter.id}`, () => sendNewsletter(newsletter.id));
+    const result = await perform(`send-${newsletter.id}`, () => sendNewsletter(newsletter.id));
+    if (result?.status === "sent") setSearchParams({ tab: "sent" });
   };
 
   return (
@@ -76,7 +83,7 @@ export default function NewsletterDashboard() {
       {error && <div className="newsletter-alert error" role="alert">{error}</div>}
       <nav className="newsletter-tabs" aria-label="Newsletter status">
         {Object.keys(GROUPS).map((group) => (
-          <button key={group} className={tab === group ? "active" : ""} onClick={() => setTab(group)}>
+          <button type="button" key={group} className={tab === group ? "active" : ""} onClick={() => setSearchParams({ tab: group })}>
             {group[0].toUpperCase() + group.slice(1)}
             <span>{newsletters.filter((item) => GROUPS[group].includes(item.status)).length}</span>
           </button>

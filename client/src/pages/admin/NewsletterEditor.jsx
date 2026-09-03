@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getEvents, getResources } from "../../lib/supabase";
@@ -39,7 +39,7 @@ function EditorModal({ title, children, onClose }) {
   return (
     <div className="newsletter-modal-backdrop" role="presentation" onMouseDown={onClose}>
       <div className="newsletter-modal" role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => event.stopPropagation()}>
-        <div className="newsletter-modal-title"><h2>{title}</h2><button onClick={onClose} aria-label="Close">×</button></div>
+        <div className="newsletter-modal-title"><h2>{title}</h2><button type="button" onClick={onClose} aria-label="Close">×</button></div>
         {children}
       </div>
     </div>
@@ -57,6 +57,8 @@ export default function NewsletterEditor() {
   const [sectionType, setSectionType] = useState("featured_event");
   const [previewWidth, setPreviewWidth] = useState("desktop");
   const [busy, setBusy] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const submitInFlight = useRef(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [testOpen, setTestOpen] = useState(false);
@@ -135,7 +137,11 @@ export default function NewsletterEditor() {
 
   const run = async (action, success) => {
     setBusy(true); setError(""); setMessage("");
-    try { await action(); if (success) setMessage(success); }
+    try {
+      const result = await action();
+      if (success) setMessage(success);
+      return result;
+    }
     catch (actionError) { setError(actionError.message); throw actionError; }
     finally { setBusy(false); }
   };
@@ -147,11 +153,36 @@ export default function NewsletterEditor() {
   }, "Draft saved.");
 
   const submit = async () => {
+    if (submitInFlight.current || busy || newsletter?.status !== "draft") return;
+    console.log("[newsletter] submit_for_approval", {
+      newsletterId: id,
+      currentStatus: newsletter.status,
+    });
     if (!window.confirm("Save and submit this newsletter for approval?")) return;
+    submitInFlight.current = true;
+    setSubmitting(true);
+    setBusy(true);
+    setError("");
+    setMessage("");
     try {
-      await run(async () => { await saveNewsletter(newsletter, sections); await submitNewsletter(id); }, "Submitted for approval.");
-      navigate("/admin/newsletters");
-    } catch { /* Error is displayed in the editor. */ }
+      await saveNewsletter(newsletter, sections);
+      const submittedNewsletter = await submitNewsletter(id);
+      setNewsletter((current) => ({
+        ...current,
+        ...(submittedNewsletter || {}),
+        status: "ready_for_review",
+      }));
+      const refreshed = await getNewsletter(id);
+      setNewsletter(refreshed.newsletter);
+      setSections(refreshed.sections);
+      setMessage("Newsletter submitted for approval.");
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Unable to submit the newsletter for approval.");
+    } finally {
+      submitInFlight.current = false;
+      setSubmitting(false);
+      setBusy(false);
+    }
   };
 
   const approve = async (approved) => {
@@ -163,11 +194,12 @@ export default function NewsletterEditor() {
   const sendTest = async (event) => {
     event.preventDefault();
     try {
-      await run(async () => {
+      const result = await run(async () => {
         if (editable) await saveNewsletter(newsletter, sections);
-        await sendNewsletter(id, testEmail);
+        return sendNewsletter(id, testEmail);
       }, `Test sent to ${testEmail}.`);
       setTestOpen(false);
+      if (result?.test) navigate("/admin/newsletters?tab=sent");
     } catch { /* Error is displayed in the editor. */ }
   };
 
@@ -175,8 +207,8 @@ export default function NewsletterEditor() {
     try {
       const count = await getRecipientCount();
       if (!window.confirm(`You are about to email ${count} VENSA members.\n\nSubject:\n${newsletter.subject}\n\nThis action cannot be undone.`)) return;
-      await run(() => sendNewsletter(id));
-      navigate("/admin/newsletters");
+      const result = await run(() => sendNewsletter(id));
+      if (result?.status === "sent") navigate("/admin/newsletters?tab=sent");
     } catch (sendError) { setError(sendError.message); }
   };
 
@@ -195,13 +227,13 @@ export default function NewsletterEditor() {
         <div><Link to="/admin/newsletters">← Newsletters</Link><h1>{newsletter.title || "Untitled newsletter"}</h1><span className={`newsletter-status ${newsletter.status}`}>{NEWSLETTER_STATUSES[newsletter.status]}</span></div>
         <div className="newsletter-editor-actions">
           <Link className="newsletter-secondary-button" to={`/admin/newsletters/${id}/preview`}>Full preview</Link>
-          <button className="newsletter-secondary-button" onClick={() => setTestOpen(true)}>Send test</button>
-          {editable && <button className="newsletter-secondary-button" onClick={save} disabled={busy}>Save draft</button>}
-          {editable && <button className="newsletter-primary-button" onClick={submit} disabled={busy}>Submit for approval</button>}
-          {isApprover && newsletter.status === "ready_for_review" && <button className="newsletter-secondary-button" onClick={() => approve(false)}>Return to draft</button>}
-          {isApprover && newsletter.status === "ready_for_review" && <button className="newsletter-primary-button" onClick={() => approve(true)}>Approve</button>}
-          {isApprover && newsletter.status === "approved" && <button className="newsletter-secondary-button" onClick={() => setScheduleOpen(true)}>Schedule</button>}
-          {isApprover && ["approved", "failed"].includes(newsletter.status) && <button className="newsletter-send-button" onClick={sendNow}>Send now</button>}
+          <button type="button" className="newsletter-secondary-button" onClick={() => setTestOpen(true)} disabled={busy}>Send test</button>
+          {editable && <button type="button" className="newsletter-secondary-button" onClick={save} disabled={busy}>Save draft</button>}
+          {editable && <button type="button" className="newsletter-primary-button" onClick={submit} disabled={busy || submitting}>{submitting ? "Submitting..." : "Submit for approval"}</button>}
+          {isApprover && newsletter.status === "ready_for_review" && <button type="button" className="newsletter-secondary-button" onClick={() => approve(false)} disabled={busy}>Return to draft</button>}
+          {isApprover && newsletter.status === "ready_for_review" && <button type="button" className="newsletter-primary-button" onClick={() => approve(true)} disabled={busy}>Approve</button>}
+          {isApprover && newsletter.status === "approved" && <button type="button" className="newsletter-secondary-button" onClick={() => setScheduleOpen(true)} disabled={busy}>Schedule</button>}
+          {isApprover && ["approved", "failed"].includes(newsletter.status) && <button type="button" className="newsletter-send-button" onClick={sendNow} disabled={busy}>Send now</button>}
         </div>
       </header>
       {message && <div className="newsletter-alert success">{message}</div>}
@@ -243,13 +275,13 @@ export default function NewsletterEditor() {
         </section>
 
         <aside className="newsletter-live-preview">
-          <div className="newsletter-preview-toolbar"><strong>Live preview</strong><div><button className={previewWidth === "desktop" ? "active" : ""} onClick={() => setPreviewWidth("desktop")}>Desktop</button><button className={previewWidth === "mobile" ? "active" : ""} onClick={() => setPreviewWidth("mobile")}>Mobile</button></div></div>
+          <div className="newsletter-preview-toolbar"><strong>Live preview</strong><div><button type="button" className={previewWidth === "desktop" ? "active" : ""} onClick={() => setPreviewWidth("desktop")}>Desktop</button><button type="button" className={previewWidth === "mobile" ? "active" : ""} onClick={() => setPreviewWidth("mobile")}>Mobile</button></div></div>
           <iframe title="Live newsletter preview" srcDoc={html} className={previewWidth} />
         </aside>
       </div>
 
-      {testOpen && <EditorModal title="Send test email" onClose={() => setTestOpen(false)}><form onSubmit={sendTest}><label>Send test to<input type="email" required autoFocus value={testEmail} onChange={(event) => setTestEmail(event.target.value)} placeholder="name@example.com" /></label><p>Test messages use the exact rendered newsletter and do not change its status.</p><div className="newsletter-modal-actions"><button type="button" onClick={() => setTestOpen(false)}>Cancel</button><button className="newsletter-primary-button" disabled={busy}>Send test</button></div></form></EditorModal>}
-      {scheduleOpen && <EditorModal title="Schedule newsletter" onClose={() => setScheduleOpen(false)}><form onSubmit={schedule}><label>Date and time<input type="datetime-local" required autoFocus min={localDateTimeMinimum()} value={scheduleValue} onChange={(event) => setScheduleValue(event.target.value)} /></label><p>The time is interpreted in your current local timezone.</p><div className="newsletter-modal-actions"><button type="button" onClick={() => setScheduleOpen(false)}>Cancel</button><button className="newsletter-primary-button" disabled={busy}>Review and schedule</button></div></form></EditorModal>}
+      {testOpen && <EditorModal title="Send test email" onClose={() => setTestOpen(false)}><form onSubmit={sendTest}><label>Send test to<input type="email" required autoFocus value={testEmail} onChange={(event) => setTestEmail(event.target.value)} placeholder="name@example.com" /></label><p>Test messages use the exact rendered newsletter and do not change its status.</p><div className="newsletter-modal-actions"><button type="button" onClick={() => setTestOpen(false)}>Cancel</button><button type="submit" className="newsletter-primary-button" disabled={busy}>Send test</button></div></form></EditorModal>}
+      {scheduleOpen && <EditorModal title="Schedule newsletter" onClose={() => setScheduleOpen(false)}><form onSubmit={schedule}><label>Date and time<input type="datetime-local" required autoFocus min={localDateTimeMinimum()} value={scheduleValue} onChange={(event) => setScheduleValue(event.target.value)} /></label><p>The time is interpreted in your current local timezone.</p><div className="newsletter-modal-actions"><button type="button" onClick={() => setScheduleOpen(false)}>Cancel</button><button type="submit" className="newsletter-primary-button" disabled={busy}>Review and schedule</button></div></form></EditorModal>}
     </main>
   );
 }

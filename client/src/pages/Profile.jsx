@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { updateProfile, uploadAvatar } from "../lib/supabase";
 import { getPendingAvatar, clearPendingAvatar } from "../lib/pendingAvatar";
 import { checkFormProfanity, profanityErrorMessage } from "../lib/profanityFilter";
-import { boardMembers } from "./ExecBoard";
+import { boardMembers } from "../data/boardMembers";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 const vensaLogo = "/vensa-logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";

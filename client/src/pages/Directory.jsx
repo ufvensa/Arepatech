@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getProfiles, adminDeleteUser } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
-import { boardMembers } from "./ExecBoard";
+import { boardMembers } from "../data/boardMembers";
 import bannerBg from "../images/VENSA UF Banner.png";
 const vensaLogo = "/vensa-logo.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";

@@ -7,156 +7,32 @@ import instagramIcon from "../images/VENSA Website Instagram.png";
 import facebookIcon from "../images/VENSA Website Facebook.png";
 import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
+import webDevImg from "../images/arepatech web dev picture.png";
 
-// Import all executive board member images
-import josePeagudaImg from "../images/Jose Peagua.jpg";
-import victoriaConsalvoImg from "../images/Victoria Consalvo.jpg";
-import alejandroArveloImg from "../images/Alejandro Arvelo.jpg";
-import anaCallejaImg from "../images/Ana Calleja.jpg";
-import chipiRinconImg from "../images/Chipi Rincon.jpg";
-import allisonBonnemaison from "../images/Allison Bonnemaison.jpg";
-import carmeloUrdanetaImg from "../images/Carmelo Urdaneta.jpg";
-import johnRileyImg from "../images/John Riley.jpg";
-import camilaAlmandozImg from "../images/Camila Almandoz.jpg";
-import valeriaMaggioloImg from "../images/Valeria Maggiolo.jpeg";
-import victoriaMedinaImg from "../images/Victoria Medina.jpg";
-import WebDevImg from "../images/arepatech web dev picture.png";
+import { boardMembers } from "../data/boardMembers";
 
-export const boardMembers = [
-    {
-        id: 1,
-        name: "Jose Peaguda",
-        position: "President",
-        image: josePeagudaImg,
-        major: "Biomedical Engineering/Pre-Med",
-        year: "Senior",
-        description: "Supervises and aids E-Board members and aids Treasurer with budget.",
-        contact: "jpeaguda@ufl.edu",
-    },
-    {
-        id: 2,
-        name: "Victoria Consalvo",
-        position: "Vice President",
-        image: victoriaConsalvoImg,
-        major: "Biomedical Engineering",
-        year: "Senior",
-        description: "Assists the President when needed and leads Mentorship/VLC programs.",
-        contact: "vconsalvo@ufl.edu",
-    },
-    {
-        id: 3,
-        name: "Alejandro Arvelo",
-        position: "Treasurer",
-        image: alejandroArveloImg,
-        major: "Finance",
-        year: "Senior",
-        description: "Manages the organization's finances and budgets.",
-        contact: "alejandro.arvelo@ufl.edu",
-    },
-    {
-        id: 4,
-        name: "Ana Calleja",
-        position: "Secretary",
-        image: anaCallejaImg,
-        major: "Psychology",
-        year: "Junior",
-        description: "Creates and shares GBM slides and calendar and tracks attendance.",
-        contact: "anacalleja@ufl.edu",
-    },
-    {
-        id: 5,
-        name: "Chipi Rincon",
-        position: "Community Manager",
-        image: chipiRinconImg,
-        major: "Media Production",
-        year: "Junior",
-        description: "Showcases VENSA through social media management.",
-        contact: "dianarincon@ufl.edu",
-    },
-    {
-        id: 6,
-        name: "Allison Bonnemaison",
-        position: "VP Marketing",
-        image: allisonBonnemaison,
-        major: "Journalism/International Studies",
-        year: "Junior",
-        description: "Advertises VENSA with recruitment events and designs the merch.",
-        contact: "a.bonnemaison@ufl.edu",
-    },
-    {
-        id: 7,
-        name: "Carmelo Urdaneta",
-        position: "VP Community Service",
-        image: carmeloUrdanetaImg,
-        major: "Economics/Political Science",
-        year: "Senior",
-        description: "Organizes community service initiatives and volunteer events.",
-        contact: "carmelourdaneta@ufl.edu",
-    },
-    {
-        id: 8,
-        name: "John Riley",
-        position: "VP Professional Development",
-        image: johnRileyImg,
-        major: "Computer Engineering",
-        year: "Senior",
-        description: "Coordinate events for members' professional growth and networking.",
-        contact: "john.riley@ufl.edu",
-    },
-    {
-        id: 9,
-        name: "Camila Almandoz",
-        position: "VP Athletics",
-        image: camilaAlmandozImg,
-        major: "Dietetics",
-        year: "Junior",
-        description: "Coordinates athletics events that foster healthy lifestyles.",
-        contact: "camila.almandoz@ufl.edu",
-    },
-    {
-        id: 10,
-        name: "Valeria Maggiolo",
-        position: "VP Outreach",
-        image: valeriaMaggioloImg,
-        major: "Pre Professional Biology",
-        year: "Senior",
-        description: "Chooses the year's affiliate NGO and leads events to raise funds.",
-        contact: "vmaggiolo@ufl.edu",
-    },
-    {
-        id: 11,
-        name: "Victoria Medina",
-        position: "VP Events",
-        image: victoriaMedinaImg,
-        major: "Psychology (BCN)/Pre Law",
-        year: "Junior",
-        description: "Coordinates logistics and execution of social events.",
-        contact: "vmedinalaguado@ufl.edu",
-    },
-
-    {
-        id: 12,
-        name: "Meet the Dev Team",
-        position: "VENSA Website Developers",
-        image: WebDevImg,
-        major: "Computer Science + Engineering",
-        year: "All over",
-        description: "Made the Website",
-        contact: "Will fix",
-    },
-];
+const devTeamCard = {
+    id: "dev-team",
+    name: "Meet the Dev Team",
+    position: "VENSA Website Developers",
+    image: webDevImg,
+    major: "Computer Science and Engineering",
+    year: "Multiple class years",
+    description: "Meet the student developers who design, build, and maintain VENSA’s website and digital experiences.",
+    contact: "Visit the Dev Team page",
+    isDevTeam: true,
+};
 
 function ExecutiveBoardCard({ member }) {
     const [isFlipped, setIsFlipped] = useState(false);
     const navigate = useNavigate();
 
     const handleLearnMore = () => {
-        if (member.id === 12) {
-            // Navigate to dev team page
-            navigate('/dev-team');
-        } else {
-            setIsFlipped(true);
+        if (member.isDevTeam) {
+            navigate("/dev-team");
+            return;
         }
+        setIsFlipped(true);
     };
 
     return (
@@ -168,11 +44,13 @@ function ExecutiveBoardCard({ member }) {
                         src={member.image}
                         alt={member.name}
                         className="exec-card-image"
+                        style={member.imagePosition ? { objectPosition: member.imagePosition } : undefined}
                     />
                     <div className="exec-card-info">
                         <h3 className="exec-card-name">{member.name}</h3>
                         <p className="exec-card-position">{member.position}</p>
                         <button
+                            type="button"
                             className="exec-learn-more"
                             onClick={handleLearnMore}
                         >
@@ -184,6 +62,7 @@ function ExecutiveBoardCard({ member }) {
                 {/* Back Side */}
                 <div className="exec-card-back">
                     <button
+                        type="button"
                         className="exec-close-btn"
                         onClick={() => setIsFlipped(false)}
                     >
@@ -211,7 +90,6 @@ function ExecutiveBoardCard({ member }) {
         </div>
     );
 }
-
 export default function ExecBoard() {
     return (
         <div className="exec-board-page">
@@ -229,7 +107,7 @@ export default function ExecBoard() {
             {/* Executive Board Grid */}
             <section className="exec-board-section">
                 <div className="exec-board-grid">
-                    {boardMembers.map((member) => (
+                    {[...boardMembers, devTeamCard].map((member) => (
                         <ExecutiveBoardCard key={member.id} member={member} />
                     ))}
                 </div>

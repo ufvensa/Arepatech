@@ -360,31 +360,13 @@ export function AuthProvider({ children }) {
   const isEBoard = () => hasRole('eboard');
 
   /**
-   * Check if user is an admin (e-board member based on name matching)
+   * Check if the profile has an E-Board/admin role assigned by the database.
    */
   const isAdmin = () => {
     if (!profile) return false;
-    // Check DB flag immediately
-    if (profile.is_admin === true) return true;
-
-    // Fallback: name check (useful for dev/testing)
-    const fullName = `${profile.first_name} ${profile.last_name}`.toLowerCase().trim();
-    const eboardNames = [
-      'jose peaguda',
-      'victoria consalvo',
-      'alejandro arvelo',
-      'ana calleja',
-      'chipi rincon',
-      'allison bonnemaison',
-      'carmelo urdaneta',
-      'john riley',
-      'camila almandoz',
-      'valeria maggiolo',
-      'victoria medina',
-      'estefi rodriguez'
-    ];
-
-    return eboardNames.includes(fullName);
+    return profile.is_admin === true ||
+      profile.status === 'eboard' ||
+      ['eboard', 'president', 'technology'].includes(profile.role);
   };
 
   /**

@@ -14,6 +14,7 @@ import totalBodyImage from '../images/VENSA Total Body.jpg';
 import fiestaCaracasImage from '../images/Caracas en el 2000 fiesta.jpg';
 import Run5kImage from '../images/VENSA Pace 1.jpeg';
 import vensaSpring from '../images/VENSA Springs.jpeg';
+import gatorGamedayImage from '../images/UF Gator Gameday Logo.jpg';
 
 /**
  * To enable RSVP functionality for an event:
@@ -51,7 +52,12 @@ const EVENT_IMAGE_MAP = [
 ]
 
 function getEventImage(eventTitle) {
-  const titleLower = eventTitle.toLowerCase();
+  const titleLower = String(eventTitle || '').toLowerCase();
+
+  // Use the Gator Gameday artwork for every UF-versus-opponent event.
+  if (/\buf\s+vs\.?\s+\S/.test(titleLower)) {
+    return gatorGamedayImage;
+  }
   
   // Check if title matches any keyword patterns
   for (const mapping of EVENT_IMAGE_MAP) {

@@ -8,7 +8,7 @@ import bannerBg4 from "../images/VENSA Pilates.png";
 import bannerBg5 from "../images/VENSA Website Mission.png";
 import mentorshipHomeImg from "../images/VENSA Mentorship Home.png";
 import BonfireImg from "../images/VENSA Bonfire.png";
-import EboardImg from "../images/VENSA Eboard.png";
+import EboardImg from "../images/team 3.jpeg";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 const vensaLogo = "/vensa-logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";

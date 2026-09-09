@@ -71,17 +71,22 @@ function ExecutiveBoardCard({ member }) {
                     <div className="exec-card-back-content">
                         <h3 className="exec-back-name">{member.name}</h3>
                         <div className="exec-back-details">
-                            <p>
+                            <p className="exec-back-detail exec-back-major">
                                 <strong>Major:</strong> {member.major}
                             </p>
-                            <p>
+                            <p className="exec-back-detail exec-back-year">
                                 <strong>Year:</strong> {member.year}
                             </p>
-                            <p>
+                            <p className="exec-back-detail exec-back-description">
                                 <strong>Position Description:</strong> {member.description}
                             </p>
-                            <p>
-                                <strong>Contact:</strong> {member.contact}
+                            <p className="exec-back-detail exec-back-contact">
+                                <strong>Contact:</strong>
+                                {member.isDevTeam ? member.contact : (
+                                    <a href={`mailto:${member.contact}`}>
+                                        {member.contact}
+                                    </a>
+                                )}
                             </p>
                         </div>
                     </div>

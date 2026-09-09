@@ -15,6 +15,7 @@ import fiestaCaracasImage from '../images/Caracas en el 2000 fiesta.jpg';
 import Run5kImage from '../images/VENSA Pace 1.jpeg';
 import vensaSpring from '../images/VENSA Springs.jpeg';
 import gatorGamedayImage from '../images/UF Gator Gameday Logo.jpg';
+import cafecitoImage from '../images/Cafecito Chat.jpeg';
 
 /**
  * To enable RSVP functionality for an event:
@@ -35,6 +36,7 @@ const CALENDAR_IDS = import.meta.env.VITE_GOOGLE_CALENDAR_IDS?.split(',') || [];
 // Map event keywords to images
 // More specific keywords should come before general ones (e.g., 'tabling' before 'gbm')
 const EVENT_IMAGE_MAP = [
+  { keywords: ['cafecito', 'coffee chat'], image: cafecitoImage },
   { keywords: ['tabling', 'information', 'booth', 'promotion'], image: tablingImage },
   { keywords: ['gbm', 'general body meeting', 'general meeting'], image: gbmImage },
   { keywords: ['bonfire', 'social', 'mixer', 'networking'], image: bonfireImage },

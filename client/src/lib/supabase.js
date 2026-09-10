@@ -171,6 +171,7 @@ export async function getProfiles(filters = {}) {
       major,
       year,
       status,
+      role,
       workplace,
       attendance_rate,
       avatar_url,
@@ -193,6 +194,33 @@ export async function getProfiles(filters = {}) {
   const { data, error } = await query;
   if (error) throw error;
   return data;
+}
+
+/**
+ * Get the public E-Board roster. Membership is controlled only by profile role.
+ */
+export async function getEboardProfiles() {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(`
+      id,
+      first_name,
+      last_name,
+      email,
+      major,
+      year,
+      avatar_url,
+      role,
+      organization_position,
+      position_description,
+      eboard_sort_order
+    `)
+    .in('role', ['eboard', 'president', 'technology'])
+    .order('eboard_sort_order', { ascending: true, nullsFirst: false })
+    .order('last_name', { ascending: true });
+
+  if (error) throw error;
+  return data || [];
 }
 
 // ============================================================================

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getProfiles, adminDeleteUser } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
-import { boardMembers } from "../data/boardMembers";
 import bannerBg from "../images/VENSA UF Banner.png";
 const vensaLogo = "/vensa-logo.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
@@ -12,22 +11,11 @@ import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 
 const STATUS_OPTIONS = ["all", "eboard", "member", "alumni"];
+const EBOARD_ROLES = ["eboard", "president", "technology"];
 
-// Get list of e-board member names (exclude dev team card with id 12)
-const eboardNames = boardMembers
-    .filter(member => member.id !== 12)
-    .map(member => member.name.toLowerCase());
-
-// Helper function to check if a member is on the e-board
-const isEboardMember = (firstName, lastName) => {
-    const fullName = `${firstName} ${lastName}`.toLowerCase();
-    return eboardNames.includes(fullName);
-};
-
-// Helper function to get actual status based on e-board name or year
+// Derive display status from the same database roles used by permissions.
 const getActualStatus = (member) => {
-    // E-board members take priority
-    if (isEboardMember(member.first_name, member.last_name)) {
+    if (EBOARD_ROLES.includes(member.role)) {
         return 'eboard';
     }
     // If year is Alumni, they get alumni status
@@ -67,7 +55,7 @@ function MemberCard({ member, onClick }) {
     const displayName = `${member.first_name} ${member.last_name}`;
     const attendanceRate = member.attendance_rate ?? 100;
 
-    // Get actual status based on e-board name matching or alumni year
+    // Get actual status from the database role or alumni year.
     const actualStatus = getActualStatus(member);
 
     return (
@@ -108,7 +96,7 @@ function MemberModal({ member, onClose, onDelete, isUserAdmin }) {
     const displayName = `${member.first_name} ${member.last_name}`;
     const attendanceRate = member.attendance_rate ?? 100;
 
-    // Get actual status based on e-board name matching or alumni year
+    // Get actual status from the database role or alumni year.
     const actualStatus = getActualStatus(member);
 
     const handleDeleteClick = () => {
@@ -300,7 +288,7 @@ export default function Directory() {
         return matchesSearch && matchesStatus;
     });
 
-    // Calculate member counts (using actual status based on e-board name or year)
+    // Calculate member counts using database roles and alumni year.
     const memberCounts = {
         all: members.length,
         eboard: members.filter(m => getActualStatus(m) === 'eboard').length,

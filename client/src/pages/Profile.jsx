@@ -4,7 +4,6 @@ import { useAuth } from "../context/AuthContext";
 import { updateProfile, uploadAvatar } from "../lib/supabase";
 import { getPendingAvatar, clearPendingAvatar } from "../lib/pendingAvatar";
 import { checkFormProfanity, profanityErrorMessage } from "../lib/profanityFilter";
-import { boardMembers } from "../data/boardMembers";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 const vensaLogo = "/vensa-logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
@@ -12,22 +11,12 @@ import facebookIcon from "../images/VENSA Website Facebook.png";
 import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 
-// Get list of e-board member names (exclude dev team card with id 12)
-const eboardNames = boardMembers
-    .filter(member => member.id !== 12)
-    .map(member => member.name.toLowerCase());
+const EBOARD_ROLES = ["eboard", "president", "technology"];
 
-// Helper function to check if a member is on the e-board
-const isEboardMember = (firstName, lastName) => {
-    const fullName = `${firstName} ${lastName}`.toLowerCase();
-    return eboardNames.includes(fullName);
-};
-
-// Helper function to get actual status based on e-board name or year
+// Derive display status from the same database roles used by permissions.
 const getActualStatus = (profile) => {
     if (!profile) return 'member';
-    // E-board members take priority
-    if (isEboardMember(profile.first_name, profile.last_name)) {
+    if (EBOARD_ROLES.includes(profile.role)) {
         return 'eboard';
     }
     // If year is Alumni, they get alumni status

@@ -34,7 +34,7 @@ export function getNewsletterRole(profile) {
 }
 
 export function canApproveNewsletter(profile) {
-  return ["president", "technology"].includes(getNewsletterRole(profile));
+  return canAccessNewsletters(profile);
 }
 
 export function canAccessNewsletters(profile) {

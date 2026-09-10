@@ -26,6 +26,11 @@ type LogContext = {
   profile_role: string | null;
 };
 
+function isNewsletterStaffProfile(profile: Profile | null | undefined) {
+  return ["eboard", "president", "technology"].includes(profile?.role || "") ||
+    profile?.status === "eboard" || profile?.is_admin === true;
+}
+
 class FunctionError extends Error {
   constructor(message: string, readonly code: string, readonly status: number) {
     super(message);
@@ -192,8 +197,7 @@ async function authorize(request: Request, context: LogContext) {
   }
 
   context.profile_role = profile.role;
-  const staff = ["eboard", "president", "technology"].includes(profile.role || "") ||
-    profile.status === "eboard" || profile.is_admin === true;
+  const staff = isNewsletterStaffProfile(profile);
   logEvent("info", "profile_authorization_checked", context, {
     profile_status: profile.status,
     is_admin: profile.is_admin === true,
@@ -354,8 +358,8 @@ Deno.serve(async (request) => {
       return json(request, { test: true, id: result.id, recipient: testEmail });
     }
 
-    const canSend = actor.kind === "cron" || ["president", "technology"].includes(actor.profile?.role || "");
-    if (!canSend) throw new FunctionError("Only president or technology can send newsletters", "SEND_ACCESS_DENIED", 403);
+    const canSend = actor.kind === "cron" || isNewsletterStaffProfile(actor.profile);
+    if (!canSend) throw new FunctionError("E-Board access is required to send newsletters", "SEND_ACCESS_DENIED", 403);
 
     const { data: claim, error: claimError } = await admin.rpc("claim_newsletter_for_sending", { p_newsletter_id: newsletterId });
     if (claimError) throw databaseFailure(context, "claim_newsletter_for_sending", claimError);

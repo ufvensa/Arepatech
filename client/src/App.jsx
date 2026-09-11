@@ -24,6 +24,7 @@ import NewNewsletter from "./pages/admin/NewNewsletter";
 import NewsletterEditor from "./pages/admin/NewsletterEditor";
 import NewsletterPreview from "./pages/admin/NewsletterPreview";
 import NewsletterUnsubscribe from "./pages/NewsletterUnsubscribe";
+import MemberDirectoryRoute from "./components/MemberDirectoryRoute";
 import "./newsletter.css";
 
 export default function App() {
@@ -48,7 +49,7 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/resources" element={<Resources />} />
         <Route path="/resources/:id" element={<ResourceDetail />} />
-        <Route path="/directory" element={<Directory />} />
+        <Route path="/directory" element={<MemberDirectoryRoute><Directory /></MemberDirectoryRoute>} />
         <Route path="/unsubscribe" element={<NewsletterUnsubscribe />} />
         <Route path="/admin/newsletters" element={<NewsletterAdminRoute><NewsletterDashboard /></NewsletterAdminRoute>} />
         <Route path="/admin/newsletters/new" element={<NewsletterAdminRoute><NewNewsletter /></NewsletterAdminRoute>} />

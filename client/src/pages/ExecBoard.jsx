@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getEboardProfiles } from "../lib/supabase";
-import { getBoardHeadshotFallback } from "../data/boardHeadshotFallbacks";
 import bannerBg from "../images/VENSA UF Banner.png";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 const vensaLogo = "/vensa-logo.png";
@@ -10,6 +8,8 @@ import facebookIcon from "../images/VENSA Website Facebook.png";
 import pinIcon from "../images/VENSA Website Pin.png";
 import linkedinIcon from "../images/VENSA Website LinkedIn.png";
 import webDevImg from "../images/arepatech web dev picture.png";
+
+import { boardMembers } from "../data/boardMembers";
 
 const devTeamCard = {
     id: "dev-team",
@@ -22,28 +22,6 @@ const devTeamCard = {
     contact: "Visit the Dev Team page",
     isDevTeam: true,
 };
-
-const ROLE_POSITION_FALLBACKS = {
-    president: "President",
-    technology: "VP of Technology",
-    eboard: "E-Board Member",
-};
-
-function toBoardMember(profile) {
-    const headshotFallback = getBoardHeadshotFallback(profile.email);
-
-    return {
-        id: profile.id,
-        name: [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "VENSA E-Board Member",
-        position: profile.organization_position || ROLE_POSITION_FALLBACKS[profile.role] || "E-Board Member",
-        image: profile.avatar_url || headshotFallback?.image || vensaLogo,
-        imagePosition: profile.avatar_url ? undefined : headshotFallback?.imagePosition,
-        major: profile.major || "Not provided",
-        year: profile.year || "Not provided",
-        description: profile.position_description || "Serves the VENSA community as a member of the Executive Board.",
-        contact: profile.email || "",
-    };
-}
 
 function ExecutiveBoardCard({ member }) {
     const [isFlipped, setIsFlipped] = useState(false);
@@ -62,7 +40,6 @@ function ExecutiveBoardCard({ member }) {
             <div className={`exec-card ${isFlipped ? "flipped" : ""}`}>
                 {/* Front Side */}
                 <div className="exec-card-front">
-                    {!member.isDevTeam && <span className="exec-card-badge">E-BOARD</span>}
                     <img
                         src={member.image}
                         alt={member.name}
@@ -105,12 +82,10 @@ function ExecutiveBoardCard({ member }) {
                             </p>
                             <p className="exec-back-detail exec-back-contact">
                                 <strong>Contact:</strong>
-                                {member.isDevTeam ? member.contact : member.contact ? (
+                                {member.isDevTeam ? member.contact : (
                                     <a href={`mailto:${member.contact}`}>
                                         {member.contact}
                                     </a>
-                                ) : (
-                                    <span>Email not available</span>
                                 )}
                             </p>
                         </div>
@@ -121,38 +96,6 @@ function ExecutiveBoardCard({ member }) {
     );
 }
 export default function ExecBoard() {
-    const [boardMembers, setBoardMembers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const [reloadKey, setReloadKey] = useState(0);
-
-    useEffect(() => {
-        let isActive = true;
-
-        async function loadBoardMembers() {
-            setLoading(true);
-            setError("");
-
-            try {
-                const profiles = await getEboardProfiles();
-                if (isActive) {
-                    const uniqueProfiles = [...new Map(profiles.map((profile) => [profile.id, profile])).values()];
-                    setBoardMembers(uniqueProfiles.map(toBoardMember));
-                }
-            } catch (loadError) {
-                console.error("Unable to load E-Board profiles:", loadError);
-                if (isActive) setError("We couldn't load the E-Board right now. Please try again.");
-            } finally {
-                if (isActive) setLoading(false);
-            }
-        }
-
-        loadBoardMembers();
-        return () => {
-            isActive = false;
-        };
-    }, [reloadKey]);
-
     return (
         <div className="exec-board-page">
             {/* Hero Banner */}
@@ -169,16 +112,7 @@ export default function ExecBoard() {
             {/* Executive Board Grid */}
             <section className="exec-board-section">
                 <div className="exec-board-grid">
-                    {loading && (
-                        <div className="exec-board-state" role="status">Loading the E-Board…</div>
-                    )}
-                    {!loading && error && (
-                        <div className="exec-board-state exec-board-error" role="alert">
-                            <p>{error}</p>
-                            <button type="button" onClick={() => setReloadKey((value) => value + 1)}>Try again</button>
-                        </div>
-                    )}
-                    {!loading && !error && [...boardMembers, devTeamCard].map((member) => (
+                    {[...boardMembers, devTeamCard].map((member) => (
                         <ExecutiveBoardCard key={member.id} member={member} />
                     ))}
                 </div>

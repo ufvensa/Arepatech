@@ -53,7 +53,6 @@ const getAttendanceColor = (rate) => {
 
 function MemberCard({ member, onClick }) {
     const displayName = `${member.first_name} ${member.last_name}`;
-    const attendanceRate = member.attendance_rate ?? 100;
 
     // Get actual status from the database role or alumni year.
     const actualStatus = getActualStatus(member);
@@ -88,10 +87,10 @@ function MemberCard({ member, onClick }) {
 }
 
 function MemberModal({ member, onClose, onDelete, isUserAdmin }) {
-    if (!member) return null;
-
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    if (!member) return null;
 
     const displayName = `${member.first_name} ${member.last_name}`;
     const attendanceRate = member.attendance_rate ?? 100;

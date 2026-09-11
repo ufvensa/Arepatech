@@ -2,6 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, isAllowedEmail } from "../context/AuthContext";
 import { checkFormProfanity, profanityErrorMessage } from "../lib/profanityFilter";
+import {
+  GRADUATION_TERMS,
+  getGraduationYearOptions,
+  isUndergraduateYear,
+} from "../lib/academicProgression";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 const vensaLogo = "/vensa-logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
@@ -15,6 +20,9 @@ export default function SignUp() {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [major, setMajor] = useState("");
   const [year, setYear] = useState("");
+  const [expectedGraduationTerm, setExpectedGraduationTerm] = useState("");
+  const [expectedGraduationYear, setExpectedGraduationYear] = useState("");
+  const [automaticYearProgression, setAutomaticYearProgression] = useState(true);
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -74,6 +82,11 @@ export default function SignUp() {
       return;
     }
 
+    if (isUndergraduateYear(year) && (!expectedGraduationTerm || !expectedGraduationYear)) {
+      setError("Please select your expected graduation term and year.");
+      return;
+    }
+
     // Check for inappropriate language
     const profanityCheck = checkFormProfanity({ firstName, lastName, major });
     if (!profanityCheck.clean) {
@@ -91,6 +104,9 @@ export default function SignUp() {
         lastName,
         major,
         year,
+        expectedGraduationTerm: isUndergraduateYear(year) ? expectedGraduationTerm : null,
+        expectedGraduationYear: isUndergraduateYear(year) ? Number(expectedGraduationYear) : null,
+        automaticYearProgression: isUndergraduateYear(year) && automaticYearProgression,
         linkedinUrl: linkedinUrl || null,
         dateOfBirth: dateOfBirth || null,
         profilePicture: profilePicture || null,
@@ -324,7 +340,17 @@ export default function SignUp() {
                 <select
                   id="year"
                   value={year}
-                  onChange={(e) => setYear(e.target.value)}
+                  onChange={(e) => {
+                    const nextYear = e.target.value;
+                    setYear(nextYear);
+                    if (!isUndergraduateYear(nextYear)) {
+                      setExpectedGraduationTerm("");
+                      setExpectedGraduationYear("");
+                      setAutomaticYearProgression(false);
+                    } else if (!isUndergraduateYear(year)) {
+                      setAutomaticYearProgression(true);
+                    }
+                  }}
                   className="signup-input signup-select"
                   required
                 >
@@ -337,6 +363,55 @@ export default function SignUp() {
                   <option value="Alumni">Alumni</option>
                 </select>
               </div>
+
+              {isUndergraduateYear(year) && (
+                <div className="academic-settings-panel">
+                  <p className="academic-settings-title">Academic progression</p>
+                  <div className="academic-settings-grid">
+                    <div className="signup-form-group">
+                      <label htmlFor="expectedGraduationTerm" className="signup-label">Expected Graduation Term</label>
+                      <select
+                        id="expectedGraduationTerm"
+                        value={expectedGraduationTerm}
+                        onChange={(e) => setExpectedGraduationTerm(e.target.value)}
+                        className="signup-input signup-select"
+                        required
+                      >
+                        <option value="">Select Term</option>
+                        {GRADUATION_TERMS.map((term) => (
+                          <option key={term} value={term}>{term}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="signup-form-group">
+                      <label htmlFor="expectedGraduationYear" className="signup-label">Expected Graduation Year</label>
+                      <select
+                        id="expectedGraduationYear"
+                        value={expectedGraduationYear}
+                        onChange={(e) => setExpectedGraduationYear(e.target.value)}
+                        className="signup-input signup-select"
+                        required
+                      >
+                        <option value="">Select Year</option>
+                        {getGraduationYearOptions().map((graduationYear) => (
+                          <option key={graduationYear} value={graduationYear}>{graduationYear}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <label className="academic-auto-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={automaticYearProgression}
+                      onChange={(e) => setAutomaticYearProgression(e.target.checked)}
+                    />
+                    <span>Automatically advance my class year using the UF Fall calendar.</span>
+                  </label>
+                  <p className="academic-settings-help">
+                    We will ask you to confirm your status after your expected graduation. You will never be marked Alumni automatically.
+                  </p>
+                </div>
+              )}
 
               <div className="signup-form-group">
                 <label htmlFor="linkedinUrl" className="signup-label">LinkedIn Profile (Optional)</label>

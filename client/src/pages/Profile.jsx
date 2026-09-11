@@ -1,9 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { updateProfile, uploadAvatar } from "../lib/supabase";
+import { respondToGraduationConfirmation, updateProfile, uploadAvatar } from "../lib/supabase";
 import { getPendingAvatar, clearPendingAvatar } from "../lib/pendingAvatar";
 import { checkFormProfanity, profanityErrorMessage } from "../lib/profanityFilter";
+import {
+  GRADUATION_TERMS,
+  formatExpectedGraduation,
+  getGraduationYearOptions,
+  isUndergraduateYear,
+} from "../lib/academicProgression";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 const vensaLogo = "/vensa-logo.png";
 import instagramIcon from "../images/VENSA Website Instagram.png";
@@ -42,6 +48,9 @@ function EditProfileForm({ profile, onSave, onCancel }) {
     last_name: profile?.last_name || "",
     major: profile?.major || "",
     year: profile?.year || "",
+    expected_graduation_term: profile?.expected_graduation_term || "",
+    expected_graduation_year: profile?.expected_graduation_year || "",
+    automatic_year_progression: profile?.automatic_year_progression ?? isUndergraduateYear(profile?.year),
     workplace: profile?.workplace || "",
     bio: profile?.bio || "",
     linkedin_url: profile?.linkedin_url || "",
@@ -53,8 +62,8 @@ function EditProfileForm({ profile, onSave, onCancel }) {
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, type, checked, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
   const handleProfilePictureChange = (e) => {
@@ -92,6 +101,15 @@ function EditProfileForm({ profile, onSave, onCancel }) {
       return;
     }
 
+    if (
+      isUndergraduateYear(formData.year) &&
+      Boolean(formData.expected_graduation_term) !== Boolean(formData.expected_graduation_year)
+    ) {
+      setError("Select both an expected graduation term and year, or leave both blank.");
+      setSaving(false);
+      return;
+    }
+
     try {
       // Upload profile picture first if one was selected
       if (profilePicture) {
@@ -104,7 +122,17 @@ function EditProfileForm({ profile, onSave, onCancel }) {
           return;
         }
       }
-      await onSave(formData);
+      const isUndergraduate = isUndergraduateYear(formData.year);
+      await onSave({
+        ...formData,
+        expected_graduation_term: isUndergraduate && formData.expected_graduation_term
+          ? formData.expected_graduation_term
+          : null,
+        expected_graduation_year: isUndergraduate && formData.expected_graduation_year
+          ? Number(formData.expected_graduation_year)
+          : null,
+        automatic_year_progression: isUndergraduate && formData.automatic_year_progression,
+      });
     } catch (err) {
       setError(err.message || "Failed to save profile");
     } finally {
@@ -347,6 +375,53 @@ function EditProfileForm({ profile, onSave, onCancel }) {
           </select>
         </div>
 
+        {isUndergraduateYear(formData.year) && (
+          <>
+            <div className="profile-edit-field">
+              <label>Expected Graduation Term</label>
+              <select
+                name="expected_graduation_term"
+                value={formData.expected_graduation_term}
+                onChange={handleChange}
+              >
+                <option value="">Not set</option>
+                {GRADUATION_TERMS.map((term) => (
+                  <option key={term} value={term}>{term}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="profile-edit-field">
+              <label>Expected Graduation Year</label>
+              <select
+                name="expected_graduation_year"
+                value={formData.expected_graduation_year}
+                onChange={handleChange}
+              >
+                <option value="">Not set</option>
+                {getGraduationYearOptions().map((graduationYear) => (
+                  <option key={graduationYear} value={graduationYear}>{graduationYear}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="profile-edit-field profile-edit-field-full">
+              <label className="academic-auto-checkbox">
+                <input
+                  type="checkbox"
+                  name="automatic_year_progression"
+                  checked={formData.automatic_year_progression}
+                  onChange={handleChange}
+                />
+                <span>Automatically advance my class year using the UF Fall calendar.</span>
+              </label>
+              <p className="academic-settings-help">
+                Turning this off keeps your selected year until you update it manually.
+              </p>
+            </div>
+          </>
+        )}
+
         <div className="profile-edit-field">
           <label>Date of Birth</label>
           <input
@@ -400,6 +475,47 @@ function EditProfileForm({ profile, onSave, onCancel }) {
         </button>
       </div>
     </form>
+  );
+}
+
+function GraduationConfirmation({ busyChoice, error, onConfirm }) {
+  return (
+    <div className="academic-confirmation-card" role="status">
+      <div>
+        <p className="academic-confirmation-eyebrow">Academic status check</p>
+        <h2>Have you completed your degree?</h2>
+        <p>
+          Your expected graduation term has passed. Choose your current status so your VENSA profile stays accurate.
+        </p>
+        {error && <div className="profile-error-banner">{error}</div>}
+      </div>
+      <div className="academic-confirmation-actions">
+        <button
+          type="button"
+          disabled={Boolean(busyChoice)}
+          onClick={() => onConfirm('alumni')}
+          className="profile-btn-primary"
+        >
+          {busyChoice === 'alumni' ? 'Updating...' : 'I am an Alumni'}
+        </button>
+        <button
+          type="button"
+          disabled={Boolean(busyChoice)}
+          onClick={() => onConfirm('graduate')}
+          className="profile-btn-secondary"
+        >
+          {busyChoice === 'graduate' ? 'Updating...' : 'Graduate Student'}
+        </button>
+        <button
+          type="button"
+          disabled={Boolean(busyChoice)}
+          onClick={() => onConfirm('still_enrolled')}
+          className="academic-confirmation-link"
+        >
+          {busyChoice === 'still_enrolled' ? 'Updating...' : 'I am still an undergraduate'}
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -513,6 +629,19 @@ function UserProfileView({ profile, onEdit, onLogout }) {
           </div>
         </div>
 
+        {isUndergraduateYear(profile?.year) && (
+          <div className="profile-info-item">
+            <span className="profile-info-icon" aria-hidden="true">🎓</span>
+            <div>
+              <span className="profile-info-label">Expected Graduation</span>
+              <span className="profile-info-value">{formatExpectedGraduation(profile)}</span>
+              <span className="profile-academic-mode">
+                {profile?.automatic_year_progression ? 'Automatic year updates on' : 'Manual year updates'}
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="profile-info-item">
           <span className="profile-info-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
@@ -582,6 +711,8 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [graduationChoiceBusy, setGraduationChoiceBusy] = useState("");
+  const [graduationChoiceError, setGraduationChoiceError] = useState("");
 
   const { user, profile, signIn, signOut, loading, refreshProfile, error: authError } = useAuth();
   const navigate = useNavigate();
@@ -640,6 +771,20 @@ export default function Profile() {
     await updateProfile(user.id, formData);
     await refreshProfile();
     setIsEditing(false);
+  };
+
+  const handleGraduationConfirmation = async (choice) => {
+    setGraduationChoiceBusy(choice);
+    setGraduationChoiceError("");
+
+    try {
+      await respondToGraduationConfirmation(choice);
+      await refreshProfile();
+    } catch (confirmationError) {
+      setGraduationChoiceError(confirmationError.message || "Unable to update your academic status.");
+    } finally {
+      setGraduationChoiceBusy("");
+    }
   };
 
   // Show loading state
@@ -715,11 +860,20 @@ export default function Profile() {
                 />
               </div>
             ) : (
-              <UserProfileView
-                profile={profile}
-                onEdit={() => setIsEditing(true)}
-                onLogout={handleLogout}
-              />
+              <>
+                {profile.graduation_confirmation_required && (
+                  <GraduationConfirmation
+                    busyChoice={graduationChoiceBusy}
+                    error={graduationChoiceError}
+                    onConfirm={handleGraduationConfirmation}
+                  />
+                )}
+                <UserProfileView
+                  profile={profile}
+                  onEdit={() => setIsEditing(true)}
+                  onLogout={handleLogout}
+                />
+              </>
             )
           ) : (
             <div className="profile-login-card">

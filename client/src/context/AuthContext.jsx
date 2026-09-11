@@ -5,8 +5,8 @@
  * Provides global authentication state and user profile management
  */
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, getProfile, signUp as supabaseSignUp, signIn as supabaseSignIn, signOut as supabaseSignOut, isAllowedEmail, isEmailBanned, uploadAvatar } from '../lib/supabase';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { supabase, getProfile, signUp as supabaseSignUp, signIn as supabaseSignIn, signOut as supabaseSignOut, isEmailBanned, uploadAvatar } from '../lib/supabase';
 import { savePendingAvatar, getPendingAvatar, clearPendingAvatar } from '../lib/pendingAvatar';
 
 // Re-export email validation for use in components
@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState(null);
 
   // Flag to prevent onAuthStateChange from overwriting profile during signup
-  const signupInProgressRef = { current: false };
+  const signupInProgressRef = useRef(false);
 
   // Fetch user profile when user changes
   const fetchProfile = async (userId, userEmail = null) => {
@@ -186,7 +186,20 @@ export function AuthProvider({ children }) {
    * @param {string} params.dateOfBirth - Date of birth
    * @param {string} params.linkedinUrl - LinkedIn profile URL
    */
-  const signUp = async ({ email, password, firstName, lastName, major, year, dateOfBirth, linkedinUrl, profilePicture }) => {
+  const signUp = async ({
+    email,
+    password,
+    firstName,
+    lastName,
+    major,
+    year,
+    dateOfBirth,
+    linkedinUrl,
+    profilePicture,
+    expectedGraduationTerm,
+    expectedGraduationYear,
+    automaticYearProgression,
+  }) => {
     setLoading(true);
     setError(null);
     signupInProgressRef.current = true;
@@ -214,6 +227,9 @@ export function AuthProvider({ children }) {
           last_name: lastName,
           major: major || null,
           year: year || null,
+          expected_graduation_term: expectedGraduationTerm || null,
+          expected_graduation_year: expectedGraduationYear || null,
+          automatic_year_progression: Boolean(automaticYearProgression),
           date_of_birth: dateOfBirth || null,
           linkedin_url: linkedinUrl || null,
         },
@@ -235,6 +251,10 @@ export function AuthProvider({ children }) {
               last_name: lastName,
               major: major || null,
               year: year || null,
+              expected_graduation_term: expectedGraduationTerm || null,
+              expected_graduation_year: expectedGraduationYear || null,
+              automatic_year_progression: Boolean(automaticYearProgression),
+              academic_level_override: !automaticYearProgression,
               date_of_birth: dateOfBirth || null,
               linkedin_url: linkedinUrl || null,
             }, {

@@ -197,6 +197,20 @@ export async function getProfiles(filters = {}) {
 }
 
 /**
+ * Record the signed-in member's response to their graduation confirmation.
+ * The database function updates academic fields only; permission roles are
+ * deliberately kept separate.
+ */
+export async function respondToGraduationConfirmation(choice) {
+  const { data, error } = await supabase.rpc('respond_to_graduation_confirmation', {
+    p_choice: choice,
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+/**
  * Get the public E-Board roster. Membership is controlled only by profile role.
  */
 export async function getEboardProfiles() {

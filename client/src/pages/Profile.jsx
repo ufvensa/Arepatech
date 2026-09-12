@@ -413,7 +413,7 @@ function EditProfileForm({ profile, onSave, onCancel }) {
                   checked={formData.automatic_year_progression}
                   onChange={handleChange}
                 />
-                <span>Automatically advance my class year using the UF Fall calendar.</span>
+                <span>Automatically update my academic status using the UF calendar.</span>
               </label>
               <p className="academic-settings-help">
                 Turning this off keeps your selected year until you update it manually.
@@ -636,7 +636,7 @@ function UserProfileView({ profile, onEdit, onLogout }) {
               <span className="profile-info-label">Expected Graduation</span>
               <span className="profile-info-value">{formatExpectedGraduation(profile)}</span>
               <span className="profile-academic-mode">
-                {profile?.automatic_year_progression ? 'Automatic year updates on' : 'Manual year updates'}
+                {profile?.automatic_year_progression ? 'Automatic academic updates on' : 'Manual academic updates'}
               </span>
             </div>
           </div>

@@ -405,10 +405,10 @@ export default function SignUp() {
                       checked={automaticYearProgression}
                       onChange={(e) => setAutomaticYearProgression(e.target.checked)}
                     />
-                    <span>Automatically advance my class year using the UF Fall calendar.</span>
+                    <span>Automatically update my academic status using the UF calendar.</span>
                   </label>
                   <p className="academic-settings-help">
-                    We will ask you to confirm your status after your expected graduation. You will never be marked Alumni automatically.
+                    Your class year advances each Fall, and Seniors become Alumni after their expected graduation. Only you can select Graduate Student.
                   </p>
                 </div>
               )}

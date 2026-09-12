@@ -2,15 +2,18 @@
 -- Accounts created on or after August 15, 2026 are treated as the new cohort
 -- and retain the academic level they selected during signup.
 --
--- This intentionally does not update role, status, is_admin, or any E-Board
--- and newsletter authorization field.
+-- This legacy rollover applies to every matching undergraduate account. It
+-- intentionally does not depend on the newer automatic-progression preference
+-- because these members completed the prior academic year before that setting
+-- existed. It also does not update role, status, is_admin, or any E-Board and
+-- newsletter authorization field.
 
 update public.profiles
-set year = public.advance_undergraduate_year(year, 1)
+set year = case
+  when year::text = 'Senior' then 'Alumni'::public.year_status
+  else public.advance_undergraduate_year(year, 1)
+end
 where created_at < timestamptz '2026-08-15 00:00:00 America/New_York'
-  and year::text in ('Freshman', 'Sophomore', 'Junior')
-  and automatic_year_progression = true
-  and academic_level_override = false;
+  and year::text in ('Freshman', 'Sophomore', 'Junior', 'Senior');
 
--- Seniors remain Seniors; Graduate and Alumni profiles are intentionally
--- excluded because undergraduate progression must never infer graduation.
+-- Graduate and Alumni profiles are already post-undergraduate and are excluded.

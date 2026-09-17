@@ -9,3 +9,7 @@ verify_jwt = false
 
 [functions.resend-webhook]
 verify_jwt = false
+
+# The handler verifies the user with auth.getUser and checks finance roles before any action.
+[functions.finance-api]
+verify_jwt = false

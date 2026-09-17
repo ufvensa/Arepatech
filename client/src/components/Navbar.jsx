@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { canAccessFinance } from "../lib/finance";
 import { canAccessNewsletters } from "../lib/newsletters";
 import ufLogo from "../images/VENSA Website UF Logo.png";
 const vensaLogo = "/vensa-logo.png";
@@ -61,6 +62,7 @@ export default function Navbar() {
           <NavLink to="/get-involved" className="navbar-link" onClick={closeMobileMenu}>Get Involved</NavLink>
           <span className="navbar-separator">|</span>
           <NavLink to="/resources" className="navbar-link" onClick={closeMobileMenu}>Resources</NavLink>
+          {canAccessFinance(profile) && <NavLink to="/admin/finance" className="navbar-link" onClick={closeMobileMenu}>Treasury</NavLink>}
           {canAccessNewsletters(profile) && <>
             <span className="navbar-separator">|</span>
             <NavLink to="/admin/newsletters" className="navbar-link" onClick={closeMobileMenu}>Admin</NavLink>

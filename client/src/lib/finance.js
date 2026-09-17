@@ -43,3 +43,18 @@ export async function saveFinanceRecord(table, values, id) {
       "Record was not saved. Check required fields, dates, source, and funding selection.",
     );
 }
+
+export async function financeAudit(beforeId = null) {
+  let query = supabase
+    .from("finance_audit")
+    .select(
+      "id,actor_id,occurred_at,entity,operation,record_id,before_record,after_record",
+    )
+    .order("id", { ascending: false })
+    .limit(50);
+  if (beforeId !== null) query = query.lt("id", beforeId);
+  const { data, error } = await query;
+  if (error)
+    throw new Error("Could not load audit history. Check treasury access.");
+  return data;
+}

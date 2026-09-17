@@ -74,7 +74,7 @@ PDF, XLSX, and other documents can be registered and cited but are not parsed or
 - Outside event revenue excludes SG reimbursements. Net cash = outside revenue + received SG reimbursements − cash expense. Economic net = outside revenue − cash expense − direct SG expense.
 - Net/profit requires complete event records. Missing attendance remains null, not zero. Zero attendance cannot yield a per-attendee cost.
 - Scenario net = ticket price × paying attendees + sponsorship − fixed costs − variable cost × attendees. Break-even rounds up the uncovered fixed cost divided by contribution margin. Nonpositive margin cannot cover positive uncovered fixed costs.
-- Overview currently includes all recorded history through today, not a selected fiscal-year report. Future transactions are excluded. No statistical historical forecast or automatic vendor-price comparison is included yet.
+- Overview filters event and allocation reports by fiscal year. Cash balances and record-completeness warnings remain global; filtering a report never recalculates the current cash balance from one fiscal year. Future transactions are excluded. No statistical historical forecast or automatic vendor-price comparison is included yet.
 - At more than 10,000 transactions the dataset endpoint rejects rather than silently paginating away records. Add SQL period aggregation before exceeding this limit. AI evidence has a separate 100,000-character bound.
 - The AI receives computed summary and source metadata, not raw Drive file text. Natural-language output is not a verified financial calculation. UI presents it as interpretation, renders plain text, and only links sources from the server's allowlisted evidence list. The source prompt requests fact/calculation/forecast/assumption/missing-data labels; it cannot guarantee every model statement is correct.
 
@@ -92,4 +92,10 @@ Tests execute the actual migration in isolated PGlite PostgreSQL with minimal ex
 
 Before live use: verify a non-staff user cannot read treasury records, enter a sourced test snapshot/event/allocation, import a small worksheet twice, exercise a changed-sheet preview, compare results with a hand calculation, and ask the assistant a question with known missing data. Do not mark real financial history complete until reconciled.
 
-Implementation verification: 15 automated tests and the production frontend build passed. Changed frontend files passed ESLint. Edge TypeScript checked successfully against the installed Supabase declarations using a temporary local import map; the normal Deno dependency fetch was blocked by a registry connection refusal. The browser automation daemon failed to start twice, so visual and live authenticated browser verification remain outstanding.
+Implementation verification: 17 automated tests and the production frontend build passed. Changed frontend files passed ESLint. Edge TypeScript checked successfully against the installed Supabase declarations using a temporary local import map; the normal Deno dependency fetch was blocked by a registry connection refusal. Automated visual verification remains outstanding: the cloud browser blocked the local sample preview URL under its URL policy. Live authenticated provider verification also remains outstanding.
+
+## Interactive sample preview
+
+Open `/treasury-preview.html` on the branch deployment, or run the Vite development server and open that path. This entry uses the same treasury workspace components with an isolated in-memory service. It includes fictional records, report filters, editable records, audit history, a sample worksheet import, scenario calculations, and explicitly labeled sample assistant responses. It makes no backend or AI requests. Reloading resets all changes. No real account or credentials are required.
+
+The authenticated workspace also exposes audit history with cursor pagination and before/after record details. Database access remains restricted by existing finance RLS policies.

@@ -214,3 +214,32 @@
     font-size: 0.85rem;
   }
 }
+
+.finance-report-filter {
+  max-width: 320px;
+  margin-bottom: 20px;
+}
+.finance details pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 480px;
+}
+.finance-preview-root {
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background: #f5f7fa;
+  color: #16324b;
+}
+.finance-preview-root .finance {
+  padding-top: 24px;
+  min-height: 0;
+}
+.finance-preview-root * {
+  box-sizing: border-box;
+}
+.finance-preview-root {
+  margin: 0;
+}

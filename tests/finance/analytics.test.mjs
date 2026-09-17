@@ -205,3 +205,10 @@ test("sheet validation retains stable keys and row citations", () => {
     /200/,
   );
 });
+
+test('report filtering preserves full cash history and filters only event/allocation results',async()=>{
+ const {filterReport}=await import('../../shared/finance/analytics.mjs');
+ const full=summarize({snapshots:[{as_of:'2025-01-01',balance_cents:100000}],transactions:[paid({amount_cents:10000})],events:[{id:'old',fiscal_year:'2025-26'},{id:'new',fiscal_year:'2026-27'}],funding:[{id:'old',fiscal_year:'2025-26',approved_cents:100},{id:'new',fiscal_year:'2026-27',approved_cents:200}]});
+ const filtered=filterReport(full,'2026-27');
+ assert.equal(filtered.cash_cents,full.cash_cents);assert.equal(filtered.events.length,1);assert.equal(filtered.events[0].id,'new');assert.equal(filtered.funding[0].id,'new');
+});

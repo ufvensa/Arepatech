@@ -188,3 +188,16 @@ export function summarize(data, asOf = new Date().toISOString().slice(0, 10)) {
       "Balances assume all post-snapshot cash movements are recorded. Recorded totals are not proof of complete history. SG reimbursements enter cash only when actually received and entered as cash income; exclude them from event sales revenue.",
   };
 }
+
+// Filter the report AFTER calculating from the full ledger. Cash is never year-filtered.
+export function filterReport(summary, fiscalYear = "") {
+  if (!fiscalYear) return { ...summary, fiscal_year: null };
+  return {
+    ...summary,
+    fiscal_year: fiscalYear,
+    events: summary.events.filter((event) => event.fiscal_year === fiscalYear),
+    funding: summary.funding.filter(
+      (allocation) => allocation.fiscal_year === fiscalYear,
+    ),
+  };
+}

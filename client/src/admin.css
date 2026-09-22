@@ -1,0 +1,12 @@
+.admin-area { background: #f5f7fa; min-height: 100vh; }
+.admin-navigation { display: flex; flex-wrap: wrap; gap: 12px; padding: 24px max(24px, calc((100% - 1224px) / 2)); border-bottom: 1px solid #d7def3; background: white; }
+.admin-navigation a { padding: 10px 16px; border-radius: 8px; text-decoration: none; color: #2d3c88; font-weight: 600; }
+.admin-navigation a.active { background: #2d3c88; color: white; }
+.admin-dashboard { max-width: 1280px; margin: auto; padding: 48px 28px; color: #20314e; }
+.admin-dashboard h1 { font-size: 2.5rem; margin: 12px 0; }
+.admin-workspaces { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 24px; margin-top: 32px; }
+.admin-workspaces a { display: block; padding: 28px; background: white; border: 1px solid #d7def3; border-radius: 16px; text-decoration: none; color: inherit; }
+.admin-workspaces a:hover { border-color: #2d3c88; }
+.admin-workspaces h2 { color: #2d3c88; margin: 0 0 12px; }
+.admin-workspaces span { display: block; margin-top: 24px; color: #2d3c88; font-weight: 700; }
+.admin-area .finance { padding-top: 40px; }

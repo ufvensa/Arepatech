@@ -62,10 +62,9 @@ export default function Navbar() {
           <NavLink to="/get-involved" className="navbar-link" onClick={closeMobileMenu}>Get Involved</NavLink>
           <span className="navbar-separator">|</span>
           <NavLink to="/resources" className="navbar-link" onClick={closeMobileMenu}>Resources</NavLink>
-          {canAccessFinance(profile) && <NavLink to="/admin/finance" className="navbar-link" onClick={closeMobileMenu}>Treasury</NavLink>}
-          {canAccessNewsletters(profile) && <>
+          {(canAccessFinance(profile) || canAccessNewsletters(profile)) && <>
             <span className="navbar-separator">|</span>
-            <NavLink to="/admin/newsletters" className="navbar-link" onClick={closeMobileMenu}>Admin</NavLink>
+            <NavLink to="/admin" className="navbar-link" onClick={closeMobileMenu}>Admin</NavLink>
           </>}
 
           <NavLink to="/profile" className="navbar-profile" onClick={closeMobileMenu}>

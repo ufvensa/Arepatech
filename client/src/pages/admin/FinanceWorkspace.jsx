@@ -95,6 +95,7 @@ export default function FinanceWorkspace({ service, preview = false }) {
   useEffect(() => {
     let active = true;
     setError("");
+    setData(null);
     financeDataset()
       .then((value) => {
         if (active) setData(value);

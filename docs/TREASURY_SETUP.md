@@ -1,6 +1,6 @@
 # VENSA Treasury workspace
 
-Initial implementation on `andy-branch`. Route: `/admin/finance` (Treasury in staff navigation).
+Open Admin (`/admin`) to choose Newsletters or Treasury. Treasury remains at `/admin/finance`; existing links still work. Both workspaces keep their own access checks.
 Uses the existing React/Vite application, Supabase Auth and PostgreSQL. No replacement of the existing site or newsletter system.
 
 ## Included

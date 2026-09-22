@@ -59,6 +59,15 @@ Deno.serve(async (request) => {
     }
     if (!body || typeof body !== "object")
       throw new ClientError("Invalid request.");
+    if (["drive_list", "sheet_preview", "sheet_import"].includes(body.action) &&
+      (!Deno.env.get("FINANCE_GOOGLE_CLIENT_EMAIL") ||
+        !Deno.env.get("FINANCE_GOOGLE_PRIVATE_KEY") ||
+        !Deno.env.get("FINANCE_DRIVE_ROOT_ID"))) {
+      throw new ClientError(
+        "Google Drive imports are not configured yet. You can still add sourced records manually in Records.",
+        503,
+      );
+    }
     if (body.action === "summary" || body.action === "ask") {
       const { data, error } = await db.rpc("finance_dataset");
       if (error)

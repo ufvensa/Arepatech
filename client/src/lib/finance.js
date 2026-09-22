@@ -18,10 +18,16 @@ export async function financeCall(action, payload = {}) {
 }
 export async function financeDataset() {
   const { data, error } = await supabase.rpc("finance_dataset");
-  if (error)
-    throw new Error(
-      "Treasury data is unavailable. Check finance access and apply the treasury migration.",
-    );
+  if (error) {
+    console.error('[treasury] dataset failed', { code: error.code });
+    if (error.code === 'PGRST202' || error.code === '42P01')
+      throw new Error('Treasury setup is incomplete. Please contact the website administrator.');
+    if (error.code === '42501' || error.message?.includes('Finance access required'))
+      throw new Error('Your account does not have treasury access. Sign in with an authorized E-Board account.');
+    if (error.message?.includes('10000 transactions'))
+      throw new Error('Treasury has reached its reporting capacity. Contact the website administrator.');
+    throw new Error('Unable to load treasury records. Check your connection and try Refresh records.');
+  }
   return data;
 }
 export async function saveFinanceRecord(table, values, id) {
@@ -35,13 +41,14 @@ export async function saveFinanceRecord(table, values, id) {
   ];
   if (!tables.includes(table)) throw new Error("Unknown finance record.");
   const query = supabase.from(`finance_${table}`);
-  const { error } = id
-    ? await query.update(values).eq("id", id)
-    : await query.insert(values);
+  const { data, error } = id
+    ? await query.update(values).eq("id", id).select('id').single()
+    : await query.insert(values).select('id').single();
   if (error)
     throw new Error(
       "Record was not saved. Check required fields, dates, source, and funding selection.",
     );
+  return data;
 }
 
 export async function financeAudit(beforeId = null) {

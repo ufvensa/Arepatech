@@ -26,6 +26,8 @@ import NewsletterPreview from "./pages/admin/NewsletterPreview";
 import NewsletterUnsubscribe from "./pages/NewsletterUnsubscribe";
 import MemberDirectoryRoute from "./components/MemberDirectoryRoute";
 import "./newsletter.css";
+import FinanceDashboard from "./pages/admin/FinanceDashboard";
+import AdminLayout, { AdminDashboard } from "./pages/admin/AdminLayout";
 
 export default function App() {
   return (
@@ -51,10 +53,14 @@ export default function App() {
         <Route path="/resources/:id" element={<ResourceDetail />} />
         <Route path="/directory" element={<MemberDirectoryRoute><Directory /></MemberDirectoryRoute>} />
         <Route path="/unsubscribe" element={<NewsletterUnsubscribe />} />
+        <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="/admin/finance" element={<FinanceDashboard />} />
         <Route path="/admin/newsletters" element={<NewsletterAdminRoute><NewsletterDashboard /></NewsletterAdminRoute>} />
         <Route path="/admin/newsletters/new" element={<NewsletterAdminRoute><NewNewsletter /></NewsletterAdminRoute>} />
         <Route path="/admin/newsletters/:id" element={<NewsletterAdminRoute><NewsletterEditor /></NewsletterAdminRoute>} />
         <Route path="/admin/newsletters/:id/preview" element={<NewsletterAdminRoute><NewsletterPreview /></NewsletterAdminRoute>} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

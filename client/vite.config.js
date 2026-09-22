@@ -3,11 +3,16 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      input: { app: "index.html", treasuryPreview: "treasury-preview.html" },
+    },
+  },
   server: {
     port: 5173,
     // This proxy lets you call "/api/*" from the browser without CORS pain.
     proxy: {
-      "/api": "http://localhost:5000"
-    }
-  }
+      "/api": "http://localhost:5000",
+    },
+  },
 });

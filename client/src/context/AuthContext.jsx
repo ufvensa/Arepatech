@@ -8,6 +8,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { supabase, getProfile, signUp as supabaseSignUp, signIn as supabaseSignIn, signOut as supabaseSignOut, isEmailBanned, uploadAvatar } from '../lib/supabase';
 import { savePendingAvatar, getPendingAvatar, clearPendingAvatar } from '../lib/pendingAvatar';
+import { subscribeToSession } from '../lib/authSubscription';
 
 // Re-export email validation for use in components
 export { isAllowedEmail } from '../lib/supabase';
@@ -22,13 +23,34 @@ export function AuthProvider({ children }) {
 
   // Flag to prevent onAuthStateChange from overwriting profile during signup
   const signupInProgressRef = useRef(false);
+  const activeUserRef = useRef(null);
+  const profileRequestRef = useRef(0);
+  const loadedProfileRef = useRef(null);
 
   // Fetch user profile when user changes
   const fetchProfile = async (userId, userEmail = null) => {
+    if (activeUserRef.current !== userId) return;
+    const request = ++profileRequestRef.current;
+    const isCurrent = () => activeUserRef.current === userId && profileRequestRef.current === request;
+    const commitProfile = (data) => {
+      if (!isCurrent()) return;
+      loadedProfileRef.current = data?.id ?? null;
+      setProfile(data);
+    };
+    const commitError = (message) => { if (isCurrent()) setError(message); };
+    const timeout = setTimeout(() => {
+      if (!isCurrent()) return;
+      ++profileRequestRef.current;
+      console.warn('[auth] profile load timed out');
+      setError('Your session is saved, but your profile could not load. Please try again.');
+      setLoading(false);
+    }, 15000);
+    commitError(null);
     try {
       // Check for a pending avatar saved during signup (before email confirmation)
       try {
         const pending = await getPendingAvatar();
+        if (!isCurrent()) return;
         if (pending && pending.userId === userId) {
           try {
             await uploadAvatar(userId, pending.file);
@@ -45,6 +67,7 @@ export function AuthProvider({ children }) {
       // during signup (due to RLS blocking upsert without session)
       try {
         const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (!isCurrent()) return;
         if (currentUser?.user_metadata?.linkedin_url) {
           const { data: existingProfile } = await supabase
             .from('profiles')
@@ -64,6 +87,7 @@ export function AuthProvider({ children }) {
       }
 
       const profileData = await getProfile(userId);
+      if (!isCurrent()) return;
 
       // If profile doesn't exist, try to create it (fallback for missing trigger)
       if (!profileData) {
@@ -85,92 +109,100 @@ export function AuthProvider({ children }) {
           console.error('Error creating profile:', insertError);
           // Try one more fetch in case the profile was created by a trigger in the meantime
           const retryData = await getProfile(userId);
-          setProfile(retryData || null);
+          commitProfile(retryData || null);
         } else {
-          setProfile(newProfile);
+          commitProfile(newProfile);
         }
       } else {
-        setProfile(profileData);
+        commitProfile(profileData);
       }
     } catch (err) {
+      if (!isCurrent()) return;
       console.error('Error fetching profile:', err);
       // Last resort: try a simple fetch in case the error was during insert
       try {
         const fallbackData = await getProfile(userId);
-        setProfile(fallbackData || null);
-        if (!fallbackData) setError("Could not load profile data");
+        commitProfile(fallbackData || null);
+        if (!fallbackData) commitError("Could not load profile data");
       } catch (fallbackError) {
         console.error('Fallback fetch failed:', fallbackError);
-        setProfile(null);
-        setError(`Profile load failed: ${err.message}`);
+        commitProfile(null);
+        commitError('Could not load your profile. Please try again.');
       }
+    } finally {
+      clearTimeout(timeout);
+      if (isCurrent()) setLoading(false);
     }
   };
 
   // Initialize auth state
   useEffect(() => {
-    // Get initial session
-    const initAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          await fetchProfile(session.user.id, session.user.email);
+    let disposed = false;
+    const startupTimeout = setTimeout(() => {
+      if (disposed) return;
+      console.warn('[auth] session initialization timed out');
+      setError('Session restoration is taking longer than expected. Check your connection and try again.');
+      setLoading(false);
+    }, 15000);
+    // INITIAL_SESSION restores persisted sessions; do not race it with a
+    // second getSession/profile load. All database work runs outside the lock.
+    const unsubscribe = subscribeToSession(supabase.auth,
+      (_event, session) => {
+        clearTimeout(startupTimeout);
+        const nextId = session?.user?.id ?? null;
+        if (activeUserRef.current !== nextId) {
+          ++profileRequestRef.current;
+          loadedProfileRef.current = null;
+          setProfile(null);
+          setError(null);
         }
-      } catch (err) {
-        console.error('Error initializing auth:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initAuth();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+        activeUserRef.current = nextId;
         setUser(session?.user ?? null);
-
-        if (session?.user) {
+        if (!nextId) setLoading(false);
+        else if (!loadedProfileRef.current) setLoading(true);
+      },
+      async (event, session) => {
+        if (disposed || !session?.user || activeUserRef.current !== session.user.id) return;
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
           // Run ban check in the background — don't block profile loading
           isEmailBanned(session.user.email).then(isBanned => {
-            if (isBanned) {
+            if (isBanned && !disposed && activeUserRef.current === session.user.id) {
               console.warn('User email is banned. Signing out.');
-              supabase.auth.signOut();
+              void supabase.auth.signOut();
+              activeUserRef.current = null;
+              ++profileRequestRef.current;
               setUser(null);
               setProfile(null);
+              setLoading(false);
               setError("Your account has been suspended.");
             }
           }).catch(err => {
             console.error('Ban check failed (allowing access):', err);
           });
 
-          // Skip fetchProfile if signup is in progress (to avoid race condition)
-          if (signupInProgressRef.current) {
-            // Do nothing — signUp() will call fetchProfile when ready
-          } else if (event === 'SIGNED_IN') {
-            // Small delay to allow profile trigger to complete on signup
-            setTimeout(() => {
-              if (!signupInProgressRef.current) {
-                fetchProfile(session.user.id, session.user.email);
-              }
-            }, 500);
-          } else {
-            await fetchProfile(session.user.id, session.user.email);
-          }
-        } else {
-          setProfile(null);
         }
-
+        if (signupInProgressRef.current) return;
+        // Refresh tokens/tab focus must not blank an already loaded profile.
+        if (loadedProfileRef.current === session.user.id && event !== 'USER_UPDATED') return;
+        await fetchProfile(session.user.id, session.user.email);
+      },
+      () => {
+        if (disposed) return;
+        console.warn('[auth] session recovery failed');
+        setError('Unable to restore your account. Please try again.');
         setLoading(false);
       }
     );
 
     // Cleanup subscription
     return () => {
-      subscription.unsubscribe();
+      disposed = true;
+      clearTimeout(startupTimeout);
+      activeUserRef.current = null;
+      // This is a request counter, not a DOM ref; invalidate the latest request.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      ++profileRequestRef.current;
+      unsubscribe();
     };
   }, []);
 
@@ -290,7 +322,7 @@ export function AuthProvider({ children }) {
           }
         }
 
-        await fetchProfile(data.user.id, email);
+        if (data.session) await fetchProfile(data.user.id, email);
       }
 
       return { data, error: null };
@@ -363,7 +395,8 @@ export function AuthProvider({ children }) {
    */
   const refreshProfile = async () => {
     if (user) {
-      await fetchProfile(user.id);
+      if (!profile) setLoading(true);
+      await fetchProfile(user.id, user.email);
     }
   };
 

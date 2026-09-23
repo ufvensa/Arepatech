@@ -818,10 +818,11 @@ export default function Profile() {
                 Logged in as: {user.email}
               </p>
               <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>
-                Your profile is being set up. Click below to retry or set up your profile.
+                {authError || 'Your profile could not be loaded yet. Try again without refreshing the page.'}
               </p>
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <button
+                  type="button"
                   onClick={async () => {
                     try {
                       await refreshProfile();
